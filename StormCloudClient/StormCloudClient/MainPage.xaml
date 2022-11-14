@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StormCloudClient.MainPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="#190024">
+
+    <!--
+    .background{
+    background-color: #190024;
+}
+
+.level1bg{
+    background-color: #280338;
+}
+
+.level2bg{
+    background-color: #3a0e4d;
+}
+
+
+.primarybg{
+    background-color: #680991;
+}
+
+.greenbg{
+    background-color: #08503b;
+}
+
+
+.redbg{
+    background-color: #910929;
+}
+.bluebg{
+    background-color: #290991;
+}
+.whitebg{
+    background-color: #5a5a5a;
+}
+.dimredbg{
+    background-color: #60051a;
+}
+.dimbluebg{
+    background-color: #1a065d;
+}
+.dimwhitebg{
+    background-color: #2b2b2b;
+}
+    -->
+    <ContentPage.Content>
+        <AbsoluteLayout>
+
+            <Grid AbsoluteLayout.LayoutBounds="0, 20, 1, 1" AbsoluteLayout.LayoutFlags="SizeProportional">
+                <StackLayout x:Name="View_Scout" ClassId="Scout">
+                    <Label Margin="10, 10" Text="Next Up..." HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                    <Grid Margin="20, 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                    </Grid>
+                    <Button Clicked="GoToMatch" FontSize="16" Text="Go To Scoring" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="20,0"/>
+                </StackLayout>
+                <StackLayout x:Name="View_Data" ClassId="Scan" IsVisible="False">
+                    <Label Text="Scan"
+                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="20" />
+                </StackLayout>
+                <StackLayout x:Name="View_Settings" ClassId="Settings" IsVisible="False">
+                    <Label Margin="10, 10" Text="Server Settings" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                    <Grid Margin="10,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label VerticalOptions="Center" Text="Environment Code" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                        <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                            <Entry ClassId="environment_code" Unfocused="Setting_Unfocused" x:Name="Settings_EnvironmentCode" TextColor="White" BackgroundColor="#280338"/>
+                        </Frame>
+                    </Grid>
+                    <Grid Margin="10,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label VerticalOptions="Center" Text="Upload Mode" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                        <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                            <Picker ClassId="upload_mode" Unfocused="Setting_Unfocused" x:Name="Settings_UploadMode" TextColor="White" Grid.Column="1" BackgroundColor="#280338">
+                                <Picker.Items>
+                                    <x:String>Using Wireless</x:String>
+                                    <x:String>Using USB</x:String>
+                                    <x:String>No Upload</x:String>
+                                </Picker.Items>
+                            </Picker>
+                        </Frame>
+
+                    </Grid>
+                    <Grid Margin="10,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label VerticalOptions="Center" Text="Authentication Key" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                        <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                            <Entry ClassId="authentication_key" Unfocused="Setting_Unfocused" x:Name="Settings_AuthenticationKey" TextColor="White" IsPassword="True" BackgroundColor="#280338"/>
+                        </Frame>
+                    </Grid>
+                    <Label Margin="10, 10" Text="Server Settings" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                </StackLayout>
+
+            </Grid>
+
+            <StackLayout AbsoluteLayout.LayoutBounds="0, 1, 1, 350" TranslationY="250" AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional" x:Name="Nav_BottomBar">
+                <Frame BorderColor="Transparent" BackgroundColor="#280338" HeightRequest="400" CornerRadius="16" HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <SwipeGestureRecognizer Swiped="Nav_SwipeBottomBar"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout>
+                        <StackLayout Orientation="Horizontal" HeightRequest="60" VerticalOptions="Start" HorizontalOptions="Center" x:Name="Nav_DescriptorPanel">
+                            <Label Text="Scouting"
+                HorizontalOptions="Center" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="40" x:Name="Nav_Descriptor" />
+
+                            <Button Clicked="Nav_ToggleBottomBar_Clicked" x:Name="Nav_ToggleBottomBar" Margin="10,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="30" HeightRequest="30" CornerRadius="30" VerticalOptions="Center" Padding="5" Text="v" TextColor="White" FontAttributes="Bold" />
+                        </StackLayout>
+                        <StackLayout Opacity="0" Orientation="Horizontal" VerticalOptions="StartAndExpand" HorizontalOptions="Center" x:Name="Nav_Content" Margin="0,10,0,0">
+                            <Button ImageSource="football.svg" ClassId="Scout" Clicked="Nav_GoTo" Text="Scout" TextColor="White" BackgroundColor="#3a0e4d" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" Margin="5" CornerRadius="8"/>
+                            <Button ImageSource="statsreport.svg" ClassId="Data" Clicked="Nav_GoTo" Text="Scan" TextColor="White" BackgroundColor="#3a0e4d" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" Margin="5" CornerRadius="8"/>
+                            <Button ImageSource="settings.svg" ClassId="Settings" Clicked="Nav_GoTo" Text="Settings" TextColor="White" BackgroundColor="#3a0e4d" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" Margin="5" CornerRadius="8"/>
+                        </StackLayout>
+                    </StackLayout>
+
+                </Frame>
+
+
+
+            </StackLayout>
+
+
+
+
+            <!--<Frame AbsoluteLayout.LayoutFlags="None" ClassId="Scout" AbsoluteLayout.LayoutBounds="-50, 30, 100, 40" BackgroundColor="#280338" CornerRadius="8" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="1" Text="M" FontAttributes="Bold" TextColor="White" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Grid>
+
+            </Frame>
+
+            
+            <Grid AbsoluteLayout.LayoutBounds="1, 1, 140, 140" AbsoluteLayout.LayoutFlags="PositionProportional" Margin="30,30">
+                <StackLayout>
+                    
+                </StackLayout>
+                <Button HorizontalOptions="End" CornerRadius="40" VerticalOptions="Center" WidthRequest="60" Text="A" HeightRequest="60" TextColor="White" FontSize="18" FontAttributes="Bold" Padding="8" BackgroundColor="#3a0e4d"/>
+            </Grid>
+            <Grid AbsoluteLayout.LayoutBounds="1, .8, 140, 300" AbsoluteLayout.LayoutFlags="PositionProportional" Margin="30,30">
+                <Grid VerticalOptions="End" Margin="0,0,5,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0" Grid.Column="0" HorizontalOptions="End" CornerRadius="40" VerticalOptions="Center" WidthRequest="50" Text="A" HeightRequest="50" TextColor="White" FontSize="18" FontAttributes="Bold" Padding="8" BackgroundColor="#3a0e4d"/>
+                    <Button Grid.Row="1" Grid.Column="0" HorizontalOptions="End" CornerRadius="40" VerticalOptions="Center" WidthRequest="50" Text="A" HeightRequest="50" TextColor="White" FontSize="18" FontAttributes="Bold" Padding="8" BackgroundColor="#3a0e4d"/>
+                </Grid>
+                
+            </Grid>-->
+
+
+
+        </AbsoluteLayout>
+
+    </ContentPage.Content>
+
+</ContentPage>
