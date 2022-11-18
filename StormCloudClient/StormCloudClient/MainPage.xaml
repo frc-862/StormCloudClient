@@ -107,7 +107,19 @@
                             <Entry ClassId="authentication_key" Unfocused="Setting_Unfocused" x:Name="Settings_AuthenticationKey" TextColor="White" IsPassword="True" BackgroundColor="#280338"/>
                         </Frame>
                     </Grid>
-                    <Label Margin="10, 10" Text="Server Settings" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                    <Label Margin="10, 10" Text="Scouting Settings" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                    <Grid Margin="10,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label VerticalOptions="Center" Text="Upload Mode" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                        <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                            <Picker ClassId="selected_schema" Unfocused="Setting_Unfocused" x:Name="Settings_SelectedSchema" TextColor="White" Grid.Column="1" BackgroundColor="#280338">
+                            </Picker>
+                        </Frame>
+
+                    </Grid>
                 </StackLayout>
 
             </Grid>

@@ -10,27 +10,33 @@ namespace StormCloudClient.Services
     {
         public static void SetValue(string key, string value)
         {
-            Preferences.Set(key, value);
+            Preferences.Default.Set(key, value);
         }
         public static void SetValue(string key, int value)
         {
-            Preferences.Set(key, value);
+            Preferences.Default.Set(key, value);
         }
         public static void SetValue(string key, bool value)
         {
-            Preferences.Set(key, value);
+            Preferences.Default.Set(key, value);
         }
 
         public static object GetValue(string key)
         {
-            if (Preferences.ContainsKey(key))
-                return Preferences.Get(key, 0);
+            try
+            {
+                if (Preferences.Default.ContainsKey(key))
+                    return Preferences.Default.Get(key, "");
+                
+            }catch(Exception ex) { }
+
             return null;
+
         }
 
         public static bool DoesKeyExist(string key)
         {
-            return Preferences.ContainsKey(key);
+            return Preferences.Default.ContainsKey(key);
         }
     }
 

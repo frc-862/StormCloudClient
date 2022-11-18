@@ -1,4 +1,5 @@
-﻿using StormCloudClient.Services;
+﻿using StormCloudClient.Classes;
+using StormCloudClient.Services;
 
 namespace StormCloudClient;
 
@@ -9,24 +10,59 @@ public partial class MainPage : ContentPage
         InitializeComponent();
     }
 
+    List<object> settingsComponents;
     protected override void OnAppearing()
     {
+
+
         base.OnAppearing();
 
         currentMenu = View_Scout;
 
 
+        StorageManagement.Initialize();
+        StorageManagement.AddData_Schema("Rapid React Test", "{'Name':'Rapid React Test','Parts':[{'Name':'Autonomous','Time':0,'Components':[{'Type':'Step','Name':'Cargo Low','Min':0,'Max':10},{'Type':'Check','Name':'Off the Tarmac','On':'Yes','Off':'No'},{'Type':'Select','Name':'Level','Options':['A','B','C']},{'Type':'Event','Name':'Balls Shot','Trigger':'Shot Now!','Max':30},{'Type':'Timer','Name':'Playing Defense'}]}]}");
+
         // get initial settings data
         var _envCode = DataManagement.GetValue("environment_code");
         var _uploadMode = DataManagement.GetValue("upload_mode");
         var _authKey = DataManagement.GetValue("authentication_key");
+        var _selectedSchema = DataManagement.GetValue("selected_schema");
+
+        settingsComponents = new List<object>()
+        {
+            Settings_AuthenticationKey, Settings_EnvironmentCode, Settings_SelectedSchema, Settings_UploadMode
+        };
 
         if(_envCode != null)
             Settings_EnvironmentCode.Text = _envCode.ToString();
         if (_uploadMode != null)
-            Settings_UploadMode.SelectedIndex = (int)_uploadMode;
+            Settings_UploadMode.SelectedIndex = Int32.Parse(_uploadMode.ToString());
         if (_authKey != null)
             Settings_AuthenticationKey.Text = _authKey.ToString();
+
+        List<string> schemaNames = new List<string>();
+        foreach(Schema s in StorageManagement.allSchemas)
+        {
+            schemaNames.Add(s.Name);
+        }
+        Settings_SelectedSchema.ItemsSource = schemaNames;
+
+        if (_selectedSchema != null)
+        {
+
+            if (!schemaNames.Contains(_selectedSchema.ToString()))
+            {
+                DataManagement.SetValue("selected_schema", "");
+                return;
+            }
+            Settings_SelectedSchema.SelectedIndex = schemaNames.IndexOf(_selectedSchema.ToString());
+        }
+
+
+            
+
+        
 
     }
 
@@ -68,6 +104,7 @@ public partial class MainPage : ContentPage
 
 
     }
+    
 
     public async void ChangeNavigation(string final)
     {
@@ -79,6 +116,8 @@ public partial class MainPage : ContentPage
 
         if (goToItem.ClassId == currentMenu.ClassId)
             return;
+        if (goToItem.ClassId == "Settings")
+            SaveSettings();
 
         goToItem.TranslationX = -1000;
         goToItem.IsVisible = true;
@@ -155,7 +194,10 @@ public partial class MainPage : ContentPage
     private async void GoToMatch(object sender, EventArgs e)
     {
         // need to put in the "Match Details" soon
-        Navigation.PushAsync(new Scouting());
+        var selectedSchema = DataManagement.GetValue("selected_schema");
+        if (selectedSchema == null || selectedSchema.ToString() == "")
+            return;
+        Navigation.PushAsync(new Scouting(selectedSchema.ToString()));
 
     }
 
@@ -178,12 +220,26 @@ public partial class MainPage : ContentPage
             Picker setting = (Picker)sender as Picker;
             var setPreference = setting.ClassId;
 
-            DataManagement.SetValue(setPreference, setting.SelectedIndex);
+            
+            if(setting.ClassId == "selected_schema")
+            {
+                DataManagement.SetValue(setPreference, (string)setting.SelectedItem);
+                return;
+            }
+
+            DataManagement.SetValue(setPreference, setting.SelectedIndex.ToString());
             return;
         }
         catch (Exception ex)
         {
 
+        }
+    }
+    public void SaveSettings()
+    {
+        foreach(object comp in settingsComponents)
+        {
+            Setting_Unfocused(comp, null);
         }
     }
 }

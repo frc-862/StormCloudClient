@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace StormCloudClient.Classes
 {
-    public class ComponentDataGroup
+    public class ValidationList
     {
-        public List<object> components;
+        public static List<int> TeamNumbers;
+        public static int Matches;
     }
 }

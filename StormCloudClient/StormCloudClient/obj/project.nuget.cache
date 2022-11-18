@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jFjfx3la7Zx1ifKV3RyO7CHtFpw2H6rWcpbOT8xjGceLc9/PwNBTZ2ju6csrQRgfcSoruEm02nkCkEwHGO+GZA==",
+  "dgSpecHash": "T7XxEDPK0+pHkr6t+qrEjq99aiUjEINYZeVgqK1A8AXeNMad5obJPPdiNctC3M3fTgDThubNOXG/4kdIkFCCyg==",
   "success": true,
   "projectFilePath": "D:\\source\\StormCloudClient\\StormCloudClient\\StormCloudClient\\StormCloudClient.csproj",
   "expectedPackageFiles": [
@@ -20,6 +20,8 @@
     "C:\\Users\\djree\\.nuget\\packages\\microsoft.maui.graphics.win2d.winui.desktop\\6.0.501\\microsoft.maui.graphics.win2d.winui.desktop.6.0.501.nupkg.sha512",
     "C:\\Users\\djree\\.nuget\\packages\\microsoft.windows.sdk.buildtools\\10.0.22000.194\\microsoft.windows.sdk.buildtools.10.0.22000.194.nupkg.sha512",
     "C:\\Users\\djree\\.nuget\\packages\\microsoft.windowsappsdk\\1.1.3\\microsoft.windowsappsdk.1.1.3.nupkg.sha512",
+    "C:\\Users\\djree\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
+    "C:\\Users\\djree\\.nuget\\packages\\newtonsoft.json.schema\\3.0.14\\newtonsoft.json.schema.3.0.14.nupkg.sha512",
     "C:\\Users\\djree\\.nuget\\packages\\system.diagnostics.diagnosticsource\\6.0.0\\system.diagnostics.diagnosticsource.6.0.0.nupkg.sha512",
     "C:\\Users\\djree\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
     "C:\\Users\\djree\\.nuget\\packages\\system.runtime.interopservices.nfloat.internal\\6.0.1\\system.runtime.interopservices.nfloat.internal.6.0.1.nupkg.sha512",

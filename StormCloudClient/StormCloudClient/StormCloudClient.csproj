@@ -33,10 +33,10 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#680991" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\umbrella.svg" Color="#190024" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -55,8 +55,14 @@
 	  <None Remove="Resources\Images\cancel.svg" />
 	  <None Remove="Resources\Images\check.svg" />
 	  <None Remove="Resources\Images\football.svg" />
+	  <None Remove="Resources\Images\pause.svg" />
+	  <None Remove="Resources\Images\play.svg" />
 	  <None Remove="Resources\Images\settings.svg" />
 	  <None Remove="Resources\Images\statsreport.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
 	</ItemGroup>
 
 	<ItemGroup>
