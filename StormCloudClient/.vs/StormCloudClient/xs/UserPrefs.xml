@@ -1,0 +1,30 @@
+﻿<Properties StartupConfiguration="{A5E98BCF-44CF-4B19-A199-751F497580D3}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="StormCloudClient/Scouting.xaml.cs">
+    <Files>
+      <File FileName="StormCloudClient/Scouting.xaml.cs" Line="103" Column="34" />
+      <File FileName="StormCloudClient/StormCloudClient.csproj" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="StormCloudClient" expanded="True">
+            <Node name="StormCloudClient" expanded="True">
+              <Node name="Platforms" expanded="True">
+                <Node name="iOS" expanded="True" />
+              </Node>
+              <Node name="Scouting.xaml" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.ItemProperties.StormCloudClient PreferredExecutionTarget="MyAppleMacCatalystID" />
+  <MultiItemStartupConfigurations />
+  <Xamarin.Addins.Core.Project ActiveDebugTarget="MyAppleMacCatalystID" />
+</Properties>

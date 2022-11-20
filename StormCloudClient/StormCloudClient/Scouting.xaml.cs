@@ -1,5 +1,4 @@
 using StormCloudClient.Classes;
-using static Android.Content.ClipData;
 
 namespace StormCloudClient;
 
@@ -335,7 +334,7 @@ public partial class Scouting : ContentPage
                         timers[compId].track = DateTime.Now;
                         responsible.Text = "P";
                         ((Button)attachedComponents[compId][1]).IsEnabled = false;
-                        //responsible.ImageSource = "pause.svg";
+                        //responsible.ImageSource = "pause.png";
                         responsible.BackgroundColor = Color.FromHex("#680991");
                     }
                     else
@@ -347,7 +346,7 @@ public partial class Scouting : ContentPage
                         ((Label)attachedComponents[compId][2]).Text = Math.Round(timers[compId].seconds, 2).ToString() + "s";
                         responsible.Text = "S";
                         ((Button)attachedComponents[compId][1]).IsEnabled = true;
-                        //responsible.ImageSource = "play.svg";
+                        //responsible.ImageSource = "play.png";
                         responsible.BackgroundColor = Color.FromHex("#280338");
                     }
                 }
