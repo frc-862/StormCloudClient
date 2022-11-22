@@ -142,9 +142,9 @@ public partial class MainPage : ContentPage
     {
         var matches = StorageManagement.allMatches;
         matches.Sort((m1, m2) =>
-        {
-
-        });
+        
+            m1.Number - m2.Number
+        );
     }
 
     private void Nav_SwipeBottomBar(object sender, SwipedEventArgs e)
