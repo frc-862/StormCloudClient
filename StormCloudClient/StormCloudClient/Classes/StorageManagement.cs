@@ -11,10 +11,23 @@ namespace StormCloudClient.Classes
         public string Name;
         public string Data;
     }
+
+    public class Match
+    {
+        public int Team;
+        public int Number;
+        public DateTime Created;
+        public string Scouter;
+        public string Schema;
+        public string Color;
+        public string Environment;
+        public string Data;
+    }
     public class StorageManagement
     {
 
         public static List<Schema> allSchemas;
+        public static List<Match> allMatches;
 
 
         static string savePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -22,6 +35,7 @@ namespace StormCloudClient.Classes
         {
             // initialize global data variables
             allSchemas = new List<Schema>();
+            allMatches = new List<Match>();
 
             // try to get schema data if exists; if does, set schemas variable to List deserialization
             if (File.Exists(_GetPath("schemas.json")))
@@ -65,6 +79,46 @@ namespace StormCloudClient.Classes
             File.WriteAllText(_GetPath("schemas.json"), finalContents);
         }
 
+
+        public static void AddData_Match(int Number, int Team, string Scouter, string Color, string Schema, string Environment, string Data)
+        {
+            var alreadyExists = allMatches.Exists(s => s.Number == Number && s.Environment == Environment);
+            if (alreadyExists)
+            {
+                allMatches.Find(s => s.Number == Number && s.Environment == Environment).Data = Data;
+                allMatches.Find(s => s.Number == Number && s.Environment == Environment).Color = Color;
+                allMatches.Find(s => s.Number == Number && s.Environment == Environment).Scouter = Scouter;
+                allMatches.Find(s => s.Number == Number && s.Environment == Environment).Team = Team;
+                allMatches.Find(s => s.Number == Number && s.Environment == Environment).Created = DateTime.Now;
+            }
+            else
+            {
+                allMatches.Add(new Match() {
+                    Number = Number,
+                    Team = Team,
+                    Scouter = Scouter,
+                    Color = Color,
+                    Schema = Schema,
+                    Environment = Environment,
+                    Data = Data,
+                    Created = DateTime.Now
+                });
+            }
+
+
+
+            _SaveData_Match();
+        }
+        public static void RemoveData_Match(int Number, string Environment)
+        {
+            allMatches.Remove(allMatches.Find(s => s.Number == Number && s.Environment == Environment));
+            _SaveData_Match();
+        }
+        static void _SaveData_Match()
+        {
+            var finalContents = Newtonsoft.Json.JsonConvert.SerializeObject(allMatches);
+            File.WriteAllText(_GetPath("matches.json"), finalContents);
+        }
 
         static string _GetPath(string fileName)
         {

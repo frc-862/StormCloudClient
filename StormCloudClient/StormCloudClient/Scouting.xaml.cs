@@ -18,12 +18,20 @@ public partial class Scouting : ContentPage
     public Dictionary<int, List<object>> attachedComponents = new Dictionary<int, List<object>>();
     public Dictionary<int, TimerSet> timers = new Dictionary<int, TimerSet>();
     public string SchemaName;
+    public string Environment;
     public DateTime start;
+
+    public int Team;
+    public int Number;
+    public string Scouter;
+    public string AllianceColor;
+
 
     
 
-    public Scouting(string SchemaName)
+    public Scouting(string SchemaName, string Environment)
 	{
+        this.Environment = Environment;
         this.SchemaName = SchemaName;
 		InitializeComponent();
 	}
@@ -56,6 +64,17 @@ public partial class Scouting : ContentPage
 
     private async void Back(object sender, EventArgs e)
     {
+        Navigation.PopAsync();
+    }
+
+    private async void SaveMatch(object sender, EventArgs e)
+    {
+        var stringContents = Newtonsoft.Json.JsonConvert.SerializeObject(data);
+
+
+
+        StorageManagement.AddData_Match(Number, Team, Scouter, AllianceColor, SchemaName, Environment, stringContents);
+
         Navigation.PopAsync();
     }
 
@@ -378,7 +397,15 @@ public partial class Scouting : ContentPage
         if (allianceColor != "Red" && allianceColor != "Blue")
             return;
 
-        
+        var scouterName = Status_PreContent_ScouterName.Text;
+        if (scouterName == "")
+            return;
+
+        Team = teamNumber;
+        Number = matchNum;
+        AllianceColor = allianceColor;
+        Scouter = scouterName;
+
 
 
         Status_PostContent_MatchNumber.Text = "Match " + matchNum.ToString();

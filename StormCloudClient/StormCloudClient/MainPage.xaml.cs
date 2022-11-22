@@ -138,6 +138,15 @@ public partial class MainPage : ContentPage
 
     }
 
+    public void ShowMatches()
+    {
+        var matches = StorageManagement.allMatches;
+        matches.Sort((m1, m2) =>
+        {
+
+        });
+    }
+
     private void Nav_SwipeBottomBar(object sender, SwipedEventArgs e)
     {
         if (e.Direction == SwipeDirection.Up)
@@ -197,7 +206,11 @@ public partial class MainPage : ContentPage
         var selectedSchema = DataManagement.GetValue("selected_schema");
         if (selectedSchema == null || selectedSchema.ToString() == "")
             return;
-        Navigation.PushAsync(new Scouting(selectedSchema.ToString()));
+
+        var _envCode = DataManagement.GetValue("environment_code");
+        if (_envCode == null)
+            _envCode = "";
+        Navigation.PushAsync(new Scouting(selectedSchema.ToString(), (string)_envCode));
 
     }
 
@@ -241,6 +254,42 @@ public partial class MainPage : ContentPage
         {
             Setting_Unfocused(comp, null);
         }
+    }
+
+    private async void Camera_Back(object sender, EventArgs e)
+    {
+        ChangeCameraView(false);
+    }
+
+    private async void Data_StartQRScan(object sender, EventArgs e)
+    {
+        await ChangeCameraView(true);
+    }
+    private async void Data_StartDocumentScan(object sender, EventArgs e)
+    {
+        await ChangeCameraView(true);
+    }
+
+
+    bool _cameraViewEnabled;
+    public async Task<bool> ChangeCameraView(bool newState)
+    {
+        if (newState == _cameraViewEnabled)
+            return false;
+
+        _cameraViewEnabled = newState;
+        if (_cameraViewEnabled)
+        {
+            CameraView.IsVisible = true;
+            await CameraView.TranslateTo(0, 0, 500, Easing.CubicInOut);
+            
+        }
+        else
+        {
+            await CameraView.TranslateTo(1000, 0, 500, Easing.CubicInOut);
+            CameraView.IsVisible = false;
+        }
+        return true;
     }
 }
 
