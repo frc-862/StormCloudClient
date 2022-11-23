@@ -29,6 +29,9 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<Title>StormCloud Client</Title>
+		<CodesignKey>iPhone Distribution: John Reeves (B97LKPE9U3)</CodesignKey>
+		<ProvisioningType>automatic</ProvisioningType>
+		<CodesignProvision>iOS Team Provisioning Profile: *</CodesignProvision>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-ios|AnyCPU'">

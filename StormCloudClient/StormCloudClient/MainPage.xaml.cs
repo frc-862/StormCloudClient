@@ -1,5 +1,6 @@
 ﻿using StormCloudClient.Classes;
 using StormCloudClient.Services;
+using ZXing.Net.Maui;
 
 namespace StormCloudClient;
 
@@ -60,10 +61,22 @@ public partial class MainPage : ContentPage
         }
 
 
-            
+        CameraBox.Options = new BarcodeReaderOptions()
+        {
+            AutoRotate = true,
+            Multiple = true
+        };
+        CameraBox.Loaded += CameraBox_Loaded;
+
+        ShowMatches();
 
         
 
+    }
+
+    private void CameraBox_Loaded(object sender, EventArgs e)
+    {
+        Console.WriteLine("Hi");
     }
 
     bool navExpanded;
@@ -72,7 +85,7 @@ public partial class MainPage : ContentPage
     bool _navGoToLock;
     double _navBase;
     bool _first = true;
-    StackLayout currentMenu;
+    ScrollView currentMenu;
     Button currentButtonMenu;
     private async void Nav_ToggleBottomBar_Clicked(object sender, EventArgs e)
     {
@@ -111,7 +124,7 @@ public partial class MainPage : ContentPage
         if (_navGoToLock)
             return;
         _navGoToLock = true;
-        StackLayout goToItem = (StackLayout)FindByName("View_" + final);
+        ScrollView goToItem = (ScrollView)FindByName("View_" + final);
 
 
         if (goToItem.ClassId == currentMenu.ClassId)
@@ -138,13 +151,36 @@ public partial class MainPage : ContentPage
 
     }
 
+    
+
     public void ShowMatches()
     {
         var matches = StorageManagement.allMatches;
         matches.Sort((m1, m2) =>
-        
             m1.Number - m2.Number
         );
+
+        Data_Matches.Children.Clear();
+        foreach(Match m in matches)
+        {
+            Color bgColor = Color.FromHex(m.Status == UploadStatus.NOT_TRIED ? "#280338" : (m.Status == UploadStatus.FAILED ? "#60051a" : "#3a0e4d"));
+
+
+            Frame outside = new Frame() { BackgroundColor = bgColor, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, MaximumWidthRequest = 400, Padding = new Thickness(0, 12) };
+            Grid contentsInside = new Grid() { Margin = new Thickness(5, 0) };
+            contentsInside.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+            contentsInside.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+
+            Label matchNum = new Label() { VerticalOptions = LayoutOptions.Center, Text = "Match " + m.Number.ToString(), HorizontalTextAlignment = TextAlignment.Start, TextColor = Color.FromHex("#ffffff"), FontSize = 20, Margin = new Thickness(10, 0, 0, 0) };
+            Label teamNum = new Label() { VerticalOptions = LayoutOptions.Center, Text = "Team " + m.Team.ToString() + " - " + m.Color, HorizontalOptions = LayoutOptions.Center, TextColor = Color.FromHex("#ffffff"), FontSize = 14, Margin = new Thickness(0,0,10,0) };
+
+            contentsInside.Add(matchNum, 0, 0);
+            contentsInside.Add(teamNum, 1, 0);
+
+            outside.Content = contentsInside;
+
+            Data_Matches.Add(outside);
+        }
     }
 
     private void Nav_SwipeBottomBar(object sender, SwipedEventArgs e)
@@ -210,7 +246,7 @@ public partial class MainPage : ContentPage
         var _envCode = DataManagement.GetValue("environment_code");
         if (_envCode == null)
             _envCode = "";
-        Navigation.PushAsync(new Scouting(selectedSchema.ToString(), (string)_envCode));
+        Navigation.PushAsync(new Scouting(selectedSchema.ToString(), (string)_envCode, this));
 
     }
 
@@ -282,14 +318,28 @@ public partial class MainPage : ContentPage
         {
             CameraView.IsVisible = true;
             await CameraView.TranslateTo(0, 0, 500, Easing.CubicInOut);
-            
+            CameraBox.IsEnabled = true;
+            CameraBox.IsDetecting = true;
+            CameraBox.CameraLocation = ZXing.Net.Maui.CameraLocation.Rear;
+
         }
         else
         {
             await CameraView.TranslateTo(1000, 0, 500, Easing.CubicInOut);
             CameraView.IsVisible = false;
+            CameraBox.IsEnabled = false;
+            CameraBox.IsDetecting = false;
         }
         return true;
+    }
+
+    private void CameraBox_BarcodesDetected(object sender, ZXing.Net.Maui.BarcodeDetectionEventArgs e)
+    {
+        var results = e.Results;
+        foreach(BarcodeResult br in results)
+        {
+            Console.WriteLine(br.Value);
+        }
     }
 }
 

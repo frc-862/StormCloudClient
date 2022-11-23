@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace StormCloudClient.Classes
 {
+    public enum UploadStatus
+    {
+        NOT_TRIED,
+        FAILED,
+        SUCCEEDED
+    }
     public class Schema
     {
         public string Name;
@@ -22,6 +28,7 @@ namespace StormCloudClient.Classes
         public string Color;
         public string Environment;
         public string Data;
+        public UploadStatus Status;
     }
     public class StorageManagement
     {
@@ -48,6 +55,19 @@ namespace StormCloudClient.Classes
                 {
                     // file is somehow corrupt; delete all so no further error is created
                     File.Delete(_GetPath("schemas.json"));
+                }
+            }
+
+            if (File.Exists(_GetPath("matches.json")))
+            {
+                var contents = File.ReadAllText(_GetPath("matches.json"));
+                try
+                {
+                    allMatches = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Match>>(contents);
+                }
+                catch (Exception e)
+                {
+                    
                 }
             }
         }
@@ -90,6 +110,7 @@ namespace StormCloudClient.Classes
                 allMatches.Find(s => s.Number == Number && s.Environment == Environment).Scouter = Scouter;
                 allMatches.Find(s => s.Number == Number && s.Environment == Environment).Team = Team;
                 allMatches.Find(s => s.Number == Number && s.Environment == Environment).Created = DateTime.Now;
+                allMatches.Find(s => s.Number == Number && s.Environment == Environment).Status = UploadStatus.NOT_TRIED;
             }
             else
             {
@@ -101,7 +122,8 @@ namespace StormCloudClient.Classes
                     Schema = Schema,
                     Environment = Environment,
                     Data = Data,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Status = UploadStatus.NOT_TRIED
                 });
             }
 

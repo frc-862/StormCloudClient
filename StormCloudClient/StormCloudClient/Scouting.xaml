@@ -45,7 +45,7 @@
                                 <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="End">
                                     <ImageButton Source="cancel.png" Clicked="Back" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="50" HeightRequest="50" CornerRadius="8" Padding="5" Margin="3,0"/>
 
-                                    <ImageButton Source="check.png" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="50" HeightRequest="50" CornerRadius="8" Padding="5" Margin="3,0"/>
+                                    <ImageButton Source="check.png" Clicked="SaveMatch" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="50" HeightRequest="50" CornerRadius="8" Padding="5" Margin="3,0"/>
                                 </StackLayout>
                             </Grid>
                             

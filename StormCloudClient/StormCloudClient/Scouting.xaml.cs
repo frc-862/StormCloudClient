@@ -26,13 +26,16 @@ public partial class Scouting : ContentPage
     public string Scouter;
     public string AllianceColor;
 
+    MainPage _ref;
+
 
     
 
-    public Scouting(string SchemaName, string Environment)
+    public Scouting(string SchemaName, string Environment, MainPage mainMenu)
 	{
         this.Environment = Environment;
         this.SchemaName = SchemaName;
+        _ref = mainMenu;
 		InitializeComponent();
 	}
 
@@ -118,9 +121,9 @@ public partial class Scouting : ContentPage
                             stepperView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) });
                             stepperView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(2, GridUnitType.Star) });
 
-                            Button downButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "-", FontSize=16, ClassId=componentId.ToString() };
+                            Button downButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "-", FontSize=16, ClassId=componentId.ToString(), TextColor = Color.FromHex("#ffffff") };
                             Entry value = new Entry() { Keyboard = Keyboard.Numeric, FontSize = 18, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center, Text = (string)component.Min, ClassId = componentId.ToString(), TextColor= Color.FromHex("#ffffff") };
-                            Button upButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "+", FontSize = 16, ClassId = componentId.ToString() };
+                            Button upButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "+", FontSize = 16, ClassId = componentId.ToString(), TextColor = Color.FromHex("#ffffff") };
 
                             downButton.Clicked += HandleFormButton;
                             upButton.Clicked += HandleFormButton;
@@ -142,8 +145,8 @@ public partial class Scouting : ContentPage
                             Grid buttonView = new Grid() { Margin = new Thickness(0, 5) };
                             buttonView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
                             buttonView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-                            Button offButton = new Button() { BackgroundColor = Color.FromHex("#680991"), Text = (string)component.Off, ClassId=componentId.ToString(), Margin=new Thickness(5,0) };
-                            Button onButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = (string)component.On, ClassId=componentId.ToString(), Margin = new Thickness(5, 0) };
+                            Button offButton = new Button() { BackgroundColor = Color.FromHex("#680991"), Text = (string)component.Off, ClassId=componentId.ToString(), Margin=new Thickness(5,0), TextColor = Color.FromHex("#ffffff") };
+                            Button onButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = (string)component.On, ClassId=componentId.ToString(), Margin = new Thickness(5, 0), TextColor = Color.FromHex("#ffffff") };
 
                             offButton.Clicked += HandleFormButton;
                             onButton.Clicked += HandleFormButton;
@@ -183,7 +186,7 @@ public partial class Scouting : ContentPage
 
                             break;
                         case "Event":
-                            Button eventTrigger = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = (string)component.Trigger, ClassId = componentId.ToString(), Margin = new Thickness(5, 5) };
+                            Button eventTrigger = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = (string)component.Trigger, ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
 
                             eventTrigger.Clicked += HandleFormButton;
                             container.Add(eventTrigger, 1, 0);
@@ -198,8 +201,8 @@ public partial class Scouting : ContentPage
                             timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
                             timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
                             timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(2, GridUnitType.Star) });
-                            Button startTimer = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "S", ClassId = componentId.ToString(), Margin = new Thickness(5, 5) };
-                            Button resetTimer = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "R", ClassId = componentId.ToString(), Margin = new Thickness(5, 5) };
+                            Button startTimer = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "S", ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
+                            Button resetTimer = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "R", ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
                             Label currentTime = new Label() { Text = "---", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
 
                             timerGrid.Add(startTimer, 0, 0);
