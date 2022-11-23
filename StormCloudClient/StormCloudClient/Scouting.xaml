@@ -64,13 +64,19 @@
                                 <StackLayout Grid.Column="0">
                                     <Label VerticalOptions="Center" Text="Match #" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="20" Margin="0,5" />
                                     <Frame BorderColor="Transparent" Padding="10,5" BackgroundColor="#3a0e4d" CornerRadius="8" Margin="5">
-                                        <Entry x:Name="Status_PreContent_MatchNumber" MaxLength="3" Keyboard="Numeric" TextColor="White" BackgroundColor="#3a0e4d" FontSize="24" HorizontalTextAlignment="Center"/>
+                                        <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#3a0e4d" CornerRadius="4">
+                                            <Entry x:Name="Status_PreContent_MatchNumber" MaxLength="3" Keyboard="Numeric" TextColor="White" BackgroundColor="#3a0e4d" FontSize="24" HorizontalTextAlignment="Center"/>
+                                        </Frame>
+                                        
                                     </Frame>
                                 </StackLayout>
                                 <StackLayout Grid.Column="1">
                                     <Label VerticalOptions="Center" Text="Team #" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="20" Margin="0,5" />
                                     <Frame BorderColor="Transparent" Padding="10,5" BackgroundColor="#3a0e4d" CornerRadius="8" Margin="5">
-                                        <Entry x:Name="Status_PreContent_TeamNumber" MaxLength="5" Keyboard="Numeric" TextColor="White" BackgroundColor="#3a0e4d" FontSize="24" HorizontalTextAlignment="Center"/>
+                                        <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#3a0e4d" CornerRadius="4">
+                                            <Entry x:Name="Status_PreContent_TeamNumber" MaxLength="5" Keyboard="Numeric" TextColor="White" BackgroundColor="#3a0e4d" FontSize="24" HorizontalTextAlignment="Center"/>
+                                        </Frame>
+                                        
                                     </Frame>
                                 </StackLayout>
 
@@ -82,12 +88,15 @@
                                 </Grid.ColumnDefinitions>
                                 <Label VerticalOptions="Center" Text="Alliance Color" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
                                 <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#3a0e4d" CornerRadius="8" x:Name="Status_PreContent_AllianceColorFrame">
-                                    <Picker SelectedIndexChanged="AllianceColorChange" FontSize="16" x:Name="Status_PreContent_AllianceColor" TextColor="White" Grid.Column="1" BackgroundColor="#3a0e4d" HorizontalTextAlignment="Center">
-                                        <Picker.Items>
-                                            <x:String>Red</x:String>
-                                            <x:String>Blue</x:String>
-                                        </Picker.Items>
-                                    </Picker>
+                                    <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#3a0e4d" CornerRadius="4" x:Name="Status_PreContent_AllianceColorBorderGuard">
+                                        <Picker SelectedIndexChanged="AllianceColorChange" FontSize="16" x:Name="Status_PreContent_AllianceColor" TextColor="White" Grid.Column="1" BackgroundColor="#3a0e4d" HorizontalTextAlignment="Center">
+                                            <Picker.Items>
+                                                <x:String>Red</x:String>
+                                                <x:String>Blue</x:String>
+                                            </Picker.Items>
+                                        </Picker>
+                                    </Frame>
+                                    
                                 </Frame>
                             </Grid>
                             
@@ -99,7 +108,10 @@
                                 <Label VerticalOptions="Center" Text="Scouter Name" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
                                 <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#3a0e4d" CornerRadius="8">
                                     <Frame BorderColor="Transparent" Padding="10,0" BackgroundColor="#3a0e4d" CornerRadius="8" Margin="5">
-                                        <Entry x:Name="Status_PreContent_ScouterName" TextColor="White" BackgroundColor="#3a0e4d" FontSize="16" HorizontalTextAlignment="Center"/>
+                                        <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#3a0e4d" CornerRadius="4">
+                                            <Entry x:Name="Status_PreContent_ScouterName" TextColor="White" BackgroundColor="#3a0e4d" FontSize="16" HorizontalTextAlignment="Center"/>
+                                        </Frame>
+                                        
                                     </Frame>
                                 </Frame>
                             </Grid>

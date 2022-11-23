@@ -122,7 +122,7 @@ public partial class Scouting : ContentPage
                             stepperView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(2, GridUnitType.Star) });
 
                             Button downButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "-", FontSize=16, ClassId=componentId.ToString(), TextColor = Color.FromHex("#ffffff") };
-                            Entry value = new Entry() { Keyboard = Keyboard.Numeric, FontSize = 18, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center, Text = (string)component.Min, ClassId = componentId.ToString(), TextColor= Color.FromHex("#ffffff") };
+                            Entry value = new Entry() { Keyboard = Keyboard.Numeric, FontSize = 18, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center, Text = (string)component.Min, ClassId = componentId.ToString(), TextColor= Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center };
                             Button upButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "+", FontSize = 16, ClassId = componentId.ToString(), TextColor = Color.FromHex("#ffffff") };
 
                             downButton.Clicked += HandleFormButton;
@@ -478,14 +478,17 @@ public partial class Scouting : ContentPage
             case "Red":
                 allianceColorSelector.BackgroundColor = Color.FromHex("#910929");
                 Status_PreContent_AllianceColorFrame.BackgroundColor = Color.FromHex("#910929");
+                Status_PreContent_AllianceColorBorderGuard.BorderColor = Color.FromHex("#910929");
                 break;
             case "Blue":
                 allianceColorSelector.BackgroundColor = Color.FromHex("#290991");
                 Status_PreContent_AllianceColorFrame.BackgroundColor = Color.FromHex("#290991");
+                Status_PreContent_AllianceColorBorderGuard.BorderColor = Color.FromHex("#290991");
                 break;
             default:
                 allianceColorSelector.BackgroundColor = Color.FromHex("#3a0e4d");
                 Status_PreContent_AllianceColorFrame.BackgroundColor = Color.FromHex("#3a0e4d");
+                Status_PreContent_AllianceColorBorderGuard.BorderColor = Color.FromHex("#3a0e4d");
                 break;
         }
     }

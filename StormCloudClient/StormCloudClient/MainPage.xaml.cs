@@ -1,6 +1,6 @@
-﻿using StormCloudClient.Classes;
+﻿
+using StormCloudClient.Classes;
 using StormCloudClient.Services;
-using ZXing.Net.Maui;
 
 namespace StormCloudClient;
 
@@ -60,13 +60,6 @@ public partial class MainPage : ContentPage
             Settings_SelectedSchema.SelectedIndex = schemaNames.IndexOf(_selectedSchema.ToString());
         }
 
-
-        CameraBox.Options = new BarcodeReaderOptions()
-        {
-            AutoRotate = true,
-            Multiple = true
-        };
-        CameraBox.Loaded += CameraBox_Loaded;
 
         ShowMatches();
 
@@ -318,28 +311,20 @@ public partial class MainPage : ContentPage
         {
             CameraView.IsVisible = true;
             await CameraView.TranslateTo(0, 0, 500, Easing.CubicInOut);
-            CameraBox.IsEnabled = true;
-            CameraBox.IsDetecting = true;
-            CameraBox.CameraLocation = ZXing.Net.Maui.CameraLocation.Rear;
+            //CameraBox.IsEnabled = true;
+            //CameraBox.IsDetecting = true;
+            //CameraBox.CameraLocation = ZXing.Net.Maui.CameraLocation.Rear;
 
         }
         else
         {
             await CameraView.TranslateTo(1000, 0, 500, Easing.CubicInOut);
-            CameraView.IsVisible = false;
-            CameraBox.IsEnabled = false;
-            CameraBox.IsDetecting = false;
+            //CameraView.IsVisible = false;
+            //CameraBox.IsEnabled = false;
+            //CameraBox.IsDetecting = false;
         }
         return true;
     }
 
-    private void CameraBox_BarcodesDetected(object sender, ZXing.Net.Maui.BarcodeDetectionEventArgs e)
-    {
-        var results = e.Results;
-        foreach(BarcodeResult br in results)
-        {
-            Console.WriteLine(br.Value);
-        }
-    }
 }
 

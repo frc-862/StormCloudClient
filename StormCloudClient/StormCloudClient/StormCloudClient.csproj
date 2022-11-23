@@ -46,9 +46,15 @@
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	  <WarningLevel>4</WarningLevel>
 	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net6.0-ios'">
+	  <CodesignKey>Apple Development: Created via API (6Q9J25MUB2)</CodesignKey>
+	  <CodesignProvision>VS: WildCard Development</CodesignProvision>
+	</PropertyGroup>
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#680991" />
+		<MauiIcon Include="Resources\AppIcon\stormcloud.svg" Color="#190024">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</MauiIcon>
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\umbrella.svg" Color="#190024" BaseSize="128,128" />
@@ -78,8 +84,6 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
-	  <PackageReference Include="ZXing.Net.Maui" Version="0.2.0-preview.2" />
-	  <PackageReference Include="ZXing.Net.Maui.Controls" Version="0.2.0-preview.2" />
 	</ItemGroup>
 
 	<ItemGroup>
