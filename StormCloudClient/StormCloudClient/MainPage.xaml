@@ -62,10 +62,17 @@
 
                         </Grid>
                         <Button Clicked="GoToMatch" FontSize="16" Text="Go To Scoring" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="20,0"/>
+                        <Label Text="Matches Completed"
+                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,10" />
+                        <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Margin="20,0" Spacing="10" x:Name="Data_Matches">
+
+
+
+                        </StackLayout>
                     </StackLayout>
                     
                 </ScrollView>
-                <ScrollView x:Name="View_Data" ClassId="Scan" IsVisible="False" >
+                <ScrollView x:Name="View_Data" ClassId="Data" IsVisible="False" >
                     <StackLayout>
                         <Label Text="Import Data"
                 HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,10" />
@@ -78,19 +85,27 @@
                             <Button Grid.Column="1" Clicked="Data_StartDocumentScan" FontSize="16" Text="Download Data" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
 
                         </Grid>
-                        <Label Text="Saved Data"
-                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,10" />
-                        <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Margin="20,0" Spacing="10" x:Name="Data_Matches">
-                            
-
-
-                        </StackLayout>
+                        
                     </StackLayout>
                     
                 </ScrollView>
                 <ScrollView x:Name="View_Settings" ClassId="Settings" IsVisible="False">
                     <StackLayout>
                         <Label Margin="10, 10" Text="Server Settings" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                        <Grid Margin="10,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label VerticalOptions="Center" Text="Server Address" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                            <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                                <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#280338" CornerRadius="4">
+                                    <Entry ClassId="server_address" Unfocused="Setting_Unfocused" x:Name="Settings_ServerAddress" TextColor="White" BackgroundColor="#280338"/>
+                                </Frame>
+
+                            </Frame>
+                        </Grid>
                         <Grid Margin="10,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
@@ -156,6 +171,7 @@
                             </Frame>
 
                         </Grid>
+                        <Label VerticalOptions="Center" Text="Version: #, Build: #" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" Margin="0,20" x:Name="Settings_VersionInfo" />
                     </StackLayout>
                     
                 </ScrollView>
@@ -167,13 +183,16 @@
                     <Frame.GestureRecognizers>
                         <SwipeGestureRecognizer Swiped="Nav_SwipeBottomBar" Direction="Up"/>
                         <SwipeGestureRecognizer Swiped="Nav_SwipeBottomBar" Direction="Down"/>
+                        <SwipeGestureRecognizer Swiped="Nav_SwipeBottomBar" Direction="Left"/>
+                        <SwipeGestureRecognizer Swiped="Nav_SwipeBottomBar" Direction="Right"/>
                     </Frame.GestureRecognizers>
                     <StackLayout>
                         <StackLayout Orientation="Horizontal" HeightRequest="60" VerticalOptions="Start" HorizontalOptions="Center" x:Name="Nav_DescriptorPanel">
                             <Label Text="Scouting"
                 HorizontalOptions="Center" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="40" x:Name="Nav_Descriptor" />
 
-                            <Button Clicked="Nav_ToggleBottomBar_Clicked" x:Name="Nav_ToggleBottomBar" Margin="10,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="30" HeightRequest="30" CornerRadius="30" VerticalOptions="Center" Padding="5" Text="v" TextColor="White" FontAttributes="Bold" />
+                            <ImageButton Source="arrowdown.png" Clicked="Nav_ToggleBottomBar_Clicked" x:Name="Nav_ToggleBottomBar" Margin="15,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="20" VerticalOptions="Center" Padding="5" />
+                            
                         </StackLayout>
                         <StackLayout Opacity="0" Orientation="Horizontal" VerticalOptions="StartAndExpand" HorizontalOptions="Center" x:Name="Nav_Content" Margin="0,10,0,0">
                             <Button ImageSource="football.png" ClassId="Scout" Clicked="Nav_GoTo" TextColor="White" BackgroundColor="#3a0e4d" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" Margin="5" CornerRadius="8"/>

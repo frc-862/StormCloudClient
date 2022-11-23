@@ -12,7 +12,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- Display name -->
-		<ApplicationTitle>StormCloudClient</ApplicationTitle>
+		<ApplicationTitle>StormCloud</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.robosmrt.stormcloudclient</ApplicationId>
@@ -41,7 +41,11 @@
 	  <MtouchDebug>true</MtouchDebug>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0-ios|AnyCPU'">
-	  <CreatePackage>false</CreatePackage>
+    <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
+    <CodesignKey>iPhone Developer: John Reeves (UL74FD4JU7)</CodesignKey>
+    <CodesignProvision>StormCloud</CodesignProvision>
+    <ArchiveOnBuild>true</ArchiveOnBuild>
+    <TcpPort>58181</TcpPort>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	  <WarningLevel>4</WarningLevel>
@@ -50,14 +54,17 @@
 	  <CodesignKey>Apple Development: Created via API (6Q9J25MUB2)</CodesignKey>
 	  <CodesignProvision>VS: WildCard Development</CodesignProvision>
 	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-android|AnyCPU'">
+	  <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
+	</PropertyGroup>
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\stormcloud.svg" Color="#190024">
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#190024">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</MauiIcon>
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\umbrella.svg" Color="#190024" BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#190024" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />

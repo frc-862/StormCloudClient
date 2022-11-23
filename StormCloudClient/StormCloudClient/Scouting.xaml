@@ -15,6 +15,9 @@
                 </ScrollView>
                 
             </StackLayout>
+            <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BackgroundColor="Black" Opacity="0.4" x:Name="ClickBlock">
+                
+            </Grid>
             <StackLayout AbsoluteLayout.LayoutBounds="0, 1, 1, 600" TranslationY="0" AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional" x:Name="Status_BottomBar">
                 <Frame BorderColor="Transparent" BackgroundColor="#280338" HeightRequest="800" CornerRadius="16" HasShadow="True">
                     
@@ -38,14 +41,14 @@
                                         <Label Grid.Column="0" Text="Match 0" x:Name="Status_PostContent_MatchNumber"
                 HorizontalOptions="Start" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="12" />
                                     </StackLayout>
-                                    
-                                    <ImageButton Source="arrowdown.png" Clicked="Status_ToggleBottomBar_Clicked" x:Name="Status_ExtendBar" Margin="10,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="50" HeightRequest="50" CornerRadius="30" VerticalOptions="Center" Padding="5" />
+
+                                    <ImageButton Source="arrowdown.png" Clicked="Status_ToggleBottomBar_Clicked" x:Name="Status_ExtendBar" Margin="15,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="20" VerticalOptions="Center" Padding="5" />
                                 </StackLayout>
                                 
                                 <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="End">
-                                    <ImageButton Source="cancel.png" Clicked="Back" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="50" HeightRequest="50" CornerRadius="8" Padding="5" Margin="3,0"/>
+                                    <ImageButton Source="cancel.png" Clicked="Back" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="8" Padding="5" Margin="3,0"/>
 
-                                    <ImageButton Source="check.png" Clicked="SaveMatch" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="50" HeightRequest="50" CornerRadius="8" Padding="5" Margin="3,0"/>
+                                    <ImageButton Source="check.png" Clicked="SaveMatch" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="8" Padding="5" Margin="3,0"/>
                                 </StackLayout>
                             </Grid>
                             

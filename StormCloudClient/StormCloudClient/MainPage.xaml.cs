@@ -29,6 +29,12 @@ public partial class MainPage : ContentPage
         var _uploadMode = DataManagement.GetValue("upload_mode");
         var _authKey = DataManagement.GetValue("authentication_key");
         var _selectedSchema = DataManagement.GetValue("selected_schema");
+        var _serverAddress = DataManagement.GetValue("server_address");
+
+        var version = VersionTracking.Default.CurrentVersion.ToString();
+        var build = VersionTracking.Default.CurrentBuild.ToString();
+
+        Settings_VersionInfo.Text = "Version: " + version + ", Build: " + build; 
 
         settingsComponents = new List<object>()
         {
@@ -41,6 +47,8 @@ public partial class MainPage : ContentPage
             Settings_UploadMode.SelectedIndex = Int32.Parse(_uploadMode.ToString());
         if (_authKey != null)
             Settings_AuthenticationKey.Text = _authKey.ToString();
+        if (_serverAddress != null)
+            Settings_ServerAddress.Text = _serverAddress.ToString();
 
         List<string> schemaNames = new List<string>();
         foreach(Schema s in StorageManagement.allSchemas)
@@ -102,7 +110,7 @@ public partial class MainPage : ContentPage
 
             currentButtonMenu = clicker;
 
-            ChangeNavigation(goTo);
+            ChangeNavigation(goTo, false);
         }
 
 
@@ -112,7 +120,7 @@ public partial class MainPage : ContentPage
     }
     
 
-    public async void ChangeNavigation(string final)
+    public async void ChangeNavigation(string final, bool swipe)
     {
         if (_navGoToLock)
             return;
@@ -134,7 +142,8 @@ public partial class MainPage : ContentPage
         Nav_Descriptor.Text = final;
         await Nav_DescriptorPanel.FadeTo(1, 150);
 
-        ChangeNavBottomBarExpansion(false);
+        if(!swipe)
+            ChangeNavBottomBarExpansion(false);
 
         await Task.Delay(200);
         currentMenu.IsVisible = false;
@@ -176,6 +185,9 @@ public partial class MainPage : ContentPage
         }
     }
 
+
+    string[] _menuPages = { "Scout", "Data", "Settings" };
+
     private void Nav_SwipeBottomBar(object sender, SwipedEventArgs e)
     {
         if (e.Direction == SwipeDirection.Up)
@@ -185,6 +197,35 @@ public partial class MainPage : ContentPage
         else if (e.Direction == SwipeDirection.Down)
         {
             ChangeNavBottomBarExpansion(false);
+        }
+        else if(e.Direction == SwipeDirection.Left){
+            // change to next page
+
+            var currentI = Array.IndexOf(_menuPages,currentMenu.ClassId);
+            currentI += 1;
+
+            if(currentI == _menuPages.Length)
+            {
+                currentI = 0;
+            }
+
+            ChangeNavigation(_menuPages[currentI], true);
+
+        }
+        else if (e.Direction == SwipeDirection.Right)
+        {
+            // change to next page
+
+            var currentI = Array.IndexOf(_menuPages, currentMenu.ClassId);
+            currentI -= 1;
+
+            if (currentI < 0)
+            {
+                currentI = _menuPages.Length - 1;
+            }
+
+            ChangeNavigation(_menuPages[currentI], true);
+
         }
     }
 

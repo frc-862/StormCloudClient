@@ -164,9 +164,11 @@ public partial class Scouting : ContentPage
                             break;
                         case "Select":
                             Frame pickerFrame = new Frame() { CornerRadius = 8, Margin = new Thickness(5, 5), BackgroundColor = Color.FromHex("#280338"), Padding = new Thickness(5, 0), BorderColor = Color.FromArgb("00ffffff") };
+                            Frame borderProtect = new Frame() { CornerRadius = 4, Padding = new Thickness(0), BorderColor = Color.FromHex("#280338") };
                             Picker selection = new Picker() { FontSize = 16, BackgroundColor = Color.FromHex("#280338"), TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, ClassId = componentId.ToString() };
 
-                            pickerFrame.Content = selection;
+                            borderProtect.Content = selection;
+                            pickerFrame.Content = borderProtect;
                             
                             List<string> items = new List<string>();
                             foreach(dynamic option in component.Options)
@@ -423,7 +425,11 @@ public partial class Scouting : ContentPage
 		Status_PreContent.FadeTo(0, 250, Easing.CubicInOut);
 		Status_PostContent.IsVisible = true;
 
+        ClickBlock.FadeTo(0, 300, Easing.CubicInOut);
+
         start = DateTime.Now;
+        await Task.Delay(350);
+        ClickBlock.IsVisible = false;
 	}
     private async void Status_ToggleBottomBar_Clicked(object sender, EventArgs e)
     {
