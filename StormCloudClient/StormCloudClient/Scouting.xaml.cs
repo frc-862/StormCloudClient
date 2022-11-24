@@ -15,6 +15,7 @@ public partial class Scouting : ContentPage
     
     public List<string> data = new List<string>();
     public List<string> componentTypes = new List<string>();
+    public List<string> extraData = new List<string>();
     public Dictionary<int, List<object>> attachedComponents = new Dictionary<int, List<object>>();
     public Dictionary<int, TimerSet> timers = new Dictionary<int, TimerSet>();
     public string SchemaName;
@@ -94,7 +95,7 @@ public partial class Scouting : ContentPage
             {
                
                 // add part title
-                Label title = new Label() { Text = part.Name, FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+                Label title = new Label() { Text = part.Name, FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0,20) };
                 Form_Content_Fields.Add(title);
 
                 foreach(dynamic component in part.Components)
@@ -111,6 +112,7 @@ public partial class Scouting : ContentPage
                     container.ColumnDefinitions.Add(content);
 
                     data.Add("");
+                    extraData.Add("");
                     componentTypes.Add((string)component.Type);
 
                     switch ((string)component.Type)
@@ -126,6 +128,7 @@ public partial class Scouting : ContentPage
                             Button upButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "+", FontSize = 16, ClassId = componentId.ToString(), TextColor = Color.FromHex("#ffffff") };
 
                             downButton.Clicked += HandleFormButton;
+                            value.TextChanged += HandleFormEntry;
                             upButton.Clicked += HandleFormButton;
 
                             stepperView.Add(downButton, 0, 0);
@@ -134,6 +137,7 @@ public partial class Scouting : ContentPage
                             container.Add(stepperView, 1, 0);
                             // add initial data as the minimum value for the step component
                             data[componentId] = (string)component.Min;
+                            extraData[componentId] = (string)component.Min + ";" + (string)component.Max;
                             // add the initial attached components
                             attachedComponents[componentId] = new List<object>
                             {
@@ -264,6 +268,29 @@ public partial class Scouting : ContentPage
                 break;
         }
     }
+    private async void HandleFormEntry(object sender, TextChangedEventArgs e)
+    {
+        Entry responsible = (Entry)sender as Entry;
+
+        var compId = Int32.Parse(responsible.ClassId);
+        var compType = componentTypes[compId];
+        var compData = data[compId];
+
+        switch (compType)
+        {
+            case "Step":
+
+                var bounds = extraData[compId].Split(";");
+
+                if (Int32.Parse(responsible.Text) > Int32.Parse(bounds[1]))
+                    responsible.Text = bounds[1];
+                else if (Int32.Parse(responsible.Text) < Int32.Parse(bounds[0]))
+                    responsible.Text = bounds[0];
+
+                data[compId] = (string)responsible.Text;
+                break;
+        }
+    }
     private async void HandleFormButton(object sender, EventArgs e)
     {
         
@@ -280,13 +307,20 @@ public partial class Scouting : ContentPage
                 {
                     data[compId] = "0";
                 }
+
+                var bounds = extraData[compId].Split(";");
+
                 if(responsible.Text == "+")
                 {
+                    if ((Int32.Parse(compData) + 1) > Int32.Parse(bounds[1]))
+                        break;
                     data[compId] = (Int32.Parse(compData) + 1).ToString();
                     ((Entry)attachedComponents[compId][1]).Text = data[compId];
                 }
                 else
                 {
+                    if ((Int32.Parse(compData) - 1) < Int32.Parse(bounds[0]))
+                        break;
                     data[compId] = (Int32.Parse(compData)-1).ToString();
                     ((Entry)attachedComponents[compId][1]).Text = data[compId];
                 }

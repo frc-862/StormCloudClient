@@ -8,8 +8,8 @@
     <ContentPage.Content>
         <AbsoluteLayout>
             <StackLayout AbsoluteLayout.LayoutBounds="0,10,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" x:Name="Form_Content">
-                <ScrollView Margin="10,0">
-                    <StackLayout x:Name="Form_Content_Fields">
+                <ScrollView Margin="10,0" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+                    <StackLayout x:Name="Form_Content_Fields" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Padding="0,0,0,200">
 
                     </StackLayout>
                 </ScrollView>
@@ -42,13 +42,13 @@
                 HorizontalOptions="Start" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="12" />
                                     </StackLayout>
 
-                                    <ImageButton Source="arrowdown.png" Clicked="Status_ToggleBottomBar_Clicked" x:Name="Status_ExtendBar" Margin="15,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="20" VerticalOptions="Center" Padding="5" />
+                                    <ImageButton Source="arrowdown.png" Clicked="Status_ToggleBottomBar_Clicked" x:Name="Status_ExtendBar" Margin="15,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="18" VerticalOptions="Center" Padding="5" />
                                 </StackLayout>
                                 
                                 <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="End">
-                                    <ImageButton Source="cancel.png" Clicked="Back" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="8" Padding="5" Margin="3,0"/>
+                                    <ImageButton Source="cancel.png" Clicked="Back" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="50" HeightRequest="50" CornerRadius="8" Padding="5" Margin="3,0"/>
 
-                                    <ImageButton Source="check.png" Clicked="SaveMatch" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="8" Padding="5" Margin="3,0"/>
+                                    <ImageButton Source="check.png" Clicked="SaveMatch" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="50" HeightRequest="50" CornerRadius="8" Padding="5" Margin="3,0"/>
                                 </StackLayout>
                             </Grid>
                             

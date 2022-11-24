@@ -21,10 +21,21 @@ public partial class MainPage : ContentPage
         currentMenu = View_Scout;
 
 
-        StorageManagement.Initialize();
+        
         StorageManagement.AddData_Schema("Rapid React Test", "{'Name':'Rapid React Test','Parts':[{'Name':'Autonomous','Time':0,'Components':[{'Type':'Step','Name':'Cargo Low','Min':0,'Max':10},{'Type':'Check','Name':'Off the Tarmac','On':'Yes','Off':'No'},{'Type':'Select','Name':'Level','Options':['A','B','C']},{'Type':'Event','Name':'Balls Shot','Trigger':'Shot Now!','Max':30},{'Type':'Timer','Name':'Playing Defense'}]}]}");
 
         // get initial settings data
+
+
+        UpdateSettings();
+        ShowMatches();
+
+        
+
+    }
+
+    public void UpdateSettings()
+    {
         var _envCode = DataManagement.GetValue("environment_code");
         var _uploadMode = DataManagement.GetValue("upload_mode");
         var _authKey = DataManagement.GetValue("authentication_key");
@@ -34,14 +45,14 @@ public partial class MainPage : ContentPage
         var version = VersionTracking.Default.CurrentVersion.ToString();
         var build = VersionTracking.Default.CurrentBuild.ToString();
 
-        Settings_VersionInfo.Text = "Version: " + version + ", Build: " + build; 
+        Settings_VersionInfo.Text = "Version: " + version + ", Build: " + build;
 
         settingsComponents = new List<object>()
         {
             Settings_AuthenticationKey, Settings_EnvironmentCode, Settings_SelectedSchema, Settings_UploadMode
         };
 
-        if(_envCode != null)
+        if (_envCode != null)
             Settings_EnvironmentCode.Text = _envCode.ToString();
         if (_uploadMode != null)
             Settings_UploadMode.SelectedIndex = Int32.Parse(_uploadMode.ToString());
@@ -51,7 +62,7 @@ public partial class MainPage : ContentPage
             Settings_ServerAddress.Text = _serverAddress.ToString();
 
         List<string> schemaNames = new List<string>();
-        foreach(Schema s in StorageManagement.allSchemas)
+        foreach (Schema s in StorageManagement.allSchemas)
         {
             schemaNames.Add(s.Name);
         }
@@ -67,12 +78,6 @@ public partial class MainPage : ContentPage
             }
             Settings_SelectedSchema.SelectedIndex = schemaNames.IndexOf(_selectedSchema.ToString());
         }
-
-
-        ShowMatches();
-
-        
-
     }
 
     private void CameraBox_Loaded(object sender, EventArgs e)
@@ -326,32 +331,83 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private async void Camera_Back(object sender, EventArgs e)
+    private async void Info_Back(object sender, EventArgs e)
     {
-        ChangeCameraView(false);
+        ChangeInfoView(false);
     }
 
     private async void Data_StartQRScan(object sender, EventArgs e)
     {
-        await ChangeCameraView(true);
+        
+        await ChangeInfoView(true);
     }
     private async void Data_StartDocumentScan(object sender, EventArgs e)
     {
-        await ChangeCameraView(true);
+        var webServer = DataManagement.GetValue("server_address");
+        if(webServer == null)
+        {
+            return;
+        }
+
+
+
+        
+
+
+        await ChangeInfoView(true);
+
+        Task.Run(async () =>
+        {
+            var response = await APIManager.GetSetupData();
+            if(response.Status == System.Net.HttpStatusCode.OK)
+            {
+                // data is good
+
+                var content = response.Content;
+
+                dynamic contentObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
+                var selectedSchema = contentObject["settings"]["selectedSchema"];
+                dynamic schemaObject = contentObject["schema"];
+                StorageManagement.AddData_Schema((string)schemaObject["Name"], Newtonsoft.Json.JsonConvert.SerializeObject(schemaObject));
+
+
+
+                DataManagement.SetValue("selected_schema", (string)selectedSchema);
+
+            }
+            else
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    DisplayAlert("Oops", "Something went wrong connecting to the server. Please ensure that you have a connection and that the server address is correct", "OK");
+                });
+            }
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                ChangeInfoView(false);
+
+                UpdateSettings();
+
+            });
+        });
+        
+
+        
     }
 
 
-    bool _cameraViewEnabled;
-    public async Task<bool> ChangeCameraView(bool newState)
+    bool _infoViewEnabled;
+    public async Task<bool> ChangeInfoView(bool newState)
     {
-        if (newState == _cameraViewEnabled)
+        if (newState == _infoViewEnabled)
             return false;
 
-        _cameraViewEnabled = newState;
-        if (_cameraViewEnabled)
+        _infoViewEnabled = newState;
+        if (_infoViewEnabled)
         {
-            CameraView.IsVisible = true;
-            await CameraView.TranslateTo(0, 0, 500, Easing.CubicInOut);
+            InfoView.IsVisible = true;
+            await InfoView.TranslateTo(0, 0, 500, Easing.CubicInOut);
             //CameraBox.IsEnabled = true;
             //CameraBox.IsDetecting = true;
             //CameraBox.CameraLocation = ZXing.Net.Maui.CameraLocation.Rear;
@@ -359,7 +415,7 @@ public partial class MainPage : ContentPage
         }
         else
         {
-            await CameraView.TranslateTo(1000, 0, 500, Easing.CubicInOut);
+            await InfoView.TranslateTo(1000, 0, 500, Easing.CubicInOut);
             //CameraView.IsVisible = false;
             //CameraBox.IsEnabled = false;
             //CameraBox.IsDetecting = false;
