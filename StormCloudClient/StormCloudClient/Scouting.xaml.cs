@@ -62,6 +62,7 @@ public partial class Scouting : ContentPage
                 if (item.Value.enabled)
                 {
                     var time = item.Value.seconds + (now - item.Value.track).TotalSeconds;
+                    data[item.Key] = Math.Round(time, 2).ToString();
                     ((Label)attachedComponents[item.Key][2]).Text = Math.Round(time,2).ToString() + "s";
                 }
             }
@@ -285,13 +286,20 @@ public partial class Scouting : ContentPage
             case "Step":
 
                 var bounds = extraData[compId].Split(";");
+                try
+                {
+                    if (Int32.Parse(responsible.Text) > Int32.Parse(bounds[1]))
+                        responsible.Text = bounds[1];
+                    else if (Int32.Parse(responsible.Text) < Int32.Parse(bounds[0]))
+                        responsible.Text = bounds[0];
 
-                if (Int32.Parse(responsible.Text) > Int32.Parse(bounds[1]))
-                    responsible.Text = bounds[1];
-                else if (Int32.Parse(responsible.Text) < Int32.Parse(bounds[0]))
-                    responsible.Text = bounds[0];
+                    data[compId] = (string)responsible.Text;
+                }catch(Exception ex)
+                {
 
-                data[compId] = (string)responsible.Text;
+                }
+
+                
                 break;
         }
     }
@@ -353,7 +361,7 @@ public partial class Scouting : ContentPage
                 }
                 else
                 {
-                    data[compId] = data[compId] + secondsIn.ToString();
+                    data[compId] = data[compId] + ";" + secondsIn.ToString();
                 }
 
                 responsible.BackgroundColor = Color.FromHex("#680991");
@@ -410,6 +418,8 @@ public partial class Scouting : ContentPage
                         ((Button)attachedComponents[compId][1]).IsEnabled = true;
                         //responsible.ImageSource = "play.png";
                         responsible.BackgroundColor = Color.FromHex("#280338");
+
+                        data[compId] = Math.Round(timers[compId].seconds, 2).ToString();
                     }
                 }
                 break;

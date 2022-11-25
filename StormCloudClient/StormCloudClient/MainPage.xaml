@@ -182,7 +182,7 @@
                             <Label VerticalOptions="Center" Text="Default Scouter" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
                             <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
                                 <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#280338" CornerRadius="4">
-                                    <Entry ClassId="default_scouter" Unfocused="Setting_Unfocused" x:Name="Settings_DefaultScouter" TextColor="White" IsPassword="True" BackgroundColor="#280338"/>
+                                    <Entry ClassId="default_scouter" Unfocused="Setting_Unfocused" x:Name="Settings_DefaultScouter" TextColor="White" BackgroundColor="#280338"/>
                                 </Frame>
 
                             </Frame>
