@@ -1,4 +1,5 @@
 using StormCloudClient.Classes;
+using StormCloudClient.Services;
 
 namespace StormCloudClient;
 
@@ -45,12 +46,15 @@ public partial class Scouting : ContentPage
         var Schema = StorageManagement.allSchemas.Find(s => s.Name == SchemaName);
 
 
+        var defaultScouter = DataManagement.GetValue("default_scouter");
+        if (defaultScouter != null)
+            Status_PreContent_ScouterName.Text = (string)defaultScouter;
 
         LoadSchema(Schema.Data);
 
 
 
-        Device.StartTimer(TimeSpan.FromMilliseconds(300), () =>
+        Device.StartTimer(TimeSpan.FromMilliseconds(200), () =>
         {
             var now = DateTime.Now;
             foreach (var item in timers)
@@ -420,6 +424,8 @@ public partial class Scouting : ContentPage
 		if (_readyTransitionLock)
 			return;
 
+        
+
         // check if fields are valid...
 
         var matchText = Status_PreContent_MatchNumber.Text;
@@ -439,6 +445,16 @@ public partial class Scouting : ContentPage
         var scouterName = Status_PreContent_ScouterName.Text;
         if (scouterName == "")
             return;
+
+        var matchExists = StorageManagement.allMatches.Exists(m => m.Environment == Environment && m.Number == matchNum);
+        if (matchExists)
+        {
+            var res = await DisplayAlert("FYI...", "A match with the same number and environment already exists. Submitting this match will overwrite the match that already exists. Are you sure you want to continue?", "Yes", "No");
+            if (!res)
+            {
+                return;
+            }
+        }
 
         Team = teamNumber;
         Number = matchNum;

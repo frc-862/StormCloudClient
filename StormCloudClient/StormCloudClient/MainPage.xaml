@@ -54,16 +54,10 @@
                 <ScrollView x:Name="View_Scout" ClassId="Scout">
                     <StackLayout>
                         <Label Margin="10, 10" Text="Next Up..." HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
-                        <Grid Margin="20, 0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="4*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                        </Grid>
+                        
                         <Button Clicked="GoToMatch" FontSize="16" Text="Go To Scoring" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="20,0"/>
                         <Label Text="Matches Completed"
-                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,20" />
+                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,30,0,20" />
                         <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Margin="20,0" Spacing="10" x:Name="Data_Matches">
 
 
@@ -83,6 +77,14 @@
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" Clicked="Data_StartQRScan" FontSize="16" Text="Scan QR Code" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
                             <Button Grid.Column="1" Clicked="Data_StartDocumentScan" FontSize="16" Text="Download Data" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
+
+                        </Grid>
+                        <Grid Margin="10,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Clicked="Data_StartSubmitMatches" FontSize="16" Text="Submit Matches" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
+                            
 
                         </Grid>
                         
@@ -171,6 +173,20 @@
                             </Frame>
 
                         </Grid>
+                        <Grid Margin="10,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label VerticalOptions="Center" Text="Default Scouter" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                            <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                                <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#280338" CornerRadius="4">
+                                    <Entry ClassId="default_scouter" Unfocused="Setting_Unfocused" x:Name="Settings_DefaultScouter" TextColor="White" IsPassword="True" BackgroundColor="#280338"/>
+                                </Frame>
+
+                            </Frame>
+                        </Grid>
                         <Label VerticalOptions="Center" Text="Version: #, Build: #" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" Margin="0,20" x:Name="Settings_VersionInfo" />
                     </StackLayout>
                     
@@ -208,6 +224,14 @@
             </StackLayout>
 
 
+            <!--<Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+                <Grid Grid.Column="0" Grid.Row="0" BackgroundColor="Black" Opacity="0.4"></Grid>
+                <Frame BackgroundColor="#280338" Padding="20" HorizontalOptions="Center" VerticalOptions="Center">
+                    <StackLayout>
+                        <Label VerticalOptions="Center" Text="Selected Schema" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="24" />
+                    </StackLayout>
+                </Frame>
+            </Grid>-->
 
 
             <!--<Frame AbsoluteLayout.LayoutFlags="None" ClassId="Scout" AbsoluteLayout.LayoutBounds="-50, 30, 100, 40" BackgroundColor="#280338" CornerRadius="8" Padding="10">

@@ -93,7 +93,7 @@ namespace StormCloudClient.Classes
             allSchemas.Remove(allSchemas.Find(s => s.Name == Name));
             _SaveData_Schema();
         }
-        static void _SaveData_Schema()
+        public static void _SaveData_Schema()
         {
             var finalContents = Newtonsoft.Json.JsonConvert.SerializeObject(allSchemas);
             File.WriteAllText(_GetPath("schemas.json"), finalContents);
@@ -136,7 +136,7 @@ namespace StormCloudClient.Classes
             allMatches.Remove(allMatches.Find(s => s.Number == Number && s.Environment == Environment));
             _SaveData_Match();
         }
-        static void _SaveData_Match()
+        public static void _SaveData_Match()
         {
             var finalContents = Newtonsoft.Json.JsonConvert.SerializeObject(allMatches);
             File.WriteAllText(_GetPath("matches.json"), finalContents);

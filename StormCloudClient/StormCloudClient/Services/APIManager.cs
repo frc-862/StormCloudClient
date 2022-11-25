@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StormCloudClient.Classes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -33,6 +34,31 @@ namespace StormCloudClient.Services
                 return new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest };
             }
             
+        }
+
+        public static async Task<APIResponse> SendMatches(List<Match> matches)
+        {
+            try
+            {
+                var url = _GetBaseUrl() + "/api/submit/data";
+
+
+                
+                var JSONToSubmit = Newtonsoft.Json.JsonConvert.SerializeObject(matches);
+
+                var content = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("documents", JSONToSubmit)
+                });
+
+                var response = await client.PostAsync(url, content);
+                return new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode };
+            }
+            catch (Exception e)
+            {
+                return new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest };
+            }
+
         }
 
         static string _GetBaseUrl()
