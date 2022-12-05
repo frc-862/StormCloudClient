@@ -9,6 +9,7 @@ public partial class MainPage : ContentPage
     public MainPage()
     {
         InitializeComponent();
+        currentMenu = View_Scout;
     }
 
     List<object> settingsComponents;
@@ -18,7 +19,7 @@ public partial class MainPage : ContentPage
 
         base.OnAppearing();
 
-        currentMenu = View_Scout;
+        
 
 
         
@@ -29,6 +30,7 @@ public partial class MainPage : ContentPage
 
         UpdateSettings();
         ShowMatches();
+        ShowPhotos();
 
         
 
@@ -132,6 +134,10 @@ public partial class MainPage : ContentPage
     {
         if (_navGoToLock)
             return;
+
+        if(!swipe)
+            PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+
         _navGoToLock = true;
         ScrollView goToItem = (ScrollView)FindByName("View_" + final);
 
@@ -199,6 +205,114 @@ public partial class MainPage : ContentPage
         }
     }
 
+    public void ShowPhotos()
+    {
+        var photos = StorageManagement.allPhotos;
+        photos.Sort((m1, m2) =>
+        {
+            return (int)((m1.Taken - m2.Taken).TotalSeconds);
+        });
+
+        Data_Photos.Clear();
+        // assume 5 images each row
+        Data_Photos.ColumnDefinitions = new ColumnDefinitionCollection()
+        {
+            new ColumnDefinition(){ Width = GridLength.Star},
+            new ColumnDefinition(){ Width = GridLength.Star},
+            new ColumnDefinition(){ Width = GridLength.Star},
+            new ColumnDefinition(){ Width = GridLength.Star},
+            new ColumnDefinition(){ Width = GridLength.Star}
+        };
+        int rows = (photos.Count / 5) + 1;
+        for(int i = 0; i < rows; i++)
+        {
+            Data_Photos.RowDefinitions.Add(new RowDefinition() { Height = 50 });
+        }
+
+        var number = 0;
+        foreach(var photo in photos)
+        {
+            Color bgColor = Color.FromHex(photo.Status == UploadStatus.NOT_TRIED ? "#280338" : (photo.Status == UploadStatus.FAILED ? "#60051a" : "#3a0e4d"));
+
+            var id = photo.Path;
+            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 50, HeightRequest = 50, Margin = new Thickness(10, 0) };
+            TapGestureRecognizer tap = new TapGestureRecognizer();
+            tap.Tapped += Photo_FrameTapped;
+
+            outside.GestureRecognizers.Add(tap);
+            Data_Photos.Add(outside, number % 5, number / 5);
+            number += 1;
+        }
+    }
+    private async void Photo_FrameTapped(object sender, EventArgs e)
+    {
+        Frame responsible = (Frame)sender as Frame;
+        var path = responsible.ClassId;
+        var photo = StorageManagement.allPhotos.Find(p => p.Path == path);
+
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
+        var res = "";
+        switch (photo.Status)
+        {
+            case UploadStatus.NOT_TRIED:
+                res = await DisplayActionSheet("Photo\nABC", "Never Mind", null, "Submit", "Delete", "Edit");
+                break;
+            case UploadStatus.SUCCEEDED:
+                res = await DisplayActionSheet("Photo\nABC", "Never Mind", null, "Resubmit", "Delete", "Edit");
+                break;
+            case UploadStatus.FAILED:
+                res = await DisplayActionSheet("Photo\nABC", "Never Mind", null, "Retry Submit", "Delete", "Edit");
+                break;
+        }
+        if (res == "Submit" || res == "Resubmit" || res == "Retry Submit")
+        {
+            await ChangeInfoView(true);
+            Task.Run(async () =>
+            {
+
+
+
+
+                var response = await APIManager.SendPhotos(new List<Photo>() { photo });
+                if (response[0].Status == System.Net.HttpStatusCode.OK)
+                {
+                    // data is good
+
+                    var content = response[0].Content;
+
+                    photo.Status = UploadStatus.SUCCEEDED;
+
+                }
+                else
+                {
+
+                    photo.Status = UploadStatus.FAILED;
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        DisplayAlert("Oops", "Something went wrong connecting to the server. Please ensure that you have a connection and that the server address is correct", "OK");
+                        ShowPhotos();
+                    });
+                }
+
+                StorageManagement._SaveData_Photo();
+
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    ChangeInfoView(false);
+
+                    ShowPhotos();
+
+                });
+            });
+
+
+        }
+        else if (res == "Delete")
+        {
+            StorageManagement.RemoveData_Photo(photo.Path);
+            ShowPhotos();
+        }
+    }
     private async void Match_FrameTapped(object sender, EventArgs e)
     {
         Frame responsible = (Frame)sender as Frame;
@@ -206,6 +320,7 @@ public partial class MainPage : ContentPage
 
         var match = StorageManagement.allMatches.Find(m => m.Environment == details[1] && m.Number == Int32.Parse(details[0]));
         var res = "";
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
         switch (match.Status)
         {
             case UploadStatus.NOT_TRIED:
@@ -316,6 +431,7 @@ public partial class MainPage : ContentPage
     {
         if (_navOpenLock)
             return;
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         // check if the navbar status is the same as where it wants to go to
         if (_expanded == navExpanded)
         {
@@ -363,6 +479,7 @@ public partial class MainPage : ContentPage
         var _envCode = DataManagement.GetValue("environment_code");
         if (_envCode == null)
             _envCode = "";
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         Navigation.PushAsync(new Scouting(selectedSchema.ToString(), (string)_envCode, this));
 
     }
@@ -414,10 +531,101 @@ public partial class MainPage : ContentPage
         ChangeInfoView(false);
     }
 
+    private async void Data_RequestTakePhoto(object sender, EventArgs e)
+    {
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+        if (MediaPicker.Default.IsCaptureSupported)
+        {
+            FileResult photo = await MediaPicker.Default.CapturePhotoAsync();
+
+            if (photo != null)
+            {
+                PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
+                StorageManagement.AddData_Photo(photo);
+            }
+        }
+        else
+        {
+            DisplayAlert("Oh no!", "Your device doesn't seem to have a camera that we are able to use. That's OK though, you can still upload a photo...", "Sure");
+        }
+    }
+
+    private async void Data_RequestFilePick(object sender, EventArgs e)
+    {
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+        FileResult selected = await MediaPicker.Default.PickPhotoAsync();
+        if(selected != null)
+        {
+            PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
+            StorageManagement.AddData_Photo(selected);
+        }
+    }
+
     private async void Data_StartQRScan(object sender, EventArgs e)
     {
         
         await ChangeInfoView(true);
+    }
+
+    private async void Data_StartSubmitPaper(object sender, EventArgs e)
+    {
+        var webServer = DataManagement.GetValue("server_address");
+        if (webServer == null)
+        {
+            return;
+        }
+
+
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+
+
+
+        await ChangeInfoView(true);
+
+        Task.Run(async () =>
+        {
+            var photosToSubmit = StorageManagement.allPhotos.Where(m => m.Status == UploadStatus.FAILED || m.Status == UploadStatus.NOT_TRIED);
+            if (photosToSubmit.Count() == 0)
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    ChangeInfoView(false);
+
+                });
+                return;
+            }
+
+
+
+            var responses = await APIManager.SendPhotos(photosToSubmit.ToList());
+            foreach(var response in responses)
+            {
+                var photo = photosToSubmit.First(p => p.Path == response.About);
+                if (response.Status == System.Net.HttpStatusCode.OK)
+                {
+                    photo.Status = UploadStatus.SUCCEEDED;
+
+                }
+                else
+                {
+                    photo.Status = UploadStatus.FAILED;
+                }
+
+            }
+
+            StorageManagement._SaveData_Photo();
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                ChangeInfoView(false);
+                ShowPhotos();
+                
+
+            });
+        });
+
+
+
     }
 
     private async void Data_StartSubmitMatches(object sender, EventArgs e)
@@ -429,7 +637,7 @@ public partial class MainPage : ContentPage
         }
 
 
-
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
 
 
 

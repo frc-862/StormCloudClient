@@ -12,6 +12,7 @@ namespace StormCloudClient.Services
     {
         public HttpStatusCode Status;
         public string Content;
+        public string About;
     }
     public class APIManager
     {
@@ -58,6 +59,41 @@ namespace StormCloudClient.Services
             {
                 return new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest };
             }
+
+        }
+
+        public static async Task<List<APIResponse>> SendPhotos(List<Photo> photos)
+        {
+            var url = _GetBaseUrl() + "/api/submit/paper";
+
+            List<APIResponse> responses = new List<APIResponse>();
+
+            foreach (Photo photo in photos)
+            {
+                try
+                {
+                    byte[] imageArray = System.IO.File.ReadAllBytes(StorageManagement.GetPath(photo.Path));
+                    string base64ImageRepresentation = Convert.ToBase64String(imageArray);
+                    int l = base64ImageRepresentation.Length;
+                    var content = new FormUrlEncodedContent(new[]
+                    {
+                        new KeyValuePair<string, string>("image", base64ImageRepresentation)
+                    });
+                    var response = await client.PostAsync(url, content);
+                    responses.Add(new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode, About = photo.Path });
+
+
+
+                }
+                catch (Exception e)
+                {
+                    responses.Add(new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest } );
+
+                }
+                
+            }
+            return responses;
+            
 
         }
 

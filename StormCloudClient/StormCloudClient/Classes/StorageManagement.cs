@@ -30,11 +30,20 @@ namespace StormCloudClient.Classes
         public string Data;
         public UploadStatus Status;
     }
+    public class Photo
+    {
+        public DateTime Taken;
+        public string Path;
+        public UploadStatus Status;
+        public int Team;
+        public List<int> Matches;
+    }
     public class StorageManagement
     {
 
         public static List<Schema> allSchemas;
         public static List<Match> allMatches;
+        public static List<Photo> allPhotos;
 
 
         static string savePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -43,7 +52,7 @@ namespace StormCloudClient.Classes
             // initialize global data variables
             allSchemas = new List<Schema>();
             allMatches = new List<Match>();
-
+            allPhotos = new List<Photo>();
             // try to get schema data if exists; if does, set schemas variable to List deserialization
             if (File.Exists(_GetPath("schemas.json")))
             {
@@ -68,6 +77,19 @@ namespace StormCloudClient.Classes
                 catch (Exception e)
                 {
                     
+                }
+            }
+
+            if (File.Exists(_GetPath("photos.json")))
+            {
+                var contents = File.ReadAllText(_GetPath("photos.json"));
+                try
+                {
+                    allPhotos = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Photo>>(contents);
+                }
+                catch (Exception e)
+                {
+
                 }
             }
         }
@@ -142,7 +164,50 @@ namespace StormCloudClient.Classes
             File.WriteAllText(_GetPath("matches.json"), finalContents);
         }
 
+
+        public static async void AddData_Photo(FileResult photo)
+        {
+
+            var created = DateTime.Now;
+            var filename = created.ToString();
+            filename = filename.Replace("/", "_");
+            var p = new Photo()
+            {
+                Taken = created,
+                Status = UploadStatus.NOT_TRIED,
+                Path = filename
+            };
+
+            var localFilePath = _GetPath(p.Path);
+
+            using Stream sourceStream = await photo.OpenReadAsync();
+            using FileStream localFileStream = File.OpenWrite(localFilePath);
+
+            await sourceStream.CopyToAsync(localFileStream);
+
+            allPhotos.Add(p);
+
+
+
+            _SaveData_Photo();
+        }
+        public static void RemoveData_Photo(string Path)
+        {
+            allPhotos.Remove(allPhotos.Find(s => s.Path == Path));
+            _SaveData_Photo();
+        }
+        public static void _SaveData_Photo()
+        {
+            var finalContents = Newtonsoft.Json.JsonConvert.SerializeObject(allPhotos);
+            File.WriteAllText(_GetPath("photos.json"), finalContents);
+        }
+
+
         static string _GetPath(string fileName)
+        {
+            return Path.Combine(savePath, fileName);
+        }
+        public static string GetPath(string fileName)
         {
             return Path.Combine(savePath, fileName);
         }

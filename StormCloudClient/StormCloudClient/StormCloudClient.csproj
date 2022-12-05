@@ -29,29 +29,14 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<Title>StormCloud Client</Title>
-		<CodesignKey>iPhone Distribution: John Reeves (B97LKPE9U3)</CodesignKey>
 		<ProvisioningType>automatic</ProvisioningType>
 		<CodesignProvision>iOS Team Provisioning Profile: *</CodesignProvision>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-ios|AnyCPU'">
-	  <CreatePackage>false</CreatePackage>
-	  <CodesignProvision>iOS Team Provisioning Profile: *</CodesignProvision>
-	  <CodesignKey>iPhone Developer: John Reeves (UL74FD4JU7)</CodesignKey>
-	  <MtouchDebug>true</MtouchDebug>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0-ios|AnyCPU'">
-    <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
-    <CodesignKey>iPhone Developer: John Reeves (UL74FD4JU7)</CodesignKey>
-    <CodesignProvision>StormCloud</CodesignProvision>
-    <ArchiveOnBuild>true</ArchiveOnBuild>
-    <TcpPort>58181</TcpPort>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	  <WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(TargetFramework)'=='net6.0-ios'">
-	  <CodesignKey>Apple Development: Created via API (6Q9J25MUB2)</CodesignKey>
+	  <CodesignKey>Apple Development: Created via API (5AK8PKB3PG)</CodesignKey>
 	  <CodesignProvision>VS: WildCard Development</CodesignProvision>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-android|AnyCPU'">
