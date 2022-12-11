@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StormCloudClient.StormEntry">
+    <Frame BorderColor="Transparent" Padding="5,0" BackgroundColor="#3a0e4d" Margin="20,0" CornerRadius="8" x:Name="Out">
+        <Frame BorderColor="Transparent" Padding="10,0" BackgroundColor="#3a0e4d" CornerRadius="8" Margin="5" x:Name="Block">
+            <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#3a0e4d" CornerRadius="4" x:Name="In">
+                <Entry x:Name="Entry" TextColor="White" BackgroundColor="#3a0e4d" FontSize="16" HorizontalTextAlignment="Center"/>
+            </Frame>
+
+        </Frame>
+    </Frame>
+</ContentView>

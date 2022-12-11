@@ -77,8 +77,13 @@ namespace StormCloudClient.Services
                     int l = base64ImageRepresentation.Length;
                     var content = new FormUrlEncodedContent(new[]
                     {
-                        new KeyValuePair<string, string>("image", base64ImageRepresentation)
+                        new KeyValuePair<string, string>("image", base64ImageRepresentation),
+                        new KeyValuePair<string, string>("name", photo.Path),
+                        new KeyValuePair<string, string>("team", photo.Team.ToString()),
+                        new KeyValuePair<string, string>("matches", Newtonsoft.Json.JsonConvert.SerializeObject(photo.Matches))
+                        
                     });
+
                     var response = await client.PostAsync(url, content);
                     responses.Add(new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode, About = photo.Path });
 

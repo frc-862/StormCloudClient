@@ -1,6 +1,7 @@
 ﻿
 using StormCloudClient.Classes;
 using StormCloudClient.Services;
+using System.ComponentModel;
 
 namespace StormCloudClient;
 
@@ -220,27 +221,37 @@ public partial class MainPage : ContentPage
             new ColumnDefinition(){ Width = GridLength.Star},
             new ColumnDefinition(){ Width = GridLength.Star},
             new ColumnDefinition(){ Width = GridLength.Star},
-            new ColumnDefinition(){ Width = GridLength.Star},
             new ColumnDefinition(){ Width = GridLength.Star}
         };
-        int rows = (photos.Count / 5) + 1;
+        int rows = (photos.Count / 4) + 1;
         for(int i = 0; i < rows; i++)
         {
             Data_Photos.RowDefinitions.Add(new RowDefinition() { Height = 50 });
         }
 
         var number = 0;
+        photos.Sort((p1, p2) =>
+        {
+            if (p1.Team == 0)
+                return 1;
+            if (p2.Team == 0)
+                return -1;
+            return p1.Team - p2.Team;
+
+        });
         foreach(var photo in photos)
         {
             Color bgColor = Color.FromHex(photo.Status == UploadStatus.NOT_TRIED ? "#280338" : (photo.Status == UploadStatus.FAILED ? "#60051a" : "#3a0e4d"));
 
             var id = photo.Path;
-            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 50, HeightRequest = 50, Margin = new Thickness(10, 0) };
+            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 80, HeightRequest = 50, Margin = new Thickness(10, 0), Padding = new Thickness(5,10) };
+            Label teamNum = new Label() { Text = photo.Team == 0 ? "Unknown" : photo.Team.ToString(), FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
             TapGestureRecognizer tap = new TapGestureRecognizer();
             tap.Tapped += Photo_FrameTapped;
 
+            outside.Content = teamNum;
             outside.GestureRecognizers.Add(tap);
-            Data_Photos.Add(outside, number % 5, number / 5);
+            Data_Photos.Add(outside, number % 4, number / 4);
             number += 1;
         }
     }
@@ -255,13 +266,13 @@ public partial class MainPage : ContentPage
         switch (photo.Status)
         {
             case UploadStatus.NOT_TRIED:
-                res = await DisplayActionSheet("Photo\nABC", "Never Mind", null, "Submit", "Delete", "Edit");
+                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString(), "Never Mind", null, "Submit", "Delete", "Edit Details");
                 break;
             case UploadStatus.SUCCEEDED:
-                res = await DisplayActionSheet("Photo\nABC", "Never Mind", null, "Resubmit", "Delete", "Edit");
+                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString(), "Never Mind", null, "Resubmit", "Delete", "Edit Details");
                 break;
             case UploadStatus.FAILED:
-                res = await DisplayActionSheet("Photo\nABC", "Never Mind", null, "Retry Submit", "Delete", "Edit");
+                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString(), "Never Mind", null, "Retry Submit", "Delete", "Edit Details");
                 break;
         }
         if (res == "Submit" || res == "Resubmit" || res == "Retry Submit")
@@ -311,6 +322,100 @@ public partial class MainPage : ContentPage
         {
             StorageManagement.RemoveData_Photo(photo.Path);
             ShowPhotos();
+        }
+        else if(res == "Edit Details")
+        {
+
+            Overlay_Content.Clear();
+            overlayInputs.Clear();
+            Label teamLabel = new Label() { Text = "Team Number", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+            StormEntry team = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Keyboard = Keyboard.Numeric, Text = photo.Team == 0 ? "" : photo.Team.ToString() };
+
+            var formatString = "";
+            if(photo.Matches != null)
+            {
+                foreach(int m in photo.Matches)
+                {
+                    formatString += m.ToString() + " ";
+                }
+                if(formatString.Length > 0)
+                    formatString = formatString.Substring(0, formatString.Length - 1);
+            }
+
+            Label matchLabel = new Label() { Text = "Match Numbers", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+            StormEntry match = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = formatString };
+
+            Overlay_Title.Text = "Editing Picture";
+            Overlay_Content.Add(teamLabel);
+            overlayInputs.Add(team);
+            Overlay_Content.Add(team);
+            Overlay_Content.Add(matchLabel);
+            overlayInputs.Add(match);
+            Overlay_Content.Add(match);
+            ShowOverlay();
+            overlayFinish = () =>
+            {
+                int teamNum = 0;
+
+                try
+                {
+                    var elem = overlayInputs[0];
+                    var team = elem.Text;
+
+                    if (team == "")
+                    {
+                        teamNum = 0;
+                    }
+                    else
+                    {
+                        teamNum = Int32.Parse(team);
+                    }
+                }
+                catch (Exception e)
+                {
+
+                }
+
+                List<int> matchNums = new List<int>();
+                try
+                {
+                    var matchText = overlayInputs[1].Text;
+                    var delimiter = " ";
+                    if (matchText != "")
+                    {
+                        if (matchText.Contains(";"))
+                            delimiter = ";";
+                        if (matchText.Contains(" "))
+                            delimiter = " ";
+                        if (matchText.Contains("-"))
+                            delimiter = "-";
+
+                        var matches = matchText.Split(delimiter);
+                        foreach (string m in matches)
+                        {
+                            int res = 0;
+                            if (Int32.TryParse(m, out res) && !matchNums.Contains(res))
+                            {
+                                matchNums.Add(res);
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+
+                }
+
+
+                photo.Team = teamNum;
+                photo.Matches = matchNums;
+
+                PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
+                
+                StorageManagement._SaveData_Photo();
+
+                ShowPhotos();
+            };
         }
     }
     private async void Match_FrameTapped(object sender, EventArgs e)
@@ -526,9 +631,140 @@ public partial class MainPage : ContentPage
         }
     }
 
+    Action overlayFinish;
+    List<StormEntry> overlayInputs = new List<StormEntry>();
+
+    public async void ShowOverlay()
+    {
+        Overlay_Box.TranslationX = -1000;
+        Overlay_Backdrop.Opacity = 0;
+
+        Overlay.IsVisible = true;
+        Overlay_Backdrop.FadeTo(.4, 400, Easing.CubicInOut);
+        Overlay_Box.TranslateTo(0, 0, 400, Easing.CubicInOut);
+    }
+
+    public async void HideOverlay(bool success)
+    {
+
+        
+        Overlay_Backdrop.FadeTo(0, 400, Easing.CubicInOut);
+        await Overlay_Box.TranslateTo(success ? 1000 : -1000, 0, 400, Easing.CubicInOut);
+        Overlay.IsVisible = false;
+
+        if (success)
+        {
+            overlayFinish.Invoke();
+        }
+    }
+    private async void CloseOverlay(object sender, EventArgs e)
+    {
+        HideOverlay(false);
+    }
+
+    private async void DoneOverlay(object sender, EventArgs e)
+    {
+        HideOverlay(true);
+    }
+
     private async void Info_Back(object sender, EventArgs e)
     {
         ChangeInfoView(false);
+    }
+
+    public void DisplayPhotoEdit(FileResult photo)
+    {
+        Overlay_Content.Clear();
+        overlayInputs.Clear();
+
+
+        /*
+         <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#3a0e4d" CornerRadius="8">
+                            <Frame BorderColor="Transparent" Padding="10,0" BackgroundColor="#3a0e4d" CornerRadius="8" Margin="5">
+                                <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#3a0e4d" CornerRadius="4">
+                                    <Entry x:Name="Status_PreContent_ScouterName" TextColor="White" BackgroundColor="#3a0e4d" FontSize="16" HorizontalTextAlignment="Center"/>
+                                </Frame>
+
+                            </Frame>
+                        </Frame>
+         */
+        Label teamLabel = new Label() { Text = "Team Number", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+        StormEntry team = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Keyboard = Keyboard.Numeric };
+
+        Label matchLabel = new Label() { Text = "Match Numbers", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+        StormEntry match = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d") };
+
+        Overlay_Title.Text = "Adding Picture";
+        Overlay_Content.Add(teamLabel);
+        overlayInputs.Add(team);
+        Overlay_Content.Add(team);
+        Overlay_Content.Add(matchLabel);
+        overlayInputs.Add(match);
+        Overlay_Content.Add(match);
+
+        overlayFinish = () =>
+        {
+            int teamNum = 0;
+
+            try
+            {
+                var elem = overlayInputs[0];
+                var team = elem.Text;
+
+                if (team == "")
+                {
+                    teamNum = 0;
+                }
+                else
+                {
+                    teamNum = Int32.Parse(team);
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            List<int> matchNums = new List<int>();
+            try
+            {
+                var matchText = overlayInputs[1].Text;
+                var delimiter = " ";
+                if (matchText != "")
+                {
+                    if (matchText.Contains(";"))
+                        delimiter = ";";
+                    if (matchText.Contains(" "))
+                        delimiter = " ";
+                    if (matchText.Contains("-"))
+                        delimiter = "-";
+
+                    var matches = matchText.Split(delimiter);
+                    foreach (string m in matches)
+                    {
+                        int res = 0;
+                        if (Int32.TryParse(m, out res) && !matchNums.Contains(res))
+                        {
+                            matchNums.Add(res);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+
+
+
+
+            PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
+            StorageManagement.AddData_Photo(photo, teamNum, matchNums);
+
+            ShowPhotos();
+        };
+
+        ShowOverlay();
     }
 
     private async void Data_RequestTakePhoto(object sender, EventArgs e)
@@ -540,8 +776,14 @@ public partial class MainPage : ContentPage
 
             if (photo != null)
             {
-                PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
-                StorageManagement.AddData_Photo(photo);
+
+                DisplayPhotoEdit(photo);
+
+
+
+
+
+                
             }
         }
         else
@@ -556,8 +798,7 @@ public partial class MainPage : ContentPage
         FileResult selected = await MediaPicker.Default.PickPhotoAsync();
         if(selected != null)
         {
-            PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
-            StorageManagement.AddData_Photo(selected);
+            DisplayPhotoEdit(selected);
         }
     }
 

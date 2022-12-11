@@ -165,6 +165,35 @@ namespace StormCloudClient.Classes
         }
 
 
+        public static async void AddData_Photo(FileResult photo, int Team, List<int> Matches)
+        {
+
+            var created = DateTime.Now;
+            var filename = created.ToString();
+            filename = filename.Replace("/", "_");
+            var p = new Photo()
+            {
+                Taken = created,
+                Status = UploadStatus.NOT_TRIED,
+                Path = filename,
+                Team = Team,
+                Matches = Matches
+            };
+
+            var localFilePath = _GetPath(p.Path);
+
+            using Stream sourceStream = await photo.OpenReadAsync();
+            using FileStream localFileStream = File.OpenWrite(localFilePath);
+
+            await sourceStream.CopyToAsync(localFileStream);
+
+            allPhotos.Add(p);
+
+
+
+            _SaveData_Photo();
+        }
+
         public static async void AddData_Photo(FileResult photo)
         {
 
@@ -191,6 +220,7 @@ namespace StormCloudClient.Classes
 
             _SaveData_Photo();
         }
+
         public static void RemoveData_Photo(string Path)
         {
             allPhotos.Remove(allPhotos.Find(s => s.Path == Path));

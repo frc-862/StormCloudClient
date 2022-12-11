@@ -247,7 +247,30 @@
 
 
             </StackLayout>
-
+            <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" x:Name="Overlay" IsVisible="False">
+                <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BackgroundColor="#000000" Opacity="0.4" Grid.Row="0" Grid.Column="0" x:Name="Overlay_Backdrop">
+                    
+                </Grid>
+                <Frame x:Name="Overlay_Box" BackgroundColor="#280338" CornerRadius="12" Padding="20" WidthRequest="350" HeightRequest="500" BorderColor="Transparent" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="0" Grid.Column="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="50"/>
+                        </Grid.RowDefinitions>
+                        <Label x:Name="Overlay_Title" Text="Title" TextColor="White" FontSize="30" HorizontalOptions="Center" Grid.Row="0" VerticalOptions="Center"/>
+                        <ScrollView Grid.Row="1">
+                            <StackLayout x:Name="Overlay_Content">
+                                
+                            </StackLayout>
+                        </ScrollView>
+                        <StackLayout Orientation="Horizontal" Grid.Row="2" HorizontalOptions="Center">
+                            <Button FontSize="16" x:Name="Overlay_Cancel" Clicked="CloseOverlay" Text="Cancel" BackgroundColor="#3a0e4d" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,0"/>
+                            <Button FontSize="16" x:Name="Overlay_Done" Clicked="DoneOverlay" Text="Done" BackgroundColor="#3a0e4d" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,0"/>
+                        </StackLayout>
+                    </Grid>
+                </Frame>
+            </Grid>
 
             <!--<Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
                 <Grid Grid.Column="0" Grid.Row="0" BackgroundColor="Black" Opacity="0.4"></Grid>
