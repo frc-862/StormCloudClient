@@ -429,13 +429,13 @@ public partial class MainPage : ContentPage
         switch (match.Status)
         {
             case UploadStatus.NOT_TRIED:
-                res = await DisplayActionSheet("Select an Action", "Never Mind", null, "Submit", "Delete", "Edit");
+                res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", null, "Submit", "Delete", "Edit Details");
                 break;
             case UploadStatus.SUCCEEDED:
-                res = await DisplayActionSheet("Select an Action", "Never Mind", null, "Resubmit", "Delete", "Edit");
+                res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", null, "Resubmit", "Delete", "Edit Details");
                 break;
             case UploadStatus.FAILED:
-                res = await DisplayActionSheet("Select an Action", "Never Mind", null, "Retry Submit", "Delete", "Edit");
+                res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", null, "Retry Submit", "Delete", "Edit Details");
                 break;
         }
 
@@ -486,6 +486,109 @@ public partial class MainPage : ContentPage
         {
             StorageManagement.RemoveData_Match(match.Number, match.Environment);
             ShowMatches();
+        }
+        else if(res == "Edit Details")
+        {
+            Overlay_Content.Clear();
+            overlayInputs.Clear();
+            Label matchNLabel = new Label() { Text = "Match Number", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+            StormEntry matchN = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Keyboard = Keyboard.Numeric, Text = match.Number.ToString() };
+
+            Label teamNLabel = new Label() { Text = "Team Number", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+            StormEntry teamN = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Keyboard = Keyboard.Numeric, Text = match.Team.ToString() };
+
+            Label scoutLabel = new Label() { Text = "Scout Name", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+            StormEntry scout = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = match.Scouter };
+
+            Label colorLabel = new Label() { Text = "Team Color", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+            StormEntry color = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = match.Color };
+            Overlay_Title.Text = "Editing Match";
+            Overlay_Content.Add(matchNLabel);
+            Overlay_Content.Add(matchN);
+            Overlay_Content.Add(teamNLabel);
+            Overlay_Content.Add(teamN);
+            Overlay_Content.Add(colorLabel);
+            Overlay_Content.Add(color);
+            Overlay_Content.Add(scoutLabel);
+            Overlay_Content.Add(scout);
+            overlayInputs.Add(matchN);
+            overlayInputs.Add(teamN);
+            overlayInputs.Add(color);
+            overlayInputs.Add(scout);
+
+            
+            ShowOverlay();
+            overlayFinish = () =>
+            {
+                int teamNum = 0;
+
+                try
+                {
+                    var elem = overlayInputs[1];
+                    var team = elem.Text;
+
+                    if (team == "")
+                    {
+                        teamNum = match.Team;
+                    }
+                    else
+                    {
+                        teamNum = Int32.Parse(team);
+                    }
+                }
+                catch (Exception e)
+                {
+                    teamNum = match.Team;
+                }
+
+                int matchNum = 0;
+
+                try
+                {
+                    var elem = overlayInputs[0];
+                    var matchN = elem.Text;
+
+                    if (matchN == "")
+                    {
+                        matchNum = match.Number;
+                    }
+                    else
+                    {
+                        matchNum = Int32.Parse(matchN);
+                    }
+                }
+                catch (Exception e)
+                {
+                    matchNum = match.Number;
+                }
+
+                var elemC = overlayInputs[2];
+                var color = elemC.Text;
+                if (color.ToLower() == "red")
+                    color = "Red";
+                else if (color.ToLower() == "blue")
+                    color = "Blue";
+                else
+                    color = match.Color;
+
+                var scout = overlayInputs[3].Text;
+                if (scout == "")
+                    scout = match.Scouter;
+
+
+
+                match.Number = matchNum;
+                match.Team = teamNum;
+                match.Scouter = scout;
+                match.Color = color;
+                match.Status = UploadStatus.NOT_TRIED;
+
+                PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
+
+                StorageManagement._SaveData_Match();
+
+                ShowMatches();
+            };
         }
     }
 

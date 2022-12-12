@@ -29,6 +29,7 @@ namespace StormCloudClient.Classes
         public string Environment;
         public string Data;
         public UploadStatus Status;
+        public string Identifier;
     }
     public class Photo
     {
@@ -37,6 +38,7 @@ namespace StormCloudClient.Classes
         public UploadStatus Status;
         public int Team;
         public List<int> Matches;
+        public string Identifier;
     }
     public class StorageManagement
     {
@@ -145,7 +147,8 @@ namespace StormCloudClient.Classes
                     Environment = Environment,
                     Data = Data,
                     Created = DateTime.Now,
-                    Status = UploadStatus.NOT_TRIED
+                    Status = UploadStatus.NOT_TRIED,
+                    Identifier = GenerateUUID()
                 });
             }
 
@@ -177,7 +180,8 @@ namespace StormCloudClient.Classes
                 Status = UploadStatus.NOT_TRIED,
                 Path = filename,
                 Team = Team,
-                Matches = Matches
+                Matches = Matches,
+                Identifier = GenerateUUID()
             };
 
             var localFilePath = _GetPath(p.Path);
@@ -240,6 +244,11 @@ namespace StormCloudClient.Classes
         public static string GetPath(string fileName)
         {
             return Path.Combine(savePath, fileName);
+        }
+
+        static string GenerateUUID()
+        {
+            return Guid.NewGuid().ToString();
         }
     }
 }

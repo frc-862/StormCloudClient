@@ -80,6 +80,7 @@ namespace StormCloudClient.Services
                         new KeyValuePair<string, string>("image", base64ImageRepresentation),
                         new KeyValuePair<string, string>("name", photo.Path),
                         new KeyValuePair<string, string>("team", photo.Team.ToString()),
+                        new KeyValuePair<string, string>("identifier", photo.Identifier),
                         new KeyValuePair<string, string>("matches", Newtonsoft.Json.JsonConvert.SerializeObject(photo.Matches))
                         
                     });
