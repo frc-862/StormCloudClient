@@ -15,7 +15,7 @@
 		<ApplicationTitle>StormCloud</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.robosmrt.stormcloudclient</ApplicationId>
+		<ApplicationId>com.robosmrt.stormcloud</ApplicationId>
 		<ApplicationIdGuid>462F1F20-4BDD-4DEC-AE49-765E6D948A0F</ApplicationIdGuid>
 
 		<!-- Versions -->
@@ -43,6 +43,11 @@
 	  <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
+	  <CreatePackage>false</CreatePackage>
+	  <CodesignProvision>Automatic</CodesignProvision>
+	  <CodesignKey>Apple Development: Created via API (5AK8PKB3PG)</CodesignKey>
+	</PropertyGroup>
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\stormcloud.svg">
@@ -100,8 +105,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
-	  <PackageReference Include="BarcodeScanner.Mobile.Maui">
-	    <Version>6.3.0.23-pre</Version>
+	  <PackageReference Include="BarcodeScanner.Mobile.Maui" Version="6.3.0.23-pre">
 	  </PackageReference>
 	</ItemGroup>
 
@@ -113,8 +117,8 @@
     </GetFileHash>
 
     <!-- update the inputs files -->
-    <WriteLinesToFile File="$(_ResizetizerInputsFile)" Lines="@(MauiImage->'File=%(Identity);Link=%(Link);BaseSize=%(BaseSize);Resize=%(Resize);TintColor=%(TintColor);Color=%(Color);IsAppIcon=%(IsAppIcon);ForegroundScale=%(ForegroundScale);ForegroundFile=%(ForegroundFile)')" Overwrite="true" WriteOnlyWhenDifferent="true" />
-    <WriteLinesToFile File="$(_MauiSplashInputsFile)" Lines="@(_MauiSplashScreensWithHashes->'File=%(Identity);Link=%(Link);BaseSize=%(BaseSize);Resize=%(Resize);TintColor=%(TintColor);Color=%(Color);ForegroundScale=%(ForegroundScale);FileHash=%(FileHash)')" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <WriteLinesToFile File="$(_ResizetizerInputsFile)" Lines="@(MauiImage-&gt;'File=%(Identity);Link=%(Link);BaseSize=%(BaseSize);Resize=%(Resize);TintColor=%(TintColor);Color=%(Color);IsAppIcon=%(IsAppIcon);ForegroundScale=%(ForegroundScale);ForegroundFile=%(ForegroundFile)')" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <WriteLinesToFile File="$(_MauiSplashInputsFile)" Lines="@(_MauiSplashScreensWithHashes-&gt;'File=%(Identity);Link=%(Link);BaseSize=%(BaseSize);Resize=%(Resize);TintColor=%(TintColor);Color=%(Color);ForegroundScale=%(ForegroundScale);FileHash=%(FileHash)')" Overwrite="true" WriteOnlyWhenDifferent="true" />
 
     <!-- get the hash of the inputs file -->
     <GetFileHash Files="$(_MauiSplashInputsFile)" HashEncoding="base64">
