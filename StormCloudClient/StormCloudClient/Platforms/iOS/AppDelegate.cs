@@ -1,4 +1,5 @@
 ﻿using Foundation;
+using UIKit;
 
 namespace StormCloudClient;
 
@@ -6,4 +7,9 @@ namespace StormCloudClient;
 public class AppDelegate : MauiUIApplicationDelegate
 {
 	protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+    public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
+    {
+        
+        return base.FinishedLaunching(application, launchOptions);
+    }
 }

@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
@@ -26,18 +24,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSCameraUsageDescription</key>
-	<string>To be able to scan in data and take pictures of paper scouting documents</string>
 	<key>XSAppIconAssets</key>
-	<string>Assets.xcassets/stormcloud.appiconset</string>
-	<key>CFBundleIdentifier</key>
-	<string></string>
-	<key>CFBundleDisplayName</key>
-	<string>StormCloud</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>external-accessory</string>
-		<string>remote-notification</string>
-	</array>
+	<string>Assets.xcassets/appicon.appiconset</string>
 </dict>
 </plist>

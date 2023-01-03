@@ -188,7 +188,7 @@ namespace StormCloudClient.Classes
 
             using Stream sourceStream = await photo.OpenReadAsync();
             using FileStream localFileStream = File.OpenWrite(localFilePath);
-
+            
             await sourceStream.CopyToAsync(localFileStream);
 
             allPhotos.Add(p);

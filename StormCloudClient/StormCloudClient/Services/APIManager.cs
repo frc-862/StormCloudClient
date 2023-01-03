@@ -23,6 +23,18 @@ namespace StormCloudClient.Services
         }
         // ALL THE NEEDED API METHODS
 
+        public static async Task<bool> ConnectivityTest(string url)
+        {
+            try
+            {
+                var response = await client.GetAsync(url);
+                return response.StatusCode == HttpStatusCode.OK;
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
+        }
         public static async Task<APIResponse> GetSetupData()
         {
             try

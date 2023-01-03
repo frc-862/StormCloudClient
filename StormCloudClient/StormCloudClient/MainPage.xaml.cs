@@ -1,7 +1,9 @@
 ﻿
+using Microsoft.Maui.Platform;
 using StormCloudClient.Classes;
 using StormCloudClient.Services;
 using System.ComponentModel;
+using ZXing;
 
 namespace StormCloudClient;
 
@@ -11,6 +13,9 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         currentMenu = View_Scout;
+
+       
+        
     }
 
     List<object> settingsComponents;
@@ -37,6 +42,26 @@ public partial class MainPage : ContentPage
 
     }
 
+    private async void ClearSettingsConfig(object sender, EventArgs e)
+    {
+        DataManagement.SetValue("environment_code", "");
+        DataManagement.SetValue("upload_mode", "");
+        DataManagement.SetValue("authentication_key", "");
+        DataManagement.SetValue("selected_schema", "");
+        DataManagement.SetValue("server_address", "");
+        DataManagement.SetValue("default_scouter", "");
+        DataManagement.SetValue("setup", "");
+        if(Navigation.NavigationStack.Where(n => n is Initializer).Count() > 0)
+        {
+            // already exists
+            Navigation.PopAsync();
+        }
+        else
+        {
+            Navigation.PushAsync(new Initializer());
+        }
+        
+    }
     public void UpdateSettings()
     {
         var _envCode = DataManagement.GetValue("environment_code");
@@ -728,10 +753,17 @@ public partial class MainPage : ContentPage
     }
     public void SaveSettings()
     {
-        foreach(object comp in settingsComponents)
+        try
         {
-            Setting_Unfocused(comp, null);
+            foreach (object comp in settingsComponents)
+            {
+                Setting_Unfocused(comp, null);
+            }
+        }catch(Exception e)
+        {
+
         }
+        
     }
 
     Action overlayFinish;
@@ -860,7 +892,7 @@ public partial class MainPage : ContentPage
 
 
 
-
+            
             PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
             StorageManagement.AddData_Photo(photo, teamNum, matchNums);
 
@@ -876,7 +908,7 @@ public partial class MainPage : ContentPage
         if (MediaPicker.Default.IsCaptureSupported)
         {
             FileResult photo = await MediaPicker.Default.CapturePhotoAsync();
-
+            
             if (photo != null)
             {
 
@@ -907,9 +939,31 @@ public partial class MainPage : ContentPage
 
     private async void Data_StartQRScan(object sender, EventArgs e)
     {
-        
-        await ChangeInfoView(true);
+
+#if IOS
+    
+#elif ANDROID
+    var scanner = new ZXing.Mobile.MobileBarcodeScanner();
+
+        var options = new ZXing.Mobile.MobileBarcodeScanningOptions();
+        options.UseNativeScanning = true;
+        options.TryHarder = true;
+
+        var result = await scanner.Scan(options);
+
+        if (result != null)
+            Console.WriteLine("Scanned Barcode: " + result.Text);
+
+
+#endif
+
+       
+
+
+
+
     }
+
 
     private async void Data_StartSubmitPaper(object sender, EventArgs e)
     {
@@ -1126,5 +1180,6 @@ public partial class MainPage : ContentPage
         return true;
     }
 
+    
 }
 

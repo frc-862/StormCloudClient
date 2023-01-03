@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StormCloudClient.Initializer"
+             Title="Initializer"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="#190024">
+    <AbsoluteLayout>
+        
+        <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+            <StackLayout VerticalOptions="Center" x:Name="Screen_Start" Grid.Row="0" Grid.Column="0" IsVisible="False">
+                <Label Margin="10, 10, 10, 50" Text="Welcome" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="40" FontAttributes="Bold" />
+                <Frame Margin="20, 5" BorderColor="Transparent" BackgroundColor="#280338" CornerRadius="16" HasShadow="True" MaximumWidthRequest="400">
+                    <Label Margin="10, 5" Text="Continue From QR" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="20" />
+                </Frame>
+                <Frame Margin="20, 5" BorderColor="Transparent" BackgroundColor="#280338" CornerRadius="16" HasShadow="True" MaximumWidthRequest="400">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="Start_to_Manual"/>
+                    </Frame.GestureRecognizers>
+                    <Border BackgroundColor="Transparent" Stroke="Transparent">
+                        <Label Margin="10, 5" Text="Manual Entry" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="20" />
+                    </Border>
+                    
+                </Frame>
+                <Frame Margin="20, 5" BorderColor="Transparent" BackgroundColor="#280338" CornerRadius="16" HasShadow="True" MaximumWidthRequest="400">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="JustTesting"/>
+                    </Frame.GestureRecognizers>
+                    <Border BackgroundColor="Transparent" Stroke="Transparent">
+                        <Label Margin="10, 5" Text="Just Testing..." HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="20" />
+                    </Border>
+                    
+                </Frame>
+            </StackLayout>
+            <StackLayout VerticalOptions="Center" x:Name="Screen_Manual" Grid.Row="0" Grid.Column="0" IsVisible="False">
+                <Label Margin="10, 10, 10, 30" Text="Enter Details Manually" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                <Grid Margin="10,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label VerticalOptions="Center" Text="Server Address" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                    <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                        <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#280338" CornerRadius="4">
+                            <Entry x:Name="Screen_Manual_Server" TextColor="White" BackgroundColor="#280338"/>
+                        </Frame>
+
+                    </Frame>
+                   
+                </Grid>
+                <Grid Margin="10,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label VerticalOptions="Center" Text="Environment Code" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                    <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                        <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#280338" CornerRadius="4">
+                            <Entry x:Name="Screen_Manual_Environment" TextColor="White" BackgroundColor="#280338"/>
+                        </Frame>
+
+                    </Frame>
+                </Grid>
+                <Grid Margin="10,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label VerticalOptions="Center" Text="Upload Mode" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                    <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                        <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#280338" CornerRadius="4">
+                            <Picker x:Name="Screen_Manual_Upload" TextColor="White" Grid.Column="1" BackgroundColor="#280338">
+                                <Picker.Items>
+                                    <x:String>Using Wireless</x:String>
+                                    <x:String>Using USB</x:String>
+                                    <x:String>No Upload</x:String>
+                                </Picker.Items>
+                            </Picker>
+                        </Frame>
+
+                    </Frame>
+
+                </Grid>
+                <Grid Margin="10,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label VerticalOptions="Center" Text="Default Scouter" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                    <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                        <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#280338" CornerRadius="4">
+                            <Entry x:Name="Screen_Manual_Scouter" TextColor="White" BackgroundColor="#280338"/>
+                        </Frame>
+
+                    </Frame>
+                </Grid>
+                <Button Clicked="Manual_to_LinkTesting" FontSize="16" Text="Next" BackgroundColor="#280338" HorizontalOptions="Center" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,20,5,0"/>
+            </StackLayout>
+            <StackLayout VerticalOptions="Center" x:Name="Screen_LinkTesting" Grid.Row="0" Grid.Column="0" IsVisible="False">
+                <Label Margin="10, 10, 10, 30" Text="Testing Connectivity" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                <Grid Margin="40,5" MaximumWidthRequest="400">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Frame BorderColor="Transparent" Grid.Column="0" Grid.Row="0"  BackgroundColor="#280338" CornerRadius="10" WidthRequest="20" HeightRequest="20" x:Name="Screen_LinkTesting_Internet" HorizontalOptions="Center"/>
+                    <Label Grid.Column="1" Grid.Row="0" VerticalOptions="Center" Text="Internet Connectivity" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                </Grid>
+                <Grid Margin="40,5" MaximumWidthRequest="400">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Frame BorderColor="Transparent" Grid.Column="0" Grid.Row="0" BackgroundColor="#280338" CornerRadius="10" WidthRequest="20" HeightRequest="20" x:Name="Screen_LinkTesting_Link" HorizontalOptions="Center"/>
+                    <Label Grid.Column="1" Grid.Row="0" VerticalOptions="Center" Text="Server Address" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                </Grid>
+                <Grid Margin="40,5" MaximumWidthRequest="400">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Frame BorderColor="Transparent" Grid.Column="0" Grid.Row="0" BackgroundColor="#280338" CornerRadius="10" WidthRequest="20" HeightRequest="20" x:Name="Screen_LinkTesting_API" HorizontalOptions="Center"/>
+                    <Label Grid.Column="1" Grid.Row="0" VerticalOptions="Center" Text="API Testing" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                </Grid>
+
+                <Grid>
+                    <ActivityIndicator x:Name="Screen_LinkTesting_Loading" Color="White" WidthRequest="40" HeightRequest="40" Grid.Row="0" Grid.Column="0"/>
+                    <Button Clicked="Any_to_Finish" x:Name="Screen_LinkTesting_Next" FontSize="16" Text="Next" BackgroundColor="#280338" HorizontalOptions="Center" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,20,5,0" Grid.Row="0" Grid.Column="0" IsVisible="False"/>
+                </Grid>
+            </StackLayout>
+            <StackLayout VerticalOptions="Center" x:Name="Screen_Finish" Grid.Row="0" Grid.Column="0" IsVisible="False">
+                <Label Margin="10, 10, 10, 30" Text="Finish" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="40" FontAttributes="Bold" />
+                <Label Margin="10" Text="You're all good to go!" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" FontAttributes="Bold" />
+                <Button x:Name="Screen_Finish_Next" Clicked="Finalize" FontSize="16" Text="Next" BackgroundColor="#280338" HorizontalOptions="Center" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,20,5,0" Grid.Row="0" Grid.Column="0"/>
+            </StackLayout>
+        </Grid>
+        <StackLayout AbsoluteLayout.LayoutBounds="0,0,1,60" AbsoluteLayout.LayoutFlags="WidthProportional">
+            <StackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="Any_to_Start"/>
+            </StackLayout.GestureRecognizers>
+            <Label x:Name="Back" Margin="20, 5, 10, 5" Text="Back" HorizontalOptions="Start" TextColor="White" FontSize="20" IsVisible="False">
+            </Label>
+        </StackLayout>
+    </AbsoluteLayout>
+</ContentPage>
