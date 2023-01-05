@@ -19,8 +19,8 @@
 		<ApplicationIdGuid>462F1F20-4BDD-4DEC-AE49-765E6D948A0F</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
+		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+		<ApplicationVersion>2</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
@@ -48,16 +48,49 @@
 	  <CodesignProvision>Automatic</CodesignProvision>
 	  <CodesignKey>Apple Development: Created via API (5AK8PKB3PG)</CodesignKey>
 	</PropertyGroup>
+
+	<PropertyGroup>
+    <!-- Properties used to strip bitcode from frameworks when using Visual Studio for Mac -->
+    <_StripBitcodeFromFrameworksMasterAfterTargets Condition="'$(OS)'=='Unix'">_ExpandNativeReferences</_StripBitcodeFromFrameworksMasterAfterTargets>
+    <_StripBitcodeFromFrameworksMasterDependsOnTargets Condition="'$(OS)'=='Unix'">_StripBitcodeFromFrameworksOnMac</_StripBitcodeFromFrameworksMasterDependsOnTargets>
+
+    <!-- Properties used to strip bitcode from frameworks when using Visual Studio for Windows -->
+    <_StripBitcodeFromFrameworksMasterAfterTargets Condition="'$(OS)'!='Unix'">_ComputeFrameworkFilesToPublish</_StripBitcodeFromFrameworksMasterAfterTargets>
+    <_StripBitcodeFromFrameworksMasterDependsOnTargets Condition="'$(OS)'!='Unix'">_StripBitcodeFromFrameworksOnWindows</_StripBitcodeFromFrameworksMasterDependsOnTargets>
+  </PropertyGroup>
+  
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
+	  <CreatePackage>false</CreatePackage>
+	</PropertyGroup>
+  <Target Name="_StripBitcodeFromFrameworksMasterTarget" Condition="'$(_StripBitcodeFromFrameworksMasterDependsOnTargets)'!='' AND @(_FrameworkNativeReference-&gt;Count()) != 0" AfterTargets="$(_StripBitcodeFromFrameworksMasterAfterTargets)" DependsOnTargets="$(_StripBitcodeFromFrameworksMasterDependsOnTargets)" />
+
+  <Target Name="_StripBitcodeFromFrameworksOnMac" Condition="('$(OutputType)'!='Library' OR '$(IsAppExtension)'=='True') AND '$(_SdkIsSimulator)'=='False'">
+    
+    <!-- Find the bitcode_strip command -->
+    <Exec Command="xcrun -find bitcode_strip" ConsoleToMSBuild="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_BitcodeStripCommand" />
+    </Exec>
+
+    <!-- Strip the bitcode from frameworks -->
+    <Exec Command="$(_BitcodeStripCommand) %(_FrameworkNativeReference.Identity) -r -o %(_FrameworkNativeReference.Identity)" />
+  </Target>
+
+  <Target Name="_StripBitcodeFromFrameworksOnWindows" Condition="('$(OutputType)'!='Library' OR '$(IsAppExtension)'=='True') AND '$(_SdkIsSimulator)'=='False' AND '$(IsMacEnabled)'=='true'">
+
+    <!-- Strip the bitcode from frameworks -->
+    <Exec SessionId="$(BuildSessionId)" Command="&quot;%24(xcrun -find bitcode_strip)&quot; %(_FrameworkNativeReference.Identity) -r -o %(_FrameworkNativeReference.Identity)" />
+
+    <CopyFileFromBuildServer SessionId="$(BuildSessionId)" File="%(_FrameworkNativeReference.Identity)" TargetFile="%(_FrameworkNativeReference.Identity)" />    
+  </Target>
 	<ItemGroup>
-		<!-- App Icon -->
+
 		<MauiIcon Include="Resources\AppIcon\stormcloud.svg">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		  <Color>#190024</Color>
 		</MauiIcon>
 
-
-		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#190024" BaseSize="128,128">
+		<!-- App Icon -->
+		<MauiSplashScreen Include="Resources\Splash\sccurrent_large.svg" Color="#190024" BaseSize="128,128">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</MauiSplashScreen>
 
@@ -72,7 +105,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\AppIcon\stormcloud.svg" />
 	  <None Remove="Resources\Fonts\Inter.ttf" />
 	  <None Remove="Resources\Fonts\Rubix.ttf" />
 	  <None Remove="Resources\Images\arrowdown.svg" />
@@ -83,7 +115,9 @@
 	  <None Remove="Resources\Images\play.svg" />
 	  <None Remove="Resources\Images\settings.svg" />
 	  <None Remove="Resources\Images\statsreport.svg" />
-	  <None Remove="Resources\Splash\splash.svg" />
+	  <None Remove="Resources\AppIcon\sccurrent.svg" />
+	  <None Remove="Resources\Splash\sccurrent.svg" />
+	  <None Remove="Resources\Splash\sccurrent_large.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -109,6 +143,10 @@
 	  </PackageReference>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <BundleResource Include="Resources\AppIcon\stormcloud.svg" />
+	  <BundleResource Include="Resources\Splash\sccurrent_large.svg" />
+	</ItemGroup>
   <Target Name="_FixMauiSplashScreens" BeforeTargets="ResizetizeCollectItems" Condition="'$(_ResizetizerIsiOSApp)' == 'True'">
 
     <!-- add a hash to each file -->

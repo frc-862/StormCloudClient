@@ -28,6 +28,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>To be able to scan in data and take pictures of paper scouting documents</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>To be able to send and receive data from the central management device at competitions at the user's request</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/stormcloud.appiconset</string>
 	<key>CFBundleIdentifier</key>

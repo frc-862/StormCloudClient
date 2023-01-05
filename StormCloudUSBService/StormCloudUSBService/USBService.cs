@@ -36,9 +36,12 @@ namespace StormCloudUSBService
                     case iDeviceEventType.DeviceAdd:
                         Connect(devEvent.udidString);
 
+                        
 
                         break;
                     case iDeviceEventType.DeviceRemove:
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Disconnected...");
                         try
                         {
                             //MessagingCenter.Send<MainPage, string>((MainPage)Application.Current.MainPage, "iOS_USB_CONNECT", "DISCONNECT");
@@ -79,6 +82,8 @@ namespace StormCloudUSBService
                 {
 
                 }
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Receiving Data from Device");
                 ReceiveDataFromDevice(connection);
             }
             catch (Exception e)

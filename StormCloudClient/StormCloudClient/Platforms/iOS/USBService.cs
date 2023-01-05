@@ -34,6 +34,11 @@ namespace StormCloudClient
             var sent = connectedSocket.Send(Encoding.ASCII.GetBytes(sendString));
             Console.WriteLine(sent);
 
+            foreach(var match in transfer.matches)
+            {
+                match.Status = UploadStatus.SUCCEEDED;
+            }
+
 
             // send message back to app
 

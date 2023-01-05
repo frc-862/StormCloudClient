@@ -13,10 +13,7 @@ namespace StormCloudUSBService
         {
             USBListener l = new USBListener();
             l.BeginListening();
-            while (!cancellationToken.IsCancellationRequested)
-            {
-
-            }
+            
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

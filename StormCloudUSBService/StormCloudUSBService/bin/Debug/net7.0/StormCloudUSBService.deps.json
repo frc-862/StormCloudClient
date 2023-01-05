@@ -412,7 +412,7 @@
           "runtimes/win-x64/native/iconv-2.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "1.16.0.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/idevice_id.exe": {
             "rid": "win-x64",
@@ -552,22 +552,22 @@
           "runtimes/win-x64/native/libcrypto-1_1-x64.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "1.1.1.9"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/libcurl.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "7.74.0.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/libssl-1_1-x64.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "1.1.1.9"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/libusb-1.0.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "1.0.24.11584"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/libusb0.dll": {
             "rid": "win-x64",
@@ -577,12 +577,12 @@
           "runtimes/win-x64/native/libxml2.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "2.9.10.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/lzma.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "5.2.5.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/pcre.dll": {
             "rid": "win-x64",
@@ -617,7 +617,7 @@
           "runtimes/win-x64/native/pthreadVC3.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "3.0.0.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/readline.dll": {
             "rid": "win-x64",
@@ -637,7 +637,7 @@
           "runtimes/win-x64/native/vcruntime140.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "14.0.24406.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/zip.dll": {
             "rid": "win-x64",
@@ -647,7 +647,7 @@
           "runtimes/win-x64/native/zlib1.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "1.2.11.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/bz2.dll": {
             "rid": "win-x86",
@@ -662,7 +662,7 @@
           "runtimes/win-x86/native/iconv-2.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "1.16.0.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/idevice_id.exe": {
             "rid": "win-x86",
@@ -797,22 +797,22 @@
           "runtimes/win-x86/native/libcrypto-1_1.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "1.1.1.9"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/libcurl.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "7.74.0.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/libssl-1_1.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "1.1.1.9"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/libusb-1.0.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "1.0.24.11584"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/libusb0.dll": {
             "rid": "win-x86",
@@ -822,12 +822,12 @@
           "runtimes/win-x86/native/libxml2.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "2.9.10.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/lzma.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "5.2.5.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/pcre.dll": {
             "rid": "win-x86",
@@ -862,7 +862,7 @@
           "runtimes/win-x86/native/pthreadVC3.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "3.0.0.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/readline.dll": {
             "rid": "win-x86",
@@ -882,7 +882,7 @@
           "runtimes/win-x86/native/vcruntime140.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "14.0.24406.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/zip.dll": {
             "rid": "win-x86",
@@ -892,7 +892,7 @@
           "runtimes/win-x86/native/zlib1.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "1.2.11.0"
+            "fileVersion": "0.0.0.0"
           }
         }
       },
@@ -1240,7 +1240,7 @@
             "rid": "win",
             "assetType": "runtime",
             "assemblyVersion": "7.0.0.0",
-            "fileVersion": "0.0.0.0"
+            "fileVersion": "7.0.22.51805"
           },
           "runtimes/win/lib/net7.0/System.Diagnostics.EventLog.dll": {
             "rid": "win",

@@ -39,6 +39,7 @@ namespace StormCloudClient.Classes
         public int Team;
         public List<int> Matches;
         public string Identifier;
+        public string Type;
     }
     public class StorageManagement
     {
@@ -168,7 +169,7 @@ namespace StormCloudClient.Classes
         }
 
 
-        public static async void AddData_Photo(FileResult photo, int Team, List<int> Matches)
+        public static async void AddData_Photo(FileResult photo, int Team, List<int> Matches, string type)
         {
 
             var created = DateTime.Now;
@@ -181,8 +182,10 @@ namespace StormCloudClient.Classes
                 Path = filename,
                 Team = Team,
                 Matches = Matches,
-                Identifier = GenerateUUID()
+                Identifier = GenerateUUID(),
+                Type = type
             };
+            allPhotos.Add(p);
 
             var localFilePath = _GetPath(p.Path);
 
@@ -191,7 +194,7 @@ namespace StormCloudClient.Classes
             
             await sourceStream.CopyToAsync(localFileStream);
 
-            allPhotos.Add(p);
+            
 
 
 
@@ -212,13 +215,13 @@ namespace StormCloudClient.Classes
             };
 
             var localFilePath = _GetPath(p.Path);
-
+            allPhotos.Add(p);
             using Stream sourceStream = await photo.OpenReadAsync();
             using FileStream localFileStream = File.OpenWrite(localFilePath);
 
             await sourceStream.CopyToAsync(localFileStream);
 
-            allPhotos.Add(p);
+            
 
 
 

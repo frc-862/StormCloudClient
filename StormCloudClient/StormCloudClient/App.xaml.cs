@@ -5,7 +5,7 @@ namespace StormCloudClient;
 public partial class App : Application
 {
 	public static USBService USBService;
-	public bool OR = true;
+	public bool OR = false;
 	public App()
 	{
 		InitializeComponent();

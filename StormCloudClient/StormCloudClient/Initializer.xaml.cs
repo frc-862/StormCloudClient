@@ -50,7 +50,13 @@ public partial class Initializer : ContentPage
         
     }
 
-	private async void LinkTestingTested(string area, bool success)
+    private async void Start_to_QR(object sender, TappedEventArgs e)
+    {
+		DisplayAlert("Oops!", "Sorry about that... QR Code scanning is currently not supported on iOS devices. Please try a different method", "OK");
+
+    }
+
+    private async void LinkTestingTested(string area, bool success)
 	{
 		Frame b = (Frame)this.FindByName("Screen_LinkTesting_" + area);
 		b.BackgroundColor = Color.FromHex(success ? "#08503b" : "#910929");

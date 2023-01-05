@@ -370,6 +370,33 @@ public partial class MainPage : ContentPage
             Label matchLabel = new Label() { Text = "Match Numbers", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
             StormEntry match = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = formatString };
 
+
+            Label photoLabel = new Label() { Text = "Photo Type", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+            Grid photoButtons = new Grid() { };
+            photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+            photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+
+            Button paperButton = new Button() { BackgroundColor = Color.FromHex(photo.Type != "Paper" ? "#3a0e4d" : "#680991"), Text = "Paper", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10, 0) };
+
+            Button otherButton = new Button() { BackgroundColor = Color.FromHex(photo.Type != "Other" ? "#3a0e4d" : "#680991"), Text = "Other", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10, 0) };
+
+            paperButton.Clicked += (s, e) =>
+            {
+                photoButtons.ClassId = "Paper";
+                paperButton.BackgroundColor = Color.FromHex("#680991");
+                otherButton.BackgroundColor = Color.FromHex("#3a0e4d");
+            };
+            otherButton.Clicked += (s, e) =>
+            {
+                photoButtons.ClassId = "Other";
+                otherButton.BackgroundColor = Color.FromHex("#680991");
+                paperButton.BackgroundColor = Color.FromHex("#3a0e4d");
+            };
+
+            photoButtons.Add(paperButton, 0, 0);
+            photoButtons.Add(otherButton, 1, 0);
+
+
             Overlay_Title.Text = "Editing Picture";
             Overlay_Content.Add(teamLabel);
             overlayInputs.Add(team);
@@ -377,6 +404,8 @@ public partial class MainPage : ContentPage
             Overlay_Content.Add(matchLabel);
             overlayInputs.Add(match);
             Overlay_Content.Add(match);
+            Overlay_Content.Add(photoLabel);
+            Overlay_Content.Add(photoButtons);
             ShowOverlay();
             overlayFinish = () =>
             {
@@ -431,9 +460,14 @@ public partial class MainPage : ContentPage
 
                 }
 
-
+                if (photoButtons.ClassId != "Paper" && photoButtons.ClassId != "Photo")
+                {
+                    return;
+                }
+                photo.Type = photoButtons.ClassId;
                 photo.Team = teamNum;
                 photo.Matches = matchNums;
+                
 
                 PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
                 
@@ -790,6 +824,7 @@ public partial class MainPage : ContentPage
         if (success)
         {
             overlayFinish.Invoke();
+            ShowPhotos();
         }
     }
     private async void CloseOverlay(object sender, EventArgs e)
@@ -829,6 +864,31 @@ public partial class MainPage : ContentPage
         Label matchLabel = new Label() { Text = "Match Numbers", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
         StormEntry match = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d") };
 
+        Label photoLabel = new Label() { Text = "Photo Type", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+        Grid photoButtons = new Grid() { };
+        photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+        photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+
+        Button paperButton = new Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = "Paper", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10,0) };
+        
+        Button otherButton = new Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = "Other", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10, 0) };
+
+        paperButton.Clicked += (s, e) =>
+        {
+            photoButtons.ClassId = "Paper";
+            paperButton.BackgroundColor = Color.FromHex("#680991");
+            otherButton.BackgroundColor = Color.FromHex("#3a0e4d");
+        };
+        otherButton.Clicked += (s, e) =>
+        {
+            photoButtons.ClassId = "Other";
+            otherButton.BackgroundColor = Color.FromHex("#680991");
+            paperButton.BackgroundColor = Color.FromHex("#3a0e4d");
+        };
+
+        photoButtons.Add(paperButton, 0, 0);
+        photoButtons.Add(otherButton, 1, 0);
+
         Overlay_Title.Text = "Adding Picture";
         Overlay_Content.Add(teamLabel);
         overlayInputs.Add(team);
@@ -836,6 +896,8 @@ public partial class MainPage : ContentPage
         Overlay_Content.Add(matchLabel);
         overlayInputs.Add(match);
         Overlay_Content.Add(match);
+        Overlay_Content.Add(photoLabel);
+        Overlay_Content.Add(photoButtons);
 
         overlayFinish = () =>
         {
@@ -890,13 +952,27 @@ public partial class MainPage : ContentPage
 
             }
 
+            if(photoButtons.ClassId != "Paper" && photoButtons.ClassId != "Photo")
+            {
+                return;
+            }
+
 
 
             
             PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
-            StorageManagement.AddData_Photo(photo, teamNum, matchNums);
+            StorageManagement.AddData_Photo(photo, teamNum, matchNums, photoButtons.ClassId);
 
-            ShowPhotos();
+            Device.StartTimer(TimeSpan.FromSeconds(2), () =>
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    ShowPhotos();
+                });
+                return false;
+            });
+
+            
         };
 
         ShowOverlay();
