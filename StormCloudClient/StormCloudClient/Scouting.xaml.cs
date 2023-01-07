@@ -67,6 +67,12 @@ public partial class Scouting : ContentPage
                 }
             }
 
+            var timeBetween = (now - start);
+            var seconds = timeBetween.Seconds.ToString().PadLeft(2, '0');
+            var minutes = timeBetween.Minutes.ToString();
+            Match_Time.Text = minutes + ":" + seconds;
+
+
             return true;
         });
     }
@@ -209,12 +215,12 @@ public partial class Scouting : ContentPage
                             break;
                         case "Timer":
                             Grid timerGrid = new Grid() { Margin = new Thickness(0, 5) };
-                            timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-                            timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+                            timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) });
+                            timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) });
                             timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(2, GridUnitType.Star) });
-                            Button startTimer = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "S", ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
-                            Button resetTimer = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "R", ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
-                            Label currentTime = new Label() { Text = "---", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+                            Button startTimer = new Button() { BackgroundColor = Color.FromHex("#280338"), Text="Start", ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
+                            Button resetTimer = new Button() { BackgroundColor = Color.FromHex("#280338"), Text="Reset", ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
+                            Label currentTime = new Label() { Text = "0s", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
 
                             timerGrid.Add(startTimer, 0, 0);
                             timerGrid.Add(resetTimer, 1, 0);
@@ -388,7 +394,7 @@ public partial class Scouting : ContentPage
 
                 break;
             case "Timer":
-                if(responsible.Text == "R")
+                if(responsible.Text == "Reset")
                 {
                     // reset button
                     timers[compId].seconds = 0;
@@ -398,11 +404,11 @@ public partial class Scouting : ContentPage
                 else
                 {
                     // start / stop button
-                    if(responsible.Text == "S")
+                    if(responsible.Text == "Start")
                     {
                         timers[compId].enabled = true;
                         timers[compId].track = DateTime.Now;
-                        responsible.Text = "P";
+                        responsible.Text = "Pause";
                         ((Button)attachedComponents[compId][1]).IsEnabled = false;
                         //responsible.ImageSource = "pause.png";
                         responsible.BackgroundColor = Color.FromHex("#680991");
@@ -414,7 +420,7 @@ public partial class Scouting : ContentPage
                         timers[compId].seconds += (float)secondsToAdd;
                         timers[compId].enabled = false;
                         ((Label)attachedComponents[compId][2]).Text = Math.Round(timers[compId].seconds, 2).ToString() + "s";
-                        responsible.Text = "S";
+                        responsible.Text = "Start";
                         ((Button)attachedComponents[compId][1]).IsEnabled = true;
                         //responsible.ImageSource = "play.png";
                         responsible.BackgroundColor = Color.FromHex("#280338");
@@ -484,6 +490,8 @@ public partial class Scouting : ContentPage
 
 		Status_PreContent.FadeTo(0, 250, Easing.CubicInOut);
 		Status_PostContent.IsVisible = true;
+
+        Status_PostContent.FadeTo(1, 250, Easing.CubicInOut);
 
         ClickBlock.FadeTo(0, 300, Easing.CubicInOut);
 

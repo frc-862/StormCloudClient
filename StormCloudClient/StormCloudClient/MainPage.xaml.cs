@@ -14,9 +14,16 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         currentMenu = View_Scout;
 
-       
-        
+
+
     }
+
+    Dictionary<string, string[]> viewDirections = new Dictionary<string, string[]>()
+    {
+        { "Scout", new string[]{ "Settings", "Data"} },
+        { "Settings", new string[]{ "Data", "Scout" } },
+        { "Data", new string[]{ "Scout", "Settings" } }
+    };
 
     List<object> settingsComponents;
     protected override void OnAppearing()
@@ -38,7 +45,11 @@ public partial class MainPage : ContentPage
         ShowMatches();
         ShowPhotos();
 
-        
+        currentButtonMenu = Button_Scout;
+        currentMenu = View_Scout;
+
+
+
 
     }
 
@@ -140,9 +151,7 @@ public partial class MainPage : ContentPage
 
         if (goTo != currentMenu.ClassId)
         {
-            clicker.BackgroundColor = Color.FromHex("#680991");
-            if (currentButtonMenu != null)
-                currentButtonMenu.BackgroundColor = Color.FromHex("#3A0E4D");
+            
 
             currentButtonMenu = clicker;
 
@@ -167,15 +176,26 @@ public partial class MainPage : ContentPage
         _navGoToLock = true;
         ScrollView goToItem = (ScrollView)FindByName("View_" + final);
 
+        Button_Scout.BackgroundColor = Color.FromHex("#3A0E4D");
+        Button_Data.BackgroundColor = Color.FromHex("#3A0E4D");
+        Button_Settings.BackgroundColor = Color.FromHex("#3A0E4D");
+        ((Button)FindByName("Button_" + final)).BackgroundColor = Color.FromHex("#680991");
 
         if (goToItem.ClassId == currentMenu.ClassId)
             return;
         if (goToItem.ClassId == "Settings")
             SaveSettings();
 
-        goToItem.TranslationX = -1000;
+        
+        var origName = currentMenu.ClassId;
+        var newName = final;
+        var associations = viewDirections[origName];
+        var directionRight = associations[1] != newName;
+
+
+        goToItem.TranslationX = directionRight ? -1000 : 1000;
         goToItem.IsVisible = true;
-        currentMenu.TranslateTo(1000, 0, 500, Easing.CubicInOut);
+        currentMenu.TranslateTo(directionRight ? 1000 : -1000, 0, 500, Easing.CubicInOut);
         goToItem.TranslateTo(0, 0, 500, Easing.CubicInOut);
 
         await Nav_DescriptorPanel.FadeTo(0, 150);
@@ -269,8 +289,8 @@ public partial class MainPage : ContentPage
             Color bgColor = Color.FromHex(photo.Status == UploadStatus.NOT_TRIED ? "#280338" : (photo.Status == UploadStatus.FAILED ? "#60051a" : "#3a0e4d"));
 
             var id = photo.Path;
-            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 80, HeightRequest = 50, Margin = new Thickness(10, 0), Padding = new Thickness(5,10) };
-            Label teamNum = new Label() { Text = photo.Team == 0 ? "Unknown" : photo.Team.ToString(), FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 80, HeightRequest = 50, Margin = new Thickness(10, 0), Padding = new Thickness(4,8) };
+            Label teamNum = new Label() { Text = photo.Team == 0 ? "Unknown" : photo.Team.ToString(), FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
             TapGestureRecognizer tap = new TapGestureRecognizer();
             tap.Tapped += Photo_FrameTapped;
 
@@ -294,7 +314,7 @@ public partial class MainPage : ContentPage
                 res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString(), "Never Mind", null, "Submit", "Delete", "Edit Details");
                 break;
             case UploadStatus.SUCCEEDED:
-                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString(), "Never Mind", null, "Resubmit", "Delete", "Edit Details");
+                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString() + " (Submitted)", "Never Mind", null, "Mark as 'Not Submitted'", "Delete", "Edit Details");
                 break;
             case UploadStatus.FAILED:
                 res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString(), "Never Mind", null, "Retry Submit", "Delete", "Edit Details");
@@ -342,6 +362,11 @@ public partial class MainPage : ContentPage
             });
 
 
+        }
+        else if (res == "Mark as 'Not Submitted'")
+        {
+            photo.Status = UploadStatus.NOT_TRIED;
+            StorageManagement._SaveData_Match();
         }
         else if (res == "Delete")
         {
@@ -460,7 +485,7 @@ public partial class MainPage : ContentPage
 
                 }
 
-                if (photoButtons.ClassId != "Paper" && photoButtons.ClassId != "Photo")
+                if (photoButtons.ClassId != "Paper" && photoButtons.ClassId != "Other")
                 {
                     return;
                 }
@@ -491,7 +516,7 @@ public partial class MainPage : ContentPage
                 res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", null, "Submit", "Delete", "Edit Details");
                 break;
             case UploadStatus.SUCCEEDED:
-                res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", null, "Resubmit", "Delete", "Edit Details");
+                res = await DisplayActionSheet("Match " + match.Number.ToString() + " (Submitted)", "Never Mind", null, "Mark as 'Not Submitted'", "Delete", "Edit Details");
                 break;
             case UploadStatus.FAILED:
                 res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", null, "Retry Submit", "Delete", "Edit Details");
@@ -540,6 +565,11 @@ public partial class MainPage : ContentPage
             });
 
             
+        }
+        else if(res == "Mark as 'Not Submitted'")
+        {
+            match.Status = UploadStatus.NOT_TRIED;
+            StorageManagement._SaveData_Match();
         }
         else if(res == "Delete")
         {
@@ -952,7 +982,7 @@ public partial class MainPage : ContentPage
 
             }
 
-            if(photoButtons.ClassId != "Paper" && photoButtons.ClassId != "Photo")
+            if(photoButtons.ClassId != "Paper" && photoButtons.ClassId != "Other")
             {
                 return;
             }

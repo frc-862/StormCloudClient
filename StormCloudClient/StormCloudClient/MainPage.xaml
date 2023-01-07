@@ -53,23 +53,35 @@
             <Grid AbsoluteLayout.LayoutBounds="0, 20, 1, 1" AbsoluteLayout.LayoutFlags="SizeProportional">
                 <ScrollView x:Name="View_Scout" ClassId="Scout">
                     <StackLayout>
-                        <Label Margin="10, 10" Text="Next Up..." HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                        <Label Margin="10, 20" Text="Next Up..." HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
                         
                         <Button Clicked="GoToMatch" FontSize="24" Text="Scout Next Match" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="20,0"/>
                         <Label Text="Matches Completed"
                 HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,50,0,20" />
-                        <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Margin="20,0" Spacing="10" x:Name="Data_Matches">
+                        <Grid Margin="10,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Clicked="Data_StartSubmitMatches" FontSize="16" Text="Submit All Matches" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
+                            
+
+                        </Grid>
+                        <ScrollView MaximumHeightRequest="500">
+
+                            <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Margin="20,10" Spacing="10" x:Name="Data_Matches">
 
 
 
-                        </StackLayout>
+                            </StackLayout>
+                        </ScrollView>
+                        
                     </StackLayout>
                     
                 </ScrollView>
                 <ScrollView x:Name="View_Data" ClassId="Data" IsVisible="False" >
                     <StackLayout>
                         <Label Text="Import Data"
-                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,10" />
+                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,20" />
                         <Grid Margin="10,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -81,22 +93,17 @@
                         </Grid>
                         
                         
-                        <Label Text="Export Data"
-                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,10" />
-                        <Grid Margin="10,5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Clicked="Data_StartSubmitMatches" FontSize="16" Text="Submit Matches" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
-                            
-
-                        </Grid>
+                        
+                        
+                        
+                        <Label Text="Photos"
+                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,50,0,20" />
                         <Grid Margin="10,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Clicked="Data_RequestTakePhoto" FontSize="16" Text="Use Camera" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
+                            <Button Grid.Column="0" Clicked="Data_RequestTakePhoto" FontSize="16" Text="Take Photo" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
                             <Button Grid.Column="1" Clicked="Data_RequestFilePick" FontSize="16" Text="Select Photo" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
 
                         </Grid>
@@ -104,13 +111,12 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Clicked="Data_StartSubmitPaper" FontSize="16" Text="Submit Paper Images" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
+                            <Button Grid.Column="0" Clicked="Data_StartSubmitPaper" FontSize="16" Text="Submit All Images" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
 
 
                         </Grid>
-                        <Label Text="Photos"
-                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,30,0,20" />
-                        <Grid Margin="20,0" x:Name="Data_Photos">
+                        
+                        <Grid Margin="20,10" x:Name="Data_Photos">
 
 
 
@@ -120,7 +126,7 @@
                 </ScrollView>
                 <ScrollView x:Name="View_Settings" ClassId="Settings" IsVisible="False">
                     <StackLayout>
-                        <Label Margin="10, 10" Text="Server Settings" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                        <Label Margin="0,20" Text="Server Settings" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
                         <Grid Margin="10,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
@@ -184,7 +190,7 @@
                                 
                             </Frame>
                         </Grid>
-                        <Label Margin="10, 10" Text="Scouting Settings" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                        <Label Margin="0,50,0,20" Text="Scouting Settings" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
                         <Grid Margin="10,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
@@ -239,9 +245,9 @@
                             
                         </StackLayout>
                         <StackLayout Opacity="0" Orientation="Horizontal" VerticalOptions="StartAndExpand" HorizontalOptions="Center" x:Name="Nav_Content" Margin="0,10,0,0">
-                            <Button ImageSource="football.png" ClassId="Scout" Clicked="Nav_GoTo" TextColor="White" BackgroundColor="#3a0e4d" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" Margin="5" CornerRadius="8"/>
-                            <Button ImageSource="statsreport.png" ClassId="Data" Clicked="Nav_GoTo" TextColor="White" BackgroundColor="#3a0e4d" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" Margin="5" CornerRadius="8"/>
-                            <Button ImageSource="settings.png" ClassId="Settings" Clicked="Nav_GoTo" TextColor="White" BackgroundColor="#3a0e4d" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" Margin="5" CornerRadius="8"/>
+                            <Button ImageSource="football.png" ClassId="Scout" Clicked="Nav_GoTo" TextColor="White" BackgroundColor="#680991" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" Margin="5" CornerRadius="8" x:Name="Button_Scout"/>
+                            <Button ImageSource="statsreport.png" ClassId="Data" Clicked="Nav_GoTo" TextColor="White" BackgroundColor="#3a0e4d" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" Margin="5" CornerRadius="8" x:Name="Button_Data"/>
+                            <Button ImageSource="settings.png" ClassId="Settings" Clicked="Nav_GoTo" TextColor="White" BackgroundColor="#3a0e4d" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" Margin="5" CornerRadius="8" x:Name="Button_Settings"/>
                         </StackLayout>
                     </StackLayout>
 

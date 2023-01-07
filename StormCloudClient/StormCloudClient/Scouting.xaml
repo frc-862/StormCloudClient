@@ -128,8 +128,9 @@
                             </Grid>
                             
                         </StackLayout>
-                        <StackLayout x:Name="Status_PostContent" IsVisible="False" Opacity="0">
-                            <Button Text="Test Button" BackgroundColor="#3a0e4d" Padding="20,10" CornerRadius="8" FontSize="20" TextColor="White" Margin="20,0"/>
+                        <StackLayout x:Name="Status_PostContent" IsVisible="True" Opacity="1">
+                            <Label Text="0:00"
+                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" IsVisible="False" Margin="20,10" x:Name="Match_Time" />
                             
                         </StackLayout>
 
