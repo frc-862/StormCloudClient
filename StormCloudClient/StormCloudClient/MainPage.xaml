@@ -270,7 +270,7 @@
                         </Grid.RowDefinitions>
                         <Label x:Name="Overlay_Title" Text="Title" TextColor="White" FontSize="30" HorizontalOptions="Center" Grid.Row="0" VerticalOptions="Center"/>
                         <ScrollView Grid.Row="1">
-                            <StackLayout x:Name="Overlay_Content" Padding="0, 0, 0, 10">
+                            <StackLayout x:Name="Overlay_Content">
                                 
                             </StackLayout>
                         </ScrollView>

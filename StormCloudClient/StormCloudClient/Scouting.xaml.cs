@@ -116,12 +116,12 @@ public partial class Scouting : ContentPage
 
                         if((string)component.Name == "")
                         {
-                            Label titleText = new Label() { Text = (string)component.Contents, FontSize = 24, FontAttributes = FontAttributes.Bold, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, 20, 20, 5) };
+                            Label titleText = new Label() { Text = (string)component.Contents, FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, 20, 20, 5), HorizontalTextAlignment = TextAlignment.Center };
                             Form_Content_Fields.Add(titleText);
                         }
 
                         
-                        Label mainText = new Label() { Text = (string)component.Contents, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, (string)component.Name == "" ? 20 : 5, 20, 20) };
+                        Label mainText = new Label() { Text = (string)component.Contents, FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, (string)component.Name == "" ? 20 : 5, 20, 20), HorizontalTextAlignment = TextAlignment.Center };
 
                         Form_Content_Fields.Add(mainText);
 

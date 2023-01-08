@@ -392,7 +392,7 @@ public partial class MainPage : ContentPage
             try
             {
 
-                Image i = new Image() { Source = ImageSource.FromFile(StorageManagement.GetPath(photo.Path)), Margin = new Thickness(5, 10) };
+                Image i = new Image() { Source = ImageSource.FromFile(StorageManagement.GetPath(photo.Path)), Margin = new Thickness(5, 5) };
                 Overlay_Content.Add(i);
 
             }
