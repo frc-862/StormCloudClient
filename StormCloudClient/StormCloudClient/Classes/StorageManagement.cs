@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StormCloudClient.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,6 +31,7 @@ namespace StormCloudClient.Classes
         public string Data;
         public UploadStatus Status;
         public string Identifier;
+        public string DeviceID;
     }
     public class Photo
     {
@@ -40,6 +42,7 @@ namespace StormCloudClient.Classes
         public List<int> Matches;
         public string Identifier;
         public string Type;
+        public string DeviceID;
     }
     public class StorageManagement
     {
@@ -149,6 +152,7 @@ namespace StormCloudClient.Classes
                     Data = Data,
                     Created = DateTime.Now,
                     Status = UploadStatus.NOT_TRIED,
+                    DeviceID = (string)DataManagement.GetValue("deviceId"),
                     Identifier = GenerateUUID()
                 });
             }
@@ -183,6 +187,7 @@ namespace StormCloudClient.Classes
                 Team = Team,
                 Matches = Matches,
                 Identifier = GenerateUUID(),
+                DeviceID = (string)DataManagement.GetValue("deviceId"),
                 Type = type
             };
             allPhotos.Add(p);
@@ -211,6 +216,7 @@ namespace StormCloudClient.Classes
             {
                 Taken = created,
                 Status = UploadStatus.NOT_TRIED,
+                DeviceID = (string)DataManagement.GetValue("deviceId"),
                 Path = filename
             };
 

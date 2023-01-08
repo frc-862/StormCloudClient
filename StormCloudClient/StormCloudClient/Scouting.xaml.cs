@@ -111,6 +111,22 @@ public partial class Scouting : ContentPage
 
                 foreach(dynamic component in part.Components)
                 {
+                    if((string)component.Type == "Label")
+                    {
+
+                        if((string)component.Name == "")
+                        {
+                            Label titleText = new Label() { Text = (string)component.Contents, FontSize = 24, FontAttributes = FontAttributes.Bold, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, 20, 20, 5) };
+                            Form_Content_Fields.Add(titleText);
+                        }
+
+                        
+                        Label mainText = new Label() { Text = (string)component.Contents, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, (string)component.Name == "" ? 20 : 5, 20, 20) };
+
+                        Form_Content_Fields.Add(mainText);
+
+                        continue;
+                    }
                     // part for the textbox
                     ColumnDefinition textBox = new ColumnDefinition();
                     textBox.Width = new GridLength(2, GridUnitType.Star);
@@ -208,6 +224,7 @@ public partial class Scouting : ContentPage
                             eventTrigger.Clicked += HandleFormButton;
                             container.Add(eventTrigger, 1, 0);
                             data[componentId] = "";
+                            extraData[componentId] = (string)component.Max;
                             attachedComponents[componentId] = new List<object>
                             {
                                 eventTrigger
@@ -232,6 +249,7 @@ public partial class Scouting : ContentPage
                             container.Add(timerGrid, 1, 0);
                             timers[componentId] = new TimerSet() { enabled = false, seconds = 0, track = DateTime.Now };
                             data[componentId] = "";
+                            extraData[componentId] = (string)component.Max;
                             attachedComponents[componentId] = new List<object>
                             {
                                 startTimer, resetTimer, currentTime
@@ -360,6 +378,7 @@ public partial class Scouting : ContentPage
                 break;
             case "Event":
                 var secondsIn = (int)((DateTime.Now - start).TotalSeconds);
+                var max = int.Parse(extraData[compId]);
 
                 if (data[compId] == "")
                 {
@@ -367,7 +386,11 @@ public partial class Scouting : ContentPage
                 }
                 else
                 {
-                    data[compId] = data[compId] + ";" + secondsIn.ToString();
+                    if (data[compId].Split(";").Length < max || max <= 0)
+                    {
+                        data[compId] = data[compId] + ";" + secondsIn.ToString();
+                    }
+                    
                 }
 
                 responsible.BackgroundColor = Color.FromHex("#680991");
@@ -394,7 +417,8 @@ public partial class Scouting : ContentPage
 
                 break;
             case "Timer":
-                if(responsible.Text == "Reset")
+                var maxSec = int.Parse(extraData[compId]);
+                if (responsible.Text == "Reset")
                 {
                     // reset button
                     timers[compId].seconds = 0;
@@ -426,6 +450,10 @@ public partial class Scouting : ContentPage
                         responsible.BackgroundColor = Color.FromHex("#280338");
 
                         data[compId] = Math.Round(timers[compId].seconds, 2).ToString();
+                        if (Math.Round(timers[compId].seconds, 2) > maxSec && maxSec > 0)
+                        {
+                            data[compId] = maxSec.ToString();
+                        }
                     }
                 }
                 break;

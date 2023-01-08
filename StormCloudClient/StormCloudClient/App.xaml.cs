@@ -15,7 +15,7 @@ public partial class App : Application
 		
         StorageManagement.Initialize();
 
-        
+
 
 
 #if IOS
@@ -25,6 +25,18 @@ public partial class App : Application
 
 #endif
 
+
+        try
+        {
+            var deviceId = (string)DataManagement.GetValue("deviceId");
+            if(deviceId == "")
+            {
+                DataManagement.SetValue("deviceId", DataManagement.GenerateRandomCharacters(8));
+            }
+        }catch(Exception ex)
+        {
+            DataManagement.SetValue("deviceId", DataManagement.GenerateRandomCharacters(8));
+        }
 
         try
 		{

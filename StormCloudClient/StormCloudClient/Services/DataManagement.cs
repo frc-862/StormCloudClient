@@ -38,6 +38,14 @@ namespace StormCloudClient.Services
         {
             return Preferences.Default.ContainsKey(key);
         }
+
+        public static string GenerateRandomCharacters(int length)
+        {
+            const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(characters, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
     }
 
 }

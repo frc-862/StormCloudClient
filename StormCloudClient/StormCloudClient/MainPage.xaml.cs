@@ -4,6 +4,7 @@ using StormCloudClient.Classes;
 using StormCloudClient.Services;
 using System.ComponentModel;
 using ZXing;
+using ZXing.Mobile;
 
 namespace StormCloudClient;
 
@@ -81,6 +82,14 @@ public partial class MainPage : ContentPage
         var _selectedSchema = DataManagement.GetValue("selected_schema");
         var _serverAddress = DataManagement.GetValue("server_address");
         var _defaultScouter = DataManagement.GetValue("default_scouter");
+
+        var deviceId = (string)DataManagement.GetValue("deviceId");
+        if(deviceId == "")
+        {
+            deviceId = DataManagement.GenerateRandomCharacters(8);
+            DataManagement.SetValue("deviceId", deviceId);
+        }
+        Settings_DeviceID.Text = "Device " + deviceId;
 
         var version = VersionTracking.Default.CurrentVersion.ToString();
         var build = VersionTracking.Default.CurrentBuild.ToString();
@@ -367,6 +376,7 @@ public partial class MainPage : ContentPage
         {
             photo.Status = UploadStatus.NOT_TRIED;
             StorageManagement._SaveData_Match();
+            ShowPhotos();
         }
         else if (res == "Delete")
         {
@@ -378,6 +388,20 @@ public partial class MainPage : ContentPage
 
             Overlay_Content.Clear();
             overlayInputs.Clear();
+
+            try
+            {
+
+                Image i = new Image() { Source = ImageSource.FromFile(StorageManagement.GetPath(photo.Path)), Margin = new Thickness(5, 10) };
+                Overlay_Content.Add(i);
+
+            }
+            catch(Exception ex)
+            {
+
+            }
+            
+
             Label teamLabel = new Label() { Text = "Team Number", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
             StormEntry team = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Keyboard = Keyboard.Numeric, Text = photo.Team == 0 ? "" : photo.Team.ToString() };
 
@@ -570,6 +594,7 @@ public partial class MainPage : ContentPage
         {
             match.Status = UploadStatus.NOT_TRIED;
             StorageManagement._SaveData_Match();
+            ShowMatches();
         }
         else if(res == "Delete")
         {
@@ -1047,9 +1072,10 @@ public partial class MainPage : ContentPage
     {
 
 #if IOS
-    
+    DisplayAlert("Oops", "QR Code Scanning currently isn't supported on this platform...", "OK");
 #elif ANDROID
-    var scanner = new ZXing.Mobile.MobileBarcodeScanner();
+        
+        var scanner = new ZXing.Mobile.MobileBarcodeScanner();
 
         var options = new ZXing.Mobile.MobileBarcodeScanningOptions();
         options.UseNativeScanning = true;
@@ -1058,7 +1084,34 @@ public partial class MainPage : ContentPage
         var result = await scanner.Scan(options);
 
         if (result != null)
-            Console.WriteLine("Scanned Barcode: " + result.Text);
+        {
+            try
+            {
+
+                dynamic obj = Newtonsoft.Json.JsonConvert.DeserializeObject(result.Text);
+
+                switch ((string)obj.type)
+                {
+                    case "config":
+                        string server = (string)obj.serverAddress;
+                        Settings_ServerAddress.Text = server;
+                        SaveSettings();
+                        break;
+                    default:
+                        DisplayAlert("Oops", "That QR Code isn't accepted here...", "OK");
+                        break;
+
+                }
+            }
+            catch(Exception ex)
+            {
+                DisplayAlert("Oops", "That QR Code isn't accepted here...", "OK");
+            }
+            
+
+        }
+
+            
 
 
 #endif
@@ -1204,7 +1257,7 @@ public partial class MainPage : ContentPage
 
     }
 
-    private async void Data_StartDocumentScan(object sender, EventArgs e)
+    private async void Data_StartDownload(object sender, EventArgs e)
     {
         var webServer = DataManagement.GetValue("server_address");
         if(webServer == null)

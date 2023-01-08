@@ -88,7 +88,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" Clicked="Data_StartQRScan" FontSize="16" Text="Scan QR Code" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
-                            <Button Grid.Column="1" Clicked="Data_StartDocumentScan" FontSize="16" Text="Download Data" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
+                            <Button Grid.Column="1" Clicked="Data_StartDownload" FontSize="16" Text="Download Data" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
 
                         </Grid>
                         
@@ -221,7 +221,8 @@
                             </Frame>
                         </Grid>
                         <Button Clicked="ClearSettingsConfig" FontSize="12" Text="Clear All Configuration" HorizontalOptions="Center" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,5"/>
-                        <Label VerticalOptions="Center" Text="Version: #, Build: #" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" Margin="0,20" x:Name="Settings_VersionInfo" />
+                        <Label VerticalOptions="Center" Text="Version: #, Build: #" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" Margin="0,20,0,5" x:Name="Settings_VersionInfo" />
+                        <Label VerticalOptions="Center" Text="Device 12345678" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" Margin="0,5,0,0" x:Name="Settings_DeviceID" />
                     </StackLayout>
                     
                 </ScrollView>
@@ -269,7 +270,7 @@
                         </Grid.RowDefinitions>
                         <Label x:Name="Overlay_Title" Text="Title" TextColor="White" FontSize="30" HorizontalOptions="Center" Grid.Row="0" VerticalOptions="Center"/>
                         <ScrollView Grid.Row="1">
-                            <StackLayout x:Name="Overlay_Content">
+                            <StackLayout x:Name="Overlay_Content" Padding="0, 0, 0, 10">
                                 
                             </StackLayout>
                         </ScrollView>

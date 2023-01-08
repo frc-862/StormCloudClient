@@ -39,8 +39,8 @@ public partial class Initializer : ContentPage
     private async void Start_to_Manual(object sender, TappedEventArgs e)
     {
 		Frame s = (Frame)sender as Frame;
-		
-		s.BackgroundColor = Color.FromHex("#680991");
+        Screen_Manual_Server.IsEnabled = true;
+        s.BackgroundColor = Color.FromHex("#680991");
         Back.Opacity = 0;
         await GoToScreen("Manual");
         s.BackgroundColor = Color.FromHex("#280338");
@@ -52,8 +52,65 @@ public partial class Initializer : ContentPage
 
     private async void Start_to_QR(object sender, TappedEventArgs e)
     {
-		DisplayAlert("Oops!", "Sorry about that... QR Code scanning is currently not supported on iOS devices. Please try a different method", "OK");
+#if IOS
+    DisplayAlert("Oops", "QR Code Scanning currently isn't supported on this platform...", "OK");
+#elif ANDROID
+        var scanner = new ZXing.Mobile.MobileBarcodeScanner();
 
+        var options = new ZXing.Mobile.MobileBarcodeScanningOptions();
+        options.UseNativeScanning = true;
+        options.TryHarder = true;
+
+        var result = await scanner.Scan(options);
+
+        if (result != null)
+        {
+            try
+            {
+                bool success = false;
+
+                dynamic obj = Newtonsoft.Json.JsonConvert.DeserializeObject(result.Text);
+
+                switch ((string)obj.type)
+                {
+                    case "config":
+                        string server = (string)obj.serverAddress;
+                        DataManagement.SetValue("server_address", server);
+                        Screen_Manual_Server.Text = server;
+                        Screen_Manual_Server.IsEnabled = false;
+                        success = true;
+                        break;
+
+                    default:
+                        DisplayAlert("Oops", "That QR Code isn't accepted here...", "OK");
+                        break;
+
+                }
+
+                if (success)
+                {
+                    Frame s = (Frame)sender as Frame;
+                    s.BackgroundColor = Color.FromHex("#680991");
+                    Back.Opacity = 0;
+                    await GoToScreen("Manual");
+                    s.BackgroundColor = Color.FromHex("#280338");
+
+                    Back.IsVisible = true;
+                    await Back.FadeTo(1, 500, Easing.CubicInOut);
+                }
+            }
+            catch (Exception ex)
+            {
+                DisplayAlert("Oops", "That QR Code isn't accepted here...", "OK");
+            }
+
+
+        }
+
+
+
+
+#endif
     }
 
     private async void LinkTestingTested(string area, bool success)
