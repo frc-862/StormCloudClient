@@ -43,8 +43,13 @@ namespace StormCloudClient.Services
         {
             const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             var random = new Random();
-            return new string(Enumerable.Repeat(characters, length)
-              .Select(s => s[random.Next(s.Length)]).ToArray());
+
+            var f = "";
+            for(int l = 0; l < length; l++)
+            {
+                f += characters.Substring(random.Next(characters.Length), 1);
+            }
+            return f;
         }
     }
 

@@ -29,7 +29,7 @@ public partial class App : Application
         try
         {
             var deviceId = (string)DataManagement.GetValue("deviceId");
-            if(deviceId == "")
+            if(deviceId == "" || deviceId == null)
             {
                 DataManagement.SetValue("deviceId", DataManagement.GenerateRandomCharacters(8));
             }
