@@ -97,6 +97,7 @@ namespace StormCloudUSBService
         {
             Task.Run(() =>
             {
+                var currentString = "";
                 while (true)
                 {
                     uint receivedBytes = 0;
@@ -105,9 +106,22 @@ namespace StormCloudUSBService
                     if (receivedBytes <= 0) continue;
 
 
+                    
 
                     var res = Encoding.ASCII.GetString(_inboxBuffer);
-                    Console.WriteLine(res);
+                    if(res.Contains("END"))
+                    {
+                        Console.WriteLine(currentString);
+                        DataManager.HandleUSBPushData(currentString);
+                        currentString = "";
+                    }
+                    currentString += res;
+
+
+
+                    var response = Encoding.ASCII.GetBytes("CONTINUE");
+                    uint sentBytes = 0;
+                    _iDeviceApi.idevice_connection_send(connection,response, (uint)response.Length, ref sentBytes);
 
                     // Message back
 

@@ -248,6 +248,7 @@ D:/source/StormCloudClient/StormCloudUSBService/StormCloudUSBService/bin/Debug/n
 /Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/bin/Debug/net7.0/Microsoft.Extensions.Options.dll
 /Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/bin/Debug/net7.0/Microsoft.Extensions.Options.ConfigurationExtensions.dll
 /Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/bin/Debug/net7.0/Microsoft.Extensions.Primitives.dll
+/Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/bin/Debug/net7.0/Newtonsoft.Json.dll
 /Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/bin/Debug/net7.0/System.Diagnostics.EventLog.dll
 /Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/bin/Debug/net7.0/runtimes/osx-x64/native/idevice_id
 /Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/bin/Debug/net7.0/runtimes/osx-x64/native/idevicebackup

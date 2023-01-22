@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "TGsIWqNtXeRyrnCXO9VPwoGQglbC9ynWoFMftdPOYgmZNw5q7eb50TnUMC1KxNlOhN5nezV2vyJnhO/GH8nSCg==",
+  "dgSpecHash": "bD6TFKLHNIZPHNVOJ9zV1eVZ0G+qVBhJPrkDIIO7S4lJcUVxnJ1Zab4HOy1IwBykaIJdbogIQG8D7ucoWMvIAg==",
   "success": true,
   "projectFilePath": "/Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/StormCloudUSBService.csproj",
   "expectedPackageFiles": [
@@ -30,6 +30,7 @@
     "/Users/daviado/.nuget/packages/microsoft.extensions.options/7.0.0/microsoft.extensions.options.7.0.0.nupkg.sha512",
     "/Users/daviado/.nuget/packages/microsoft.extensions.options.configurationextensions/7.0.0/microsoft.extensions.options.configurationextensions.7.0.0.nupkg.sha512",
     "/Users/daviado/.nuget/packages/microsoft.extensions.primitives/7.0.0/microsoft.extensions.primitives.7.0.0.nupkg.sha512",
+    "/Users/daviado/.nuget/packages/newtonsoft.json/13.0.2/newtonsoft.json.13.0.2.nupkg.sha512",
     "/Users/daviado/.nuget/packages/system.diagnostics.eventlog/7.0.0/system.diagnostics.eventlog.7.0.0.nupkg.sha512",
     "/Users/daviado/.nuget/packages/system.text.encodings.web/7.0.0/system.text.encodings.web.7.0.0.nupkg.sha512",
     "/Users/daviado/.nuget/packages/system.text.json/7.0.0/system.text.json.7.0.0.nupkg.sha512"

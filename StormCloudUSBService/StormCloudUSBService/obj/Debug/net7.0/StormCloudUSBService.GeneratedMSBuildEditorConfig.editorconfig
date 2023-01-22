@@ -8,4 +8,4 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = StormCloudUSBService
-build_property.ProjectDir = D:\source\StormCloudClient\StormCloudUSBService\StormCloudUSBService\
+build_property.ProjectDir = /Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/
