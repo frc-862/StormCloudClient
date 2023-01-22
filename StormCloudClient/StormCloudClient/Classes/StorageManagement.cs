@@ -50,6 +50,7 @@ namespace StormCloudClient.Classes
         public static List<Schema> allSchemas;
         public static List<Match> allMatches;
         public static List<Photo> allPhotos;
+        public static int matchesCreated;
 
 
         static string savePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

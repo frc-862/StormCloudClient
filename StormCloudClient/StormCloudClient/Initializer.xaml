@@ -10,12 +10,25 @@
         <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
             <StackLayout VerticalOptions="Center" x:Name="Screen_Start" Grid.Row="0" Grid.Column="0" IsVisible="False">
                 <Label Margin="10, 10, 10, 50" Text="Welcome" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="40" FontAttributes="Bold" />
-                <Frame Margin="20, 5" BorderColor="Transparent" BackgroundColor="#280338" CornerRadius="16" HasShadow="True" MaximumWidthRequest="400">
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="Start_to_QR"/>
-                    </Frame.GestureRecognizers>
-                    <Label Margin="10, 5" Text="Read From QR Code" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="20" />
-                </Frame>
+                <Grid Margin="10,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Frame Margin="10, 5" BorderColor="Transparent" BackgroundColor="#280338" CornerRadius="16" HasShadow="True" MaximumWidthRequest="400" Grid.Row="0" Grid.Column="0">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Start_to_NFC"/>
+                        </Frame.GestureRecognizers>
+                        <Label Margin="10, 5" Text="QR Code" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="20" />
+                    </Frame>
+                    <Frame Margin="10, 5" BorderColor="Transparent" BackgroundColor="#280338" CornerRadius="16" HasShadow="True" MaximumWidthRequest="400" Grid.Row="0" Grid.Column="1">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Start_to_QR"/>
+                        </Frame.GestureRecognizers>
+                        <Label Margin="10, 5" Text="NFC" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="20" />
+                    </Frame>
+                </Grid>
+                
                 <Frame Margin="20, 5" BorderColor="Transparent" BackgroundColor="#280338" CornerRadius="16" HasShadow="True" MaximumWidthRequest="400">
                     <Frame.GestureRecognizers>
                         <TapGestureRecognizer Tapped="Start_to_Manual"/>

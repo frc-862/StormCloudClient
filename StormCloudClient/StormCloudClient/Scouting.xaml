@@ -42,7 +42,7 @@
                 HorizontalOptions="Start" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="12" />
                                     </StackLayout>
 
-                                    <ImageButton Source="arrowdown.png" Clicked="Status_ToggleBottomBar_Clicked" x:Name="Status_ExtendBar" Margin="15,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="18" VerticalOptions="Center" Padding="5" />
+                                    <ImageButton Source="arrowdown.png" Clicked="Status_ToggleBottomBar_Clicked" x:Name="Status_ExtendBar" Margin="15,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="18" VerticalOptions="Center" Padding="5" IsVisible="False"/>
                                 </StackLayout>
                                 
                                 <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="End">

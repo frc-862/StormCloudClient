@@ -1,4 +1,5 @@
 using StormCloudClient.Services;
+using StormCloudClient.Classes;
 
 namespace StormCloudClient;
 
@@ -48,6 +49,11 @@ public partial class Initializer : ContentPage
 		Back.IsVisible = true;
         await Back.FadeTo(1, 500, Easing.CubicInOut);
         
+    }
+
+    private async void Start_to_NFC(object sender, TappedEventArgs e)
+    {
+
     }
 
     private async void Start_to_QR(object sender, TappedEventArgs e)
@@ -150,7 +156,17 @@ public partial class Initializer : ContentPage
             Screen_LinkTesting_Next.IsVisible = true;
             Screen_LinkTesting_Loading.IsVisible = false;
             bool import = await DisplayAlert("Success!", "Would you like to initialize your application further by importing the configuration data from the server you provided?", "Yes", "No");
-		}
+            if (import)
+            {
+                var content = savedSetupData.Content;
+
+                dynamic contentObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
+                var selectedSchema = contentObject["settings"]["selectedSchema"];
+                dynamic schemaObject = contentObject["schema"];
+                StorageManagement.AddData_Schema((string)schemaObject["Name"], Newtonsoft.Json.JsonConvert.SerializeObject(schemaObject));
+
+            }
+        }
 	}
 	private APIResponse savedSetupData;
 	private async void Manual_to_LinkTesting(object sender, EventArgs e)

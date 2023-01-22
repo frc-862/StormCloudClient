@@ -13,10 +13,15 @@ public class TimerSet
 public partial class Scouting : ContentPage
 {
 
+    public Match EditingMatch;
     
     public List<string> data = new List<string>();
     public List<string> componentTypes = new List<string>();
     public List<string> extraData = new List<string>();
+
+    public Dictionary<string, List<int>> linkedGrids = new Dictionary<string, List<int>>();
+
+
     public Dictionary<int, List<object>> attachedComponents = new Dictionary<int, List<object>>();
     public Dictionary<int, TimerSet> timers = new Dictionary<int, TimerSet>();
     public string SchemaName;
@@ -33,11 +38,25 @@ public partial class Scouting : ContentPage
 
     
 
-    public Scouting(string SchemaName, string Environment, MainPage mainMenu)
+    public Scouting(string SchemaName, string Environment, MainPage mainMenu, Match prior)
 	{
         this.Environment = Environment;
         this.SchemaName = SchemaName;
         _ref = mainMenu;
+        if(prior != null)
+        {
+            EditingMatch = prior;
+            try
+            {
+                data = (List<string>)Newtonsoft.Json.JsonConvert.DeserializeObject(prior.Data);
+                
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        
 		InitializeComponent();
 	}
 
@@ -85,6 +104,12 @@ public partial class Scouting : ContentPage
     private async void SaveMatch(object sender, EventArgs e)
     {
         var stringContents = Newtonsoft.Json.JsonConvert.SerializeObject(data);
+        StorageManagement.matchesCreated += 1;
+        DataManagement.SetValue("matches_created", StorageManagement.matchesCreated.ToString());
+        
+        
+
+
 
 
 
@@ -97,6 +122,7 @@ public partial class Scouting : ContentPage
     {
         try
         {
+            bool isCurrentlyEditing = EditingMatch != null;
             dynamic schemaObject = Newtonsoft.Json.JsonConvert.DeserializeObject(schemaJSON);
             // set base form info
             Console.WriteLine(Enumerable.Count(schemaObject.Parts));
@@ -111,22 +137,123 @@ public partial class Scouting : ContentPage
 
                 foreach(dynamic component in part.Components)
                 {
+
                     if((string)component.Type == "Label")
                     {
 
                         if((string)component.Name == "")
                         {
-                            Label titleText = new Label() { Text = (string)component.Contents, FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, 20, 20, 5), HorizontalTextAlignment = TextAlignment.Center };
+                            Label titleText = new Label() { Text = (string)component.Name, FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, 20, 20, 5), HorizontalTextAlignment = TextAlignment.Center };
                             Form_Content_Fields.Add(titleText);
                         }
 
                         
-                        Label mainText = new Label() { Text = (string)component.Contents, FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, (string)component.Name == "" ? 20 : 5, 20, 20), HorizontalTextAlignment = TextAlignment.Center };
+                        Label mainText = new Label() { Text = (string)component.Contents, FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, (string)component.Name == "" ? 0 : 5, 20, 20), HorizontalTextAlignment = TextAlignment.Center };
 
                         Form_Content_Fields.Add(mainText);
 
                         continue;
                     }
+
+                    if (!isCurrentlyEditing)
+                        data.Add("");
+                    extraData.Add("");
+                    componentTypes.Add((string)component.Type);
+
+                    if ((string)component.Type == "Grid")
+                    {
+                        int width = int.Parse((string)component.Width);
+                        int height = int.Parse((string)component.Height);
+                        string dataString = "";
+                        Grid singleContainer = new Grid() { Margin = new Thickness(10, 5) };
+
+                        for(int i = 0; i < width; i++)
+                        {
+                            singleContainer.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+                        }
+                        
+                        for (int i = 0; i < height; i++)
+                        {
+                            singleContainer.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+                        }
+                        // additional column and row for labels; will be first col and last row
+                        singleContainer.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+                        singleContainer.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+
+                        if ((string)component.Group != null)
+                        {
+                            if (linkedGrids.ContainsKey((string)component.Group))
+                            {
+                                linkedGrids[(string)component.Group].Add(componentId);
+                            }
+                            else
+                            {
+                                linkedGrids[(string)component.Group] = new List<int>() { componentId };
+                            }
+                        }
+                        else
+                        {
+                            linkedGrids[componentId.ToString()] = new List<int>() { componentId };
+                        }
+
+                        for (int i = 0; i < width; i++)
+                        {
+                            
+                            for (int j = 0; j < height; j++)
+                            {
+                                
+                                Button b = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "-1", FontSize = 10, ClassId = componentId.ToString(), TextColor = Color.FromHex("#280338"), Margin = new Thickness(2,2) };
+                                b.Clicked += HandleGridPress;
+                                singleContainer.Add(b, i+1, j);
+                            }
+                           
+                            
+
+                        }
+
+                        // create labels for grid
+                        List<string> collabels = new List<string>();
+                        foreach (dynamic label in component.ColumnLabels)
+                        {
+                            collabels.Add((string)label);
+                        }
+                        // make sure that we aren't putting too many labels
+                        for (int l = 0; l < (collabels.Count() > width ? width : collabels.Count()); l++)
+                        {
+                            Label newLabel = new Label() { Text = collabels[l], FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(2,6) };
+                            singleContainer.Add(newLabel, l+1, height);
+                        }
+
+                        List<string> rowlabels = new List<string>();
+                        foreach (dynamic label in component.RowLabels)
+                        {
+                            rowlabels.Add((string)label);
+                        }
+                        // make sure that we aren't putting too many labels
+                        for (int l = 0; l < (rowlabels.Count() > height ? height : rowlabels.Count()); l++)
+                        {
+                            Label newLabel = new Label() { Text = rowlabels[l], FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(2) };
+                            singleContainer.Add(newLabel, 0, l);
+                        }
+
+                        if (!isCurrentlyEditing)
+                        {
+                            data[componentId] = "";
+                        }
+
+                        attachedComponents[componentId] = new List<object>() { singleContainer };
+
+                        extraData[componentId] = width.ToString() + ";" + height.ToString() + ";" + ((string)component.Group == null ? "" : (string)component.Group);
+
+                        Label singleComponentName = new Label() { Text = component.Name, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(0, 10) };
+                        Form_Content_Fields.Add(singleComponentName);
+                        Form_Content_Fields.Add(singleContainer);
+                        componentId += 1;
+
+                        continue;
+
+                    }
+
                     // part for the textbox
                     ColumnDefinition textBox = new ColumnDefinition();
                     textBox.Width = new GridLength(2, GridUnitType.Star);
@@ -138,9 +265,7 @@ public partial class Scouting : ContentPage
                     container.ColumnDefinitions.Add(textBox);
                     container.ColumnDefinitions.Add(content);
 
-                    data.Add("");
-                    extraData.Add("");
-                    componentTypes.Add((string)component.Type);
+                    
 
                     switch ((string)component.Type)
                     {
@@ -158,12 +283,21 @@ public partial class Scouting : ContentPage
                             value.TextChanged += HandleFormEntry;
                             upButton.Clicked += HandleFormButton;
 
+                            if (isCurrentlyEditing)
+                            {
+                                value.Text = data[componentId].ToString();
+                            }
+                            else
+                            {
+                                data[componentId] = (string)component.Min;
+                            }
+
                             stepperView.Add(downButton, 0, 0);
                             stepperView.Add(value, 1, 0);
                             stepperView.Add(upButton, 2, 0);
                             container.Add(stepperView, 1, 0);
                             // add initial data as the minimum value for the step component
-                            data[componentId] = (string)component.Min;
+                            
                             extraData[componentId] = (string)component.Min + ";" + (string)component.Max;
                             // add the initial attached components
                             attachedComponents[componentId] = new List<object>
@@ -172,6 +306,7 @@ public partial class Scouting : ContentPage
                             };
 
                             break;
+                        
                         case "Check":
                             Grid buttonView = new Grid() { Margin = new Thickness(0, 5) };
                             buttonView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
@@ -186,7 +321,23 @@ public partial class Scouting : ContentPage
                             buttonView.Add(onButton, 1, 0);
                             container.Add(buttonView, 1, 0);
 
-                            data[componentId] = (string)component.Off;
+                            if (isCurrentlyEditing)
+                            {
+                                if (data[componentId].ToString() == (string)component.On)
+                                {
+                                    HandleFormButton(onButton, null);
+                                }
+                                else
+                                {
+                                    HandleFormButton(offButton, null);
+                                }
+                            }
+                            else
+                            {
+                                data[componentId] = (string)component.Off;
+                            }
+
+                            
                             attachedComponents[componentId] = new List<object>
                             {
                                 offButton, onButton
@@ -210,7 +361,17 @@ public partial class Scouting : ContentPage
 
                             selection.SelectedIndexChanged += HandleFormPicker;
 
-                            data[componentId] = "";
+                            if (isCurrentlyEditing)
+                            {
+                                int i = items.IndexOf(data[componentId].ToString());
+                                if(i < 0)
+                                    data[componentId] = "";
+                            }
+                            else
+                            {
+                                data[componentId] = "";
+                            }
+                            
                             attachedComponents[componentId] = new List<object>
                             {
                                 selection
@@ -221,9 +382,14 @@ public partial class Scouting : ContentPage
                         case "Event":
                             Button eventTrigger = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = (string)component.Trigger, ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
 
+                            if (isCurrentlyEditing)
+                                eventTrigger.IsEnabled = false;
+                            else
+                                data[componentId] = "";
+
                             eventTrigger.Clicked += HandleFormButton;
                             container.Add(eventTrigger, 1, 0);
-                            data[componentId] = "";
+                            
                             extraData[componentId] = (string)component.Max;
                             attachedComponents[componentId] = new List<object>
                             {
@@ -246,9 +412,19 @@ public partial class Scouting : ContentPage
                             startTimer.Clicked += HandleFormButton;
                             resetTimer.Clicked += HandleFormButton;
 
+                            if (isCurrentlyEditing)
+                            {
+                                timers[componentId] = new TimerSet() { enabled = false, seconds = Int32.Parse(data[componentId]), track = DateTime.Now };
+                                currentTime.Text = data[componentId] + "s";
+                            }
+                            else
+                            {
+                                timers[componentId] = new TimerSet() { enabled = false, seconds = 0, track = DateTime.Now };
+                                data[componentId] = "";
+                            }
+
                             container.Add(timerGrid, 1, 0);
-                            timers[componentId] = new TimerSet() { enabled = false, seconds = 0, track = DateTime.Now };
-                            data[componentId] = "";
+                            
                             extraData[componentId] = (string)component.Max;
                             attachedComponents[componentId] = new List<object>
                             {
@@ -282,6 +458,77 @@ public partial class Scouting : ContentPage
         }
         
     }
+
+    private async void HandleGridPress(object sender, EventArgs e)
+    {
+        Button responsible = (Button)sender as Button;
+        int componentId = int.Parse(responsible.ClassId);
+        Grid g = (Grid)attachedComponents[componentId][0];
+
+        int row = g.GetRow(responsible);
+        int col = g.GetColumn(responsible);
+
+        var group = extraData[componentId].Split(";")[2];
+        bool selecting = false;
+
+        if(int.Parse(responsible.Text) == -1)
+        {
+            // no current selection
+            responsible.Text = componentId.ToString();
+            responsible.BackgroundColor = Color.FromHex("#680991");
+            responsible.TextColor = Color.FromHex("#680991");
+            selecting = true;
+        }
+        else if(int.Parse(responsible.Text) == componentId)
+        {
+            responsible.Text = "-1";
+            responsible.BackgroundColor = Color.FromHex("#280338");
+            responsible.TextColor = Color.FromHex("#280338");
+        }
+        else
+        {
+            // current selection is FROM FOREIGN GRID
+            return;
+        }
+
+        if(group != "")
+        {
+            foreach(int id in linkedGrids[group])
+            {
+                if(id != componentId)
+                {
+                    // give dimmer box
+                    var allButtons = ((Grid)attachedComponents[id][0]).Children.ToList();
+                    Grid thisGrid = (Grid)attachedComponents[id][0];
+                    Button b = (Button)allButtons.Find((x) =>
+                    {
+                        var xB = (Button)x;
+                        return thisGrid.GetRow(xB) == row && thisGrid.GetColumn(xB) == col;
+                    });
+                    if (selecting)
+                    {
+                        b.TextColor = Color.FromHex("#3a0e4d");
+                        b.BackgroundColor = Color.FromHex("#3a0e4d");
+                        b.Text = componentId.ToString();
+                    }
+                    else
+                    {
+                        b.TextColor = Color.FromHex("#280338");
+                        b.BackgroundColor = Color.FromHex("#280338");
+                        b.Text = "-1";
+                    }
+                    
+
+                }
+            }
+        }
+
+
+
+    
+        
+    }
+
     private async void HandleFormPicker(object sender, EventArgs e)
     {
         Picker responsible = (Picker)sender as Picker;

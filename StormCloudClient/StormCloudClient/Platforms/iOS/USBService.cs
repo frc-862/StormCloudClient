@@ -18,7 +18,7 @@ namespace StormCloudClient
     }
     public partial class USBService
     {
-        public static AsyncCallback cb = (ac) =>
+        public static AsyncCallback cb = async (ac) =>
         {
             var connectionAttempt = (Socket)ac.AsyncState;
             var connectedSocket = connectionAttempt.EndAccept(ac);
@@ -31,10 +31,34 @@ namespace StormCloudClient
 
             var sendString = Newtonsoft.Json.JsonConvert.SerializeObject(transfer);
             connectedSocket.SendBufferSize = 1024;
-            var sent = connectedSocket.Send(Encoding.ASCII.GetBytes(sendString));
-            Console.WriteLine(sent);
+            connectedSocket.ReceiveBufferSize = 1024;
 
-            foreach(var match in transfer.matches)
+
+            var totalSent = 0;
+            var result = new byte[1024];
+            while(sendString != "")
+            {
+
+                if(sendString.Length > 200)
+                {
+                    totalSent += connectedSocket.Send(Encoding.ASCII.GetBytes(sendString.Substring(0,200)));
+                    sendString = sendString.Substring(200);
+                }
+                else
+                {
+                    totalSent += connectedSocket.Send(Encoding.ASCII.GetBytes(sendString.PadRight(200, ' ')));
+                    sendString = "";
+                }
+
+                connectedSocket.Receive(result);
+            }
+
+            await Task.Delay(200);
+
+            connectedSocket.Send(Encoding.ASCII.GetBytes("END".PadRight(200, ' ')));
+
+
+            foreach (var match in transfer.matches)
             {
                 match.Status = UploadStatus.SUCCEEDED;
             }
@@ -45,7 +69,7 @@ namespace StormCloudClient
             MessageContent messageSend = new MessageContent()
             {
                 Type = MessageType.USB_SEND,
-                Data = "Sent " + sent.ToString() + " Bytes"
+                Data = "Sent " + totalSent.ToString() + " Bytes"
             };
 
             MessagingCenter.Send<NavigationPage, MessageContent>((NavigationPage)Application.Current.MainPage, "USB", messageSend);

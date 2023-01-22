@@ -66,7 +66,7 @@
                             
 
                         </Grid>
-                        <ScrollView MaximumHeightRequest="500">
+                        <ScrollView MaximumHeightRequest="1000">
 
                             <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Margin="20,10" Spacing="10" x:Name="Data_Matches">
 
@@ -323,10 +323,17 @@
             </Grid>-->
             <Grid AbsoluteLayout.LayoutBounds="0, 0, 1, 1" TranslationX="1000" AbsoluteLayout.LayoutFlags="All" x:Name="InfoView" BackgroundColor="#280338" IsVisible="False">
                 <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
-                    <StackLayout x:Name="InfoWaiting" Margin="20">
-                        <ActivityIndicator WidthRequest="50" HeightRequest="50" Color="White" IsRunning="True"/>
-                        <Label Margin="10, 10" Text="Please Wait" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
-                    </StackLayout>
+                    <Grid HorizontalOptions="Center" VerticalOptions="Center">
+                        
+                        <StackLayout x:Name="InfoWaiting" Margin="20" Grid.Row="0" Grid.Column="0">
+                            <ActivityIndicator WidthRequest="50" HeightRequest="50" Color="White" IsRunning="True"/>
+                            <Label x:Name="Info_Label" Margin="10, 10" Text="Please Wait" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
+                        </StackLayout>
+                        <StackLayout x:Name="InfoFinished" Margin="20" Grid.Row="0" Grid.Column="0" Opacity="0" >
+                            <Image Source="check.svg" WidthRequest="200" HeightRequest="200" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </StackLayout>
+                    </Grid>
+                    
                     
                 </StackLayout>
 

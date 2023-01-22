@@ -10,6 +10,12 @@ namespace StormCloudClient;
 
 public partial class MainPage : ContentPage
 {
+    public enum InfoViewStatus
+    {
+        OPEN,
+        SUCCESS,
+        FAIL
+    }
     public MainPage()
     {
         InitializeComponent();
@@ -82,6 +88,7 @@ public partial class MainPage : ContentPage
         var _selectedSchema = DataManagement.GetValue("selected_schema");
         var _serverAddress = DataManagement.GetValue("server_address");
         var _defaultScouter = DataManagement.GetValue("default_scouter");
+        var _matchesScouted = DataManagement.GetValue("matches_created");
 
         var deviceId = (string)DataManagement.GetValue("deviceId");
         if(deviceId == "")
@@ -105,12 +112,16 @@ public partial class MainPage : ContentPage
             Settings_EnvironmentCode.Text = _envCode.ToString();
         if (_uploadMode != null)
             Settings_UploadMode.SelectedIndex = Int32.Parse(_uploadMode.ToString());
+        else
+            Settings_UploadMode.SelectedIndex = 0;
         if (_authKey != null)
             Settings_AuthenticationKey.Text = _authKey.ToString();
         if (_serverAddress != null)
             Settings_ServerAddress.Text = _serverAddress.ToString();
         if (_defaultScouter != null)
             Settings_DefaultScouter.Text = _defaultScouter.ToString();
+        if (_matchesScouted != null)
+            StorageManagement.matchesCreated = Int32.Parse(_matchesScouted.ToString());
 
         List<string> schemaNames = new List<string>();
         foreach (Schema s in StorageManagement.allSchemas)
@@ -128,6 +139,11 @@ public partial class MainPage : ContentPage
                 return;
             }
             Settings_SelectedSchema.SelectedIndex = schemaNames.IndexOf(_selectedSchema.ToString());
+        }
+
+        if(StorageManagement.matchesCreated >= 2 && (string)Settings_UploadMode.SelectedItem == "Using Wireless")
+        {
+            Data_StartSubmitMatches(null, null);
         }
     }
 
@@ -298,8 +314,8 @@ public partial class MainPage : ContentPage
             Color bgColor = Color.FromHex(photo.Status == UploadStatus.NOT_TRIED ? "#280338" : (photo.Status == UploadStatus.FAILED ? "#60051a" : "#3a0e4d"));
 
             var id = photo.Path;
-            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 80, HeightRequest = 50, Margin = new Thickness(10, 0), Padding = new Thickness(4,8) };
-            Label teamNum = new Label() { Text = photo.Team == 0 ? "Unknown" : photo.Team.ToString(), FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
+            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 80, HeightRequest = 50, Margin = new Thickness(8, 0), Padding = new Thickness(4,8) };
+            Label teamNum = new Label() { Text = photo.Team == 0 ? "Unknown" : photo.Team.ToString(), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
             TapGestureRecognizer tap = new TapGestureRecognizer();
             tap.Tapped += Photo_FrameTapped;
 
@@ -331,7 +347,8 @@ public partial class MainPage : ContentPage
         }
         if (res == "Submit" || res == "Resubmit" || res == "Retry Submit")
         {
-            await ChangeInfoView(true);
+            Info_Label.Text = "Submitting Photo";
+            await ChangeInfoView(InfoViewStatus.OPEN);
             Task.Run(async () =>
             {
 
@@ -346,6 +363,13 @@ public partial class MainPage : ContentPage
                     var content = response[0].Content;
 
                     photo.Status = UploadStatus.SUCCEEDED;
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        ChangeInfoView(InfoViewStatus.SUCCESS);
+
+                        ShowPhotos();
+
+                    });
 
                 }
                 else
@@ -357,17 +381,18 @@ public partial class MainPage : ContentPage
                         DisplayAlert("Oops", "Something went wrong connecting to the server. Please ensure that you have a connection and that the server address is correct", "OK");
                         ShowPhotos();
                     });
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        ChangeInfoView(InfoViewStatus.FAIL);
+
+                        ShowPhotos();
+
+                    });
                 }
 
                 StorageManagement._SaveData_Photo();
 
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    ChangeInfoView(false);
-
-                    ShowPhotos();
-
-                });
+                
             });
 
 
@@ -392,7 +417,7 @@ public partial class MainPage : ContentPage
             try
             {
 
-                Image i = new Image() { Source = ImageSource.FromFile(StorageManagement.GetPath(photo.Path)), Margin = new Thickness(5, 5) };
+                Image i = new Image() { Source = ImageSource.FromFile(StorageManagement.GetPath(photo.Path)), Margin = new Thickness(5, 5), HeightRequest = 400 };
                 Overlay_Content.Add(i);
 
             }
@@ -421,7 +446,7 @@ public partial class MainPage : ContentPage
 
 
             Label photoLabel = new Label() { Text = "Photo Type", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
-            Grid photoButtons = new Grid() { };
+            Grid photoButtons = new Grid() { Margin = new Thickness(5,0) };
             photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
             photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
 
@@ -549,7 +574,8 @@ public partial class MainPage : ContentPage
 
         if(res == "Submit" || res == "Resubmit" || res == "Retry Submit")
         {
-            await ChangeInfoView(true);
+            Info_Label.Text = "Submitting Match " + match.Number.ToString();
+            await ChangeInfoView(InfoViewStatus.OPEN);
             Task.Run(async () =>
             {
                 
@@ -564,6 +590,13 @@ public partial class MainPage : ContentPage
                     var content = response.Content;
 
                     match.Status = UploadStatus.SUCCEEDED;
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        ChangeInfoView(InfoViewStatus.SUCCESS);
+
+                        ShowMatches();
+
+                    });
 
                 }
                 else
@@ -575,20 +608,25 @@ public partial class MainPage : ContentPage
                         DisplayAlert("Oops", "Something went wrong connecting to the server. Please ensure that you have a connection and that the server address is correct", "OK");
                         ShowMatches();
                     });
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        ChangeInfoView(InfoViewStatus.FAIL);
+
+                        ShowMatches();
+
+                    });
                 }
 
                 StorageManagement._SaveData_Match();
 
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    ChangeInfoView(false);
-
-                    ShowMatches();
-
-                });
+                
             });
 
             
+        }
+        else if(res == "Edit Data")
+        {
+            Navigation.PushAsync(new Scouting(match.Schema, match.Schema, this, match));
         }
         else if(res == "Mark as 'Not Submitted'")
         {
@@ -802,7 +840,7 @@ public partial class MainPage : ContentPage
         if (_envCode == null)
             _envCode = "";
         PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
-        Navigation.PushAsync(new Scouting(selectedSchema.ToString(), (string)_envCode, this));
+        Navigation.PushAsync(new Scouting(selectedSchema.ToString(), (string)_envCode, this, null));
 
     }
 
@@ -894,7 +932,7 @@ public partial class MainPage : ContentPage
 
     private async void Info_Back(object sender, EventArgs e)
     {
-        ChangeInfoView(false);
+        ChangeInfoView(InfoViewStatus.FAIL);
     }
 
     public void DisplayPhotoEdit(FileResult photo)
@@ -1135,18 +1173,19 @@ public partial class MainPage : ContentPage
 
         PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
 
+        var photosToSubmit = StorageManagement.allPhotos.Where(m => m.Status == UploadStatus.FAILED || m.Status == UploadStatus.NOT_TRIED);
 
-
-        await ChangeInfoView(true);
+        Info_Label.Text = "Submitting " + photosToSubmit.Count() + " Photos";
+        await ChangeInfoView(InfoViewStatus.OPEN);
 
         Task.Run(async () =>
         {
-            var photosToSubmit = StorageManagement.allPhotos.Where(m => m.Status == UploadStatus.FAILED || m.Status == UploadStatus.NOT_TRIED);
+            
             if (photosToSubmit.Count() == 0)
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    ChangeInfoView(false);
+                    ChangeInfoView(InfoViewStatus.FAIL);
 
                 });
                 return;
@@ -1174,7 +1213,7 @@ public partial class MainPage : ContentPage
 
             Device.BeginInvokeOnMainThread(() =>
             {
-                ChangeInfoView(false);
+                ChangeInfoView(InfoViewStatus.SUCCESS);
                 ShowPhotos();
                 
 
@@ -1196,18 +1235,18 @@ public partial class MainPage : ContentPage
 
         PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
 
-
-
-        await ChangeInfoView(true);
+        var matchesToSubmit = StorageManagement.allMatches.Where(m => m.Status == UploadStatus.FAILED || m.Status == UploadStatus.NOT_TRIED);
+        Info_Label.Text = "Submitting " + matchesToSubmit.Count().ToString() + " Matches";
+        await ChangeInfoView(InfoViewStatus.OPEN);
 
         Task.Run(async () =>
         {
-            var matchesToSubmit = StorageManagement.allMatches.Where(m => m.Status == UploadStatus.FAILED || m.Status == UploadStatus.NOT_TRIED);
+            
             if (matchesToSubmit.Count() == 0) 
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    ChangeInfoView(false);
+                    ChangeInfoView(InfoViewStatus.FAIL);
 
                 });
                 return;
@@ -1246,7 +1285,7 @@ public partial class MainPage : ContentPage
 
             Device.BeginInvokeOnMainThread(() =>
             {
-                ChangeInfoView(false);
+                ChangeInfoView(InfoViewStatus.SUCCESS);
 
                 ShowMatches();
 
@@ -1267,10 +1306,10 @@ public partial class MainPage : ContentPage
 
 
 
-        
 
+        Info_Label.Text = "Downloading Data";
 
-        await ChangeInfoView(true);
+        await ChangeInfoView(InfoViewStatus.OPEN);
 
         Task.Run(async () =>
         {
@@ -1283,11 +1322,23 @@ public partial class MainPage : ContentPage
 
                 dynamic contentObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
                 var selectedSchema = contentObject["settings"]["selectedSchema"];
+                var version = contentObject["settings"]["minBuild"];
                 dynamic schemaObject = contentObject["schema"];
                 StorageManagement.AddData_Schema((string)schemaObject["Name"], Newtonsoft.Json.JsonConvert.SerializeObject(schemaObject));
 
 
 
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    ChangeInfoView(InfoViewStatus.SUCCESS);
+
+                    var build = VersionTracking.Default.CurrentBuild.ToString();
+
+                    DisplayAlert("Warning", "We have detected that you are on an older version of StormCloud. The website that you are using requies a version newer than yours to properly run. Please advise upgrading your app version.", "OK");
+
+                    UpdateSettings();
+
+                });
                 DataManagement.SetValue("selected_schema", (string)selectedSchema);
 
             }
@@ -1295,17 +1346,20 @@ public partial class MainPage : ContentPage
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
+                    ChangeInfoView(InfoViewStatus.FAIL);
+
+                    UpdateSettings();
                     DisplayAlert("Oops", "Something went wrong connecting to the server. Please ensure that you have a connection and that the server address is correct", "OK");
+                });
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    
+
                 });
             }
 
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                ChangeInfoView(false);
 
-                UpdateSettings();
-
-            });
+            
         });
         
 
@@ -1313,28 +1367,44 @@ public partial class MainPage : ContentPage
     }
 
 
-    bool _infoViewEnabled;
-    public async Task<bool> ChangeInfoView(bool newState)
+    InfoViewStatus _infoViewStatus = InfoViewStatus.SUCCESS;
+
+    public async Task<bool> ChangeInfoView(InfoViewStatus newState)
     {
-        if (newState == _infoViewEnabled)
+        if (newState == _infoViewStatus)
             return false;
 
-        _infoViewEnabled = newState;
-        if (_infoViewEnabled)
+        _infoViewStatus = newState;
+        if (_infoViewStatus == InfoViewStatus.OPEN)
         {
             InfoView.IsVisible = true;
+            InfoFinished.Opacity = 0;
+
+            InfoWaiting.Opacity = 0;
+            InfoWaiting.FadeTo(1, 500, Easing.CubicInOut);
             await InfoView.TranslateTo(0, 0, 500, Easing.CubicInOut);
+
             //CameraBox.IsEnabled = true;
             //CameraBox.IsDetecting = true;
             //CameraBox.CameraLocation = ZXing.Net.Maui.CameraLocation.Rear;
 
         }
-        else
+        else if(_infoViewStatus == InfoViewStatus.SUCCESS)
         {
+            InfoWaiting.FadeTo(0, 500, Easing.CubicInOut);
+            await Task.Delay(200);
+            InfoFinished.FadeTo(1, 500, Easing.CubicInOut);
+            await Task.Delay(2000);
+            InfoFinished.FadeTo(0, 500, Easing.CubicInOut);
+
             await InfoView.TranslateTo(1000, 0, 500, Easing.CubicInOut);
             //CameraView.IsVisible = false;
             //CameraBox.IsEnabled = false;
             //CameraBox.IsDetecting = false;
+        }
+        else
+        {
+            await InfoView.TranslateTo(1000, 0, 500, Easing.CubicInOut);
         }
         return true;
     }
