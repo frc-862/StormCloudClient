@@ -143,6 +143,9 @@ public partial class MainPage : ContentPage
 
         if(StorageManagement.matchesCreated >= 2 && (string)Settings_UploadMode.SelectedItem == "Using Wireless")
         {
+            StorageManagement.matchesCreated = 0;
+            DataManagement.SetValue("matches_created", "0");
+
             Data_StartSubmitMatches(null, null);
         }
     }
@@ -247,6 +250,17 @@ public partial class MainPage : ContentPage
             m1.Number - m2.Number
         );
 
+        if(matches.Count == 0)
+        {
+            Data_SomeMatches.IsVisible = false;
+            Data_NoMatches.IsVisible = true;
+        }
+        else
+        {
+            Data_SomeMatches.IsVisible = true;
+            Data_NoMatches.IsVisible = false;
+        }
+
         Data_Matches.Children.Clear();
         foreach(Match m in matches)
         {
@@ -314,7 +328,7 @@ public partial class MainPage : ContentPage
             Color bgColor = Color.FromHex(photo.Status == UploadStatus.NOT_TRIED ? "#280338" : (photo.Status == UploadStatus.FAILED ? "#60051a" : "#3a0e4d"));
 
             var id = photo.Path;
-            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 80, HeightRequest = 50, Margin = new Thickness(8, 0), Padding = new Thickness(4,8) };
+            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 80, HeightRequest = 50, Margin = new Thickness(8, 4), Padding = new Thickness(4,8) };
             Label teamNum = new Label() { Text = photo.Team == 0 ? "Unknown" : photo.Team.ToString(), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
             TapGestureRecognizer tap = new TapGestureRecognizer();
             tap.Tapped += Photo_FrameTapped;
@@ -336,13 +350,13 @@ public partial class MainPage : ContentPage
         switch (photo.Status)
         {
             case UploadStatus.NOT_TRIED:
-                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString(), "Never Mind", null, "Submit", "Delete", "Edit Details");
+                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString(), "Never Mind", "Delete", "Submit", "Edit Details");
                 break;
             case UploadStatus.SUCCEEDED:
-                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString() + " (Submitted)", "Never Mind", null, "Mark as 'Not Submitted'", "Delete", "Edit Details");
+                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString() + " (Submitted)", "Never Mind", "Delete", "Mark as 'Not Submitted'", "Edit Details");
                 break;
             case UploadStatus.FAILED:
-                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString(), "Never Mind", null, "Retry Submit", "Delete", "Edit Details");
+                res = await DisplayActionSheet(photo.Team == 0 ? "Photo" : "Photo for " + photo.Team.ToString(), "Never Mind", "Delete", "Retry Submit", "Edit Details");
                 break;
         }
         if (res == "Submit" || res == "Resubmit" || res == "Retry Submit")
@@ -363,6 +377,7 @@ public partial class MainPage : ContentPage
                     var content = response[0].Content;
 
                     photo.Status = UploadStatus.SUCCEEDED;
+                    StorageManagement._SaveData_Photo();
                     Device.BeginInvokeOnMainThread(() =>
                     {
                         ChangeInfoView(InfoViewStatus.SUCCESS);
@@ -376,6 +391,7 @@ public partial class MainPage : ContentPage
                 {
 
                     photo.Status = UploadStatus.FAILED;
+                    StorageManagement._SaveData_Photo();
                     Device.BeginInvokeOnMainThread(() =>
                     {
                         DisplayAlert("Oops", "Something went wrong connecting to the server. Please ensure that you have a connection and that the server address is correct", "OK");
@@ -417,7 +433,7 @@ public partial class MainPage : ContentPage
             try
             {
 
-                Image i = new Image() { Source = ImageSource.FromFile(StorageManagement.GetPath(photo.Path)), Margin = new Thickness(5, 5), HeightRequest = 400 };
+                Image i = new Image() { Source = ImageSource.FromFile(StorageManagement.GetPath(photo.Path)), Margin = new Thickness(5, 5), HeightRequest = 400, Rotation = (photo.JustTaken ? 90 : 0) };
                 Overlay_Content.Add(i);
 
             }
@@ -446,7 +462,7 @@ public partial class MainPage : ContentPage
 
 
             Label photoLabel = new Label() { Text = "Photo Type", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
-            Grid photoButtons = new Grid() { Margin = new Thickness(5,0) };
+            Grid photoButtons = new Grid() { Margin = new Thickness(10,0,10,10) };
             photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
             photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
 
@@ -562,13 +578,13 @@ public partial class MainPage : ContentPage
         switch (match.Status)
         {
             case UploadStatus.NOT_TRIED:
-                res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", null, "Submit", "Delete", "Edit Details");
+                res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", "Delete", "Submit", "Edit Details", "Edit Data");
                 break;
             case UploadStatus.SUCCEEDED:
-                res = await DisplayActionSheet("Match " + match.Number.ToString() + " (Submitted)", "Never Mind", null, "Mark as 'Not Submitted'", "Delete", "Edit Details");
+                res = await DisplayActionSheet("Match " + match.Number.ToString() + " (Submitted)", "Never Mind", "Delete", "Mark as 'Not Submitted'", "Edit Details", "Edit Data");
                 break;
             case UploadStatus.FAILED:
-                res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", null, "Retry Submit", "Delete", "Edit Details");
+                res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", "Delete", "Retry Submit", "Edit Details", "Edit Data");
                 break;
         }
 
@@ -590,6 +606,7 @@ public partial class MainPage : ContentPage
                     var content = response.Content;
 
                     match.Status = UploadStatus.SUCCEEDED;
+                    StorageManagement._SaveData_Match();
                     Device.BeginInvokeOnMainThread(() =>
                     {
                         ChangeInfoView(InfoViewStatus.SUCCESS);
@@ -603,6 +620,7 @@ public partial class MainPage : ContentPage
                 {
 
                     match.Status = UploadStatus.FAILED;
+                    StorageManagement._SaveData_Match();
                     Device.BeginInvokeOnMainThread(() =>
                     {
                         DisplayAlert("Oops", "Something went wrong connecting to the server. Please ensure that you have a connection and that the server address is correct", "OK");
@@ -935,7 +953,7 @@ public partial class MainPage : ContentPage
         ChangeInfoView(InfoViewStatus.FAIL);
     }
 
-    public void DisplayPhotoEdit(FileResult photo)
+    public void DisplayPhotoEdit(FileResult photo, bool taken)
     {
         Overlay_Content.Clear();
         overlayInputs.Clear();
@@ -1054,7 +1072,7 @@ public partial class MainPage : ContentPage
 
             
             PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
-            StorageManagement.AddData_Photo(photo, teamNum, matchNums, photoButtons.ClassId);
+            StorageManagement.AddData_Photo(photo, teamNum, matchNums, photoButtons.ClassId, taken);
 
             Device.StartTimer(TimeSpan.FromSeconds(2), () =>
             {
@@ -1076,12 +1094,14 @@ public partial class MainPage : ContentPage
         PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         if (MediaPicker.Default.IsCaptureSupported)
         {
+            
             FileResult photo = await MediaPicker.Default.CapturePhotoAsync();
+           
             
             if (photo != null)
             {
 
-                DisplayPhotoEdit(photo);
+                DisplayPhotoEdit(photo, true);
 
 
 
@@ -1102,7 +1122,7 @@ public partial class MainPage : ContentPage
         FileResult selected = await MediaPicker.Default.PickPhotoAsync();
         if(selected != null)
         {
-            DisplayPhotoEdit(selected);
+            DisplayPhotoEdit(selected, false);
         }
     }
 

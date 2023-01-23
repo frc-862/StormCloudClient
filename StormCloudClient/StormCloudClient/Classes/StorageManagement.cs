@@ -1,4 +1,5 @@
-﻿using StormCloudClient.Services;
+﻿using Microsoft.Maui.Graphics.Platform;
+using StormCloudClient.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,7 @@ namespace StormCloudClient.Classes
         public string Identifier;
         public string Type;
         public string DeviceID;
+        public bool JustTaken;
     }
     public class StorageManagement
     {
@@ -174,12 +176,13 @@ namespace StormCloudClient.Classes
         }
 
 
-        public static async void AddData_Photo(FileResult photo, int Team, List<int> Matches, string type)
+        public static async void AddData_Photo(FileResult photo, int Team, List<int> Matches, string type, bool taken)
         {
 
             var created = DateTime.Now;
             var filename = created.ToString();
             filename = filename.Replace("/", "_");
+            
             var p = new Photo()
             {
                 Taken = created,
@@ -189,16 +192,19 @@ namespace StormCloudClient.Classes
                 Matches = Matches,
                 Identifier = GenerateUUID(),
                 DeviceID = (string)DataManagement.GetValue("deviceId"),
-                Type = type
+                Type = type,
+                JustTaken = taken
             };
             allPhotos.Add(p);
 
             var localFilePath = _GetPath(p.Path);
 
             using Stream sourceStream = await photo.OpenReadAsync();
+            var picture = PlatformImage.FromStream(sourceStream);
             using FileStream localFileStream = File.OpenWrite(localFilePath);
+            await picture.SaveAsync(localFileStream, ImageFormat.Jpeg, quality: 0.90f);
             
-            await sourceStream.CopyToAsync(localFileStream);
+           
 
             
 

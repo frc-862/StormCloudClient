@@ -56,24 +56,36 @@
                         <Label Margin="10, 20" Text="Next Up..." HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
                         
                         <Button Clicked="GoToMatch" FontSize="24" Text="Scout Next Match" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="20,0"/>
-                        <Label Text="Matches Completed"
-                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,50,0,20" />
-                        <Grid Margin="10,5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Clicked="Data_StartSubmitMatches" FontSize="16" Text="Submit All Matches" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
+                        <Grid>
+                            <StackLayout Grid.Row="0" Grid.Column="0" x:Name="Data_SomeMatches">
+                                <Label Text="Matches Completed"
+                                    HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" Margin="0,50,0,20" />
+                                <Grid Margin="10,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Clicked="Data_StartSubmitMatches" FontSize="16" Text="Submit All Matches" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
                             
 
-                        </Grid>
-                        <ScrollView MaximumHeightRequest="1000">
+                                </Grid>
+                                <ScrollView MaximumHeightRequest="1000">
 
-                            <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Margin="20,10" Spacing="10" x:Name="Data_Matches">
+                                    <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Margin="20,10" Spacing="10" x:Name="Data_Matches">
 
 
+
+                                    </StackLayout>
+                                </ScrollView>
 
                             </StackLayout>
-                        </ScrollView>
+                            <StackLayout Grid.Row="0" Grid.Column="0" IsVisible="False" x:Name="Data_NoMatches">
+                                <Label Text="No Matches Completed"
+                                    HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="28" Margin="0,50,0,20" FontAttributes="Italic" />
+
+                            </StackLayout>
+
+                        </Grid>
+                        
                         
                     </StackLayout>
                     
@@ -330,7 +342,7 @@
                             <Label x:Name="Info_Label" Margin="10, 10" Text="Please Wait" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
                         </StackLayout>
                         <StackLayout x:Name="InfoFinished" Margin="20" Grid.Row="0" Grid.Column="0" Opacity="0" >
-                            <Image Source="check.svg" WidthRequest="200" HeightRequest="200" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Image Source="check.png" WidthRequest="150" HeightRequest="150" HorizontalOptions="Center" VerticalOptions="Center"/>
                         </StackLayout>
                     </Grid>
                     

@@ -21,6 +21,8 @@ public partial class Scouting : ContentPage
 
     public Dictionary<string, List<int>> linkedGrids = new Dictionary<string, List<int>>();
 
+    public Dictionary<int, Frame> timerSections = new Dictionary<int, Frame>();
+    public Frame currentTimerSection;
 
     public Dictionary<int, List<object>> attachedComponents = new Dictionary<int, List<object>>();
     public Dictionary<int, TimerSet> timers = new Dictionary<int, TimerSet>();
@@ -43,22 +45,30 @@ public partial class Scouting : ContentPage
         this.Environment = Environment;
         this.SchemaName = SchemaName;
         _ref = mainMenu;
-        if(prior != null)
+        
+        
+		InitializeComponent();
+        if (prior != null)
         {
             EditingMatch = prior;
             try
             {
-                data = (List<string>)Newtonsoft.Json.JsonConvert.DeserializeObject(prior.Data);
-                
+                data = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(prior.Data);
+
             }
             catch (Exception ex)
             {
 
             }
+
+            Status_PreContent.IsVisible = false;
+            Status_EditContent.IsVisible = true;
+
+            Status_EditContent_Notice.Text = "You are editing Match " + EditingMatch.Number.ToString() + " for Team " + EditingMatch.Team.ToString() + ". Since this was a timed match, you will not be able to modify any Event components. To restart a match, please delete this match and recreate it with the same details.";
+            Status_BottomBar.TranslateTo(0, 300, 500, Easing.CubicInOut);
+
         }
-        
-		InitializeComponent();
-	}
+    }
 
     protected override void OnAppearing()
     {
@@ -87,6 +97,16 @@ public partial class Scouting : ContentPage
             }
 
             var timeBetween = (now - start);
+
+            var totalSeconds = (int)timeBetween.TotalSeconds;
+            if (timerSections.ContainsKey(totalSeconds))
+            {
+                if (currentTimerSection != null)
+                    currentTimerSection.BackgroundColor = Color.FromHex("#190024");
+                currentTimerSection = timerSections[totalSeconds];
+                currentTimerSection.BackgroundColor = Color.FromHex("#3a0e4d");
+            }
+
             var seconds = timeBetween.Seconds.ToString().PadLeft(2, '0');
             var minutes = timeBetween.Minutes.ToString();
             Match_Time.Text = minutes + ":" + seconds;
@@ -98,11 +118,60 @@ public partial class Scouting : ContentPage
 
     private async void Back(object sender, EventArgs e)
     {
-        Navigation.PopAsync();
+        bool res = false;
+        if(EditingMatch != null)
+        {
+            res = await DisplayAlert("Are You Sure?", "Any unsaved changes that you've made will be lost. The match will revert back to its original state.", "Exit", "Cancel");
+        }
+        else
+        {
+            res = await DisplayAlert("Are You Sure?", "Any unsaved changes that you've made to this match will be lost.", "Exit", "Cancel");
+        }
+        if(res)
+            Navigation.PopAsync();
     }
 
     private async void SaveMatch(object sender, EventArgs e)
     {
+        foreach(string group in linkedGrids.Keys.ToList())
+        {
+            foreach(int compId in linkedGrids[group])
+            {
+                int width = int.Parse(extraData[compId].Split(";")[0]);
+                int height = int.Parse(extraData[compId].Split(";")[1]);
+                Grid g = (Grid)attachedComponents[compId][0];
+                int[,] values = new int[width, height];
+                foreach(var child in g.Children)
+                {
+                    Label l = child as Label;
+                    // this is a label, do not track for the value
+                    if (l != null)
+                        continue;
+                    // we now know that this is a button that we can get
+                    Button b = child as Button;
+                    int row = g.GetRow(b);
+                    int col = g.GetColumn(b) - 1; //subtract 1 since the label is on the 1st column
+                    values[col, row] = int.Parse(b.Text);
+                }
+
+                string finalResult = "";
+                for (int j = 0; j < height; j++)
+                {
+                    for (int i = 0; i < width; i++)
+                    {
+                        finalResult += values[i, j].ToString() + ",";
+                    }
+                    finalResult = finalResult.Substring(0, finalResult.Length - 1) + "*";
+                }
+                finalResult = finalResult.Substring(0, finalResult.Length - 1);
+                data[compId] = finalResult;
+            }
+        }
+
+
+
+
+
         var stringContents = Newtonsoft.Json.JsonConvert.SerializeObject(data);
         StorageManagement.matchesCreated += 1;
         DataManagement.SetValue("matches_created", StorageManagement.matchesCreated.ToString());
@@ -112,8 +181,15 @@ public partial class Scouting : ContentPage
 
 
 
-
-        StorageManagement.AddData_Match(Number, Team, Scouter, AllianceColor, SchemaName, Environment, stringContents);
+        if(EditingMatch != null)
+        {
+            StorageManagement.AddData_Match(EditingMatch.Number, EditingMatch.Team, EditingMatch.Scouter, EditingMatch.Color, EditingMatch.Schema, EditingMatch.Environment, stringContents);
+        }
+        else
+        {
+            StorageManagement.AddData_Match(Number, Team, Scouter, AllianceColor, SchemaName, Environment, stringContents);
+        }
+        
 
         Navigation.PopAsync();
     }
@@ -130,13 +206,24 @@ public partial class Scouting : ContentPage
             // go through each part
             foreach(dynamic part in schemaObject.Parts)
             {
-               
+
                 // add part title
-                Label title = new Label() { Text = part.Name, FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0,20) };
-                Form_Content_Fields.Add(title);
+                Frame titleFrame = new Frame() { CornerRadius = 16, Margin = new Thickness(0, 25, 0, 15), BackgroundColor = Color.FromHex("#190024"), Padding = new Thickness(25, 2), BorderColor = Color.FromArgb("00ffffff"), HorizontalOptions=LayoutOptions.Center };
+
+                Label title = new Label() { Text = part.Name, FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0,10) };
+                titleFrame.Content = title;
+                int startTime = int.Parse((string)part.Time);
+
+                if (!timerSections.ContainsKey(startTime))
+                {
+                    timerSections[startTime] = titleFrame;
+                }
+
+                Form_Content_Fields.Add(titleFrame);
 
                 foreach(dynamic component in part.Components)
                 {
+
 
                     if((string)component.Type == "Label")
                     {
@@ -166,6 +253,20 @@ public partial class Scouting : ContentPage
                         int height = int.Parse((string)component.Height);
                         string dataString = "";
                         Grid singleContainer = new Grid() { Margin = new Thickness(10, 5) };
+
+                        int[,] prevData = new int[width, height];
+                        if (isCurrentlyEditing)
+                        {
+                            var rows = data[componentId].Split("*");
+                            for(int r = 0; r < rows.Length; r++)
+                            {
+				                var cols = rows[r].Split(",");
+				                for(int c = 0; c < cols.Length; c++)
+                                {
+					                prevData[c,r] = int.Parse(cols[c]);
+					            }
+				            }
+                        }
 
                         for(int i = 0; i < width; i++)
                         {
@@ -202,7 +303,24 @@ public partial class Scouting : ContentPage
                             for (int j = 0; j < height; j++)
                             {
                                 
-                                Button b = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "-1", FontSize = 10, ClassId = componentId.ToString(), TextColor = Color.FromHex("#280338"), Margin = new Thickness(2,2) };
+                                Button b = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = (isCurrentlyEditing ? prevData[i,j].ToString() : "-1"), FontSize = 10, ClassId = componentId.ToString(), TextColor = Color.FromHex("#280338"), Margin = new Thickness(2,2) };
+				                if(isCurrentlyEditing){
+					                // should be disabled
+					                if(prevData[i,j] == componentId)
+                                    {
+                                        b.BackgroundColor = Color.FromHex("#680991");
+                                        b.TextColor = Color.FromHex("#680991");
+                                    }
+						                
+					                else if(prevData[i,j] != -1)
+                                    {
+                                        b.BackgroundColor = Color.FromHex("#3a0e4d");
+                                        b.TextColor = Color.FromHex("#3a0e4d");
+                                    }
+						                
+						
+				
+				                }
                                 b.Clicked += HandleGridPress;
                                 singleContainer.Add(b, i+1, j);
                             }
@@ -321,6 +439,11 @@ public partial class Scouting : ContentPage
                             buttonView.Add(onButton, 1, 0);
                             container.Add(buttonView, 1, 0);
 
+                            attachedComponents[componentId] = new List<object>
+                            {
+                                offButton, onButton
+                            };
+
                             if (isCurrentlyEditing)
                             {
                                 if (data[componentId].ToString() == (string)component.On)
@@ -338,10 +461,7 @@ public partial class Scouting : ContentPage
                             }
 
                             
-                            attachedComponents[componentId] = new List<object>
-                            {
-                                offButton, onButton
-                            };
+                            
                             
                             break;
                         case "Select":
@@ -364,8 +484,10 @@ public partial class Scouting : ContentPage
                             if (isCurrentlyEditing)
                             {
                                 int i = items.IndexOf(data[componentId].ToString());
-                                if(i < 0)
+                                if (i < 0)
                                     data[componentId] = "";
+                                else
+                                    selection.SelectedIndex = i;
                             }
                             else
                             {
@@ -414,13 +536,23 @@ public partial class Scouting : ContentPage
 
                             if (isCurrentlyEditing)
                             {
-                                timers[componentId] = new TimerSet() { enabled = false, seconds = Int32.Parse(data[componentId]), track = DateTime.Now };
-                                currentTime.Text = data[componentId] + "s";
+                                try
+                                {
+                                    timers[componentId] = new TimerSet() { enabled = false, seconds = float.Parse(data[componentId]), track = DateTime.Now };
+                                    currentTime.Text = data[componentId] + "s";
+                                }
+                                catch(Exception ex)
+                                {
+                                    timers[componentId] = new TimerSet() { enabled = false, seconds = 0, track = DateTime.Now };
+                                    currentTime.Text = "0s";
+                                    data[componentId] = "0";
+                                }
+                                
                             }
                             else
                             {
                                 timers[componentId] = new TimerSet() { enabled = false, seconds = 0, track = DateTime.Now };
-                                data[componentId] = "";
+                                data[componentId] = "0";
                             }
 
                             container.Add(timerGrid, 1, 0);
@@ -624,6 +756,8 @@ public partial class Scouting : ContentPage
                 data[compId] = responsible.Text;
                 break;
             case "Event":
+                if (EditingMatch != null)
+                    return;
                 var secondsIn = (int)((DateTime.Now - start).TotalSeconds);
                 var max = int.Parse(extraData[compId]);
 
@@ -715,7 +849,32 @@ public partial class Scouting : ContentPage
 		if (_readyTransitionLock)
 			return;
 
-        
+        if(EditingMatch != null)
+        {
+            Status_PostContent_MatchNumber.Text = "Match " + EditingMatch.Number.ToString();
+            Status_PostContent_TeamNumber.Text = "Team " + EditingMatch.Team.ToString();
+
+            _readyTransitionLock = true;
+            Status_BottomBar.TranslateTo(0, 500, 500, Easing.CubicInOut);
+
+            Status_PreConfirm.FadeTo(0, 250, Easing.CubicInOut);
+            Status_PostConfirm.FadeTo(1, 250, Easing.CubicInOut);
+
+            Status_EditContent.FadeTo(0, 250, Easing.CubicInOut);
+
+
+
+            ClickBlock.FadeTo(0, 300, Easing.CubicInOut);
+
+            start = DateTime.Now;
+            await Task.Delay(350);
+            Status_EditContent.IsVisible = false;
+            Status_PostContent.IsVisible = true;
+
+            Status_PostContent.FadeTo(1, 250, Easing.CubicInOut);
+            ClickBlock.IsVisible = false;
+            return;
+        }
 
         // check if fields are valid...
 
@@ -764,14 +923,17 @@ public partial class Scouting : ContentPage
 		Status_PostConfirm.FadeTo(1, 250, Easing.CubicInOut);
 
 		Status_PreContent.FadeTo(0, 250, Easing.CubicInOut);
-		Status_PostContent.IsVisible = true;
 
-        Status_PostContent.FadeTo(1, 250, Easing.CubicInOut);
+		
 
         ClickBlock.FadeTo(0, 300, Easing.CubicInOut);
 
         start = DateTime.Now;
         await Task.Delay(350);
+        Status_PreContent.IsVisible = false;
+        Status_PostContent.IsVisible = true;
+
+        Status_PostContent.FadeTo(1, 250, Easing.CubicInOut);
         ClickBlock.IsVisible = false;
 	}
     private async void Status_ToggleBottomBar_Clicked(object sender, EventArgs e)
