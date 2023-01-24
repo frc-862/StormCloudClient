@@ -10,6 +10,13 @@ public class TimerSet
     public bool enabled;
 }
 
+public class ColorSet
+{
+    public Color main;
+    public Color selected;
+    public Color higher;
+}
+
 public partial class Scouting : ContentPage
 {
 
@@ -20,6 +27,16 @@ public partial class Scouting : ContentPage
     public List<string> extraData = new List<string>();
 
     public Dictionary<string, List<int>> linkedGrids = new Dictionary<string, List<int>>();
+
+    Dictionary<string, ColorSet> colorSets = new Dictionary<string, ColorSet>()
+    {
+        
+        {"default", new ColorSet(){ selected = Color.FromHex("680991"), higher = Color.FromHex("3a0e4d"), main = Color.FromHex("#280338") } },
+        {"red", new ColorSet(){ selected = Color.FromHex("#e80c3f"), higher = Color.FromHex("#910929"), main = Color.FromHex("#60051a") } },
+        {"blue", new ColorSet(){ selected = Color.FromHex("#3e0ddb"), higher = Color.FromHex("#290991"), main = Color.FromHex("#1a065d") } },
+        {"purple", new ColorSet(){ selected = Color.FromHex("#d9009f"), higher = Color.FromHex("#8f096b"), main = Color.FromHex("#54043f") } },
+        {"white", new ColorSet(){ selected = Color.FromHex("#bfbfbf"), higher = Color.FromHex("#5a5a5a"), main = Color.FromHex("#2b2b2b") } }
+    };
 
     public Dictionary<int, Frame> timerSections = new Dictionary<int, Frame>();
     public Frame currentTimerSection;
@@ -67,6 +84,11 @@ public partial class Scouting : ContentPage
             Status_EditContent_Notice.Text = "You are editing Match " + EditingMatch.Number.ToString() + " for Team " + EditingMatch.Team.ToString() + ". Since this was a timed match, you will not be able to modify any Event components. To restart a match, please delete this match and recreate it with the same details.";
             Status_BottomBar.TranslateTo(0, 300, 500, Easing.CubicInOut);
 
+        }
+        else
+        {
+            Status_PreContent.IsVisible = true;
+            Status_EditContent.IsVisible = false;
         }
     }
 
@@ -297,25 +319,38 @@ public partial class Scouting : ContentPage
                             linkedGrids[componentId.ToString()] = new List<int>() { componentId };
                         }
 
+                        List<string> colorscols = new List<string>();
+                        foreach (dynamic color in component.ColumnColors)
+                        {
+                            colorscols.Add((string)color);
+                        }
+
                         for (int i = 0; i < width; i++)
                         {
                             
                             for (int j = 0; j < height; j++)
                             {
-                                
-                                Button b = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = (isCurrentlyEditing ? prevData[i,j].ToString() : "-1"), FontSize = 10, ClassId = componentId.ToString(), TextColor = Color.FromHex("#280338"), Margin = new Thickness(2,2) };
+                                var useGColor = "default";
+                                if(i < colorscols.Count)
+                                {
+                                    if (colorSets.ContainsKey(colorscols[i].ToLower()))
+                                    {
+                                        useGColor = colorscols[i].ToLower();
+                                    }
+                                }
+                                Button b = new Button() { BackgroundColor = colorSets[useGColor].main, Text = (isCurrentlyEditing ? prevData[i,j].ToString() : "-1"), FontSize = 10, ClassId = componentId.ToString(), TextColor = Color.FromHex("#280338"), Margin = new Thickness(2,2), StyleId = useGColor };
 				                if(isCurrentlyEditing){
 					                // should be disabled
 					                if(prevData[i,j] == componentId)
                                     {
-                                        b.BackgroundColor = Color.FromHex("#680991");
-                                        b.TextColor = Color.FromHex("#680991");
+                                        b.BackgroundColor = colorSets[useGColor].selected;
+                                        b.TextColor = colorSets[useGColor].selected;
                                     }
 						                
 					                else if(prevData[i,j] != -1)
                                     {
-                                        b.BackgroundColor = Color.FromHex("#3a0e4d");
-                                        b.TextColor = Color.FromHex("#3a0e4d");
+                                        b.BackgroundColor = colorSets[useGColor].higher;
+                                        b.TextColor = colorSets[useGColor].higher;
                                     }
 						                
 						
@@ -383,7 +418,21 @@ public partial class Scouting : ContentPage
                     container.ColumnDefinitions.Add(textBox);
                     container.ColumnDefinitions.Add(content);
 
+                    var useColor = "default";
+                    try
+                    {
+                        string color = ((string)component.Color).ToLower();
+                        if (colorSets.ContainsKey(color))
+                        {
+                            useColor = color;
+                        }
+                    }
+                    catch(Exception colorex)
+                    {
+
+                    }
                     
+
 
                     switch ((string)component.Type)
                     {
@@ -393,9 +442,9 @@ public partial class Scouting : ContentPage
                             stepperView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) });
                             stepperView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(2, GridUnitType.Star) });
 
-                            Button downButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "-", FontSize=16, ClassId=componentId.ToString(), TextColor = Color.FromHex("#ffffff") };
-                            Entry value = new Entry() { Keyboard = Keyboard.Numeric, FontSize = 18, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center, Text = (string)component.Min, ClassId = componentId.ToString(), TextColor= Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center };
-                            Button upButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = "+", FontSize = 16, ClassId = componentId.ToString(), TextColor = Color.FromHex("#ffffff") };
+                            Button downButton = new Button() { BackgroundColor = colorSets[useColor].main, Text = "-", FontSize=16, ClassId=componentId.ToString(), TextColor = Color.FromHex("#ffffff"), StyleId = useColor };
+                            Entry value = new Entry() { Keyboard = Keyboard.Numeric, FontSize = 18, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center, Text = (string)component.Min, ClassId = componentId.ToString(), TextColor= Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, StyleId = useColor };
+                            Button upButton = new Button() { BackgroundColor = colorSets[useColor].main, Text = "+", FontSize = 16, ClassId = componentId.ToString(), TextColor = Color.FromHex("#ffffff"), StyleId = useColor };
 
                             downButton.Clicked += HandleFormButton;
                             value.TextChanged += HandleFormEntry;
@@ -429,8 +478,8 @@ public partial class Scouting : ContentPage
                             Grid buttonView = new Grid() { Margin = new Thickness(0, 5) };
                             buttonView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
                             buttonView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-                            Button offButton = new Button() { BackgroundColor = Color.FromHex("#680991"), Text = (string)component.Off, ClassId=componentId.ToString(), Margin=new Thickness(5,0), TextColor = Color.FromHex("#ffffff") };
-                            Button onButton = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = (string)component.On, ClassId=componentId.ToString(), Margin = new Thickness(5, 0), TextColor = Color.FromHex("#ffffff") };
+                            Button offButton = new Button() { BackgroundColor = colorSets[useColor].selected, Text = (string)component.Off, ClassId=componentId.ToString(), Margin=new Thickness(5,0), TextColor = Color.FromHex("#ffffff"), StyleId = useColor };
+                            Button onButton = new Button() { BackgroundColor = colorSets[useColor].main, Text = (string)component.On, ClassId=componentId.ToString(), Margin = new Thickness(5, 0), TextColor = Color.FromHex("#ffffff"), StyleId = useColor };
 
                             offButton.Clicked += HandleFormButton;
                             onButton.Clicked += HandleFormButton;
@@ -465,9 +514,9 @@ public partial class Scouting : ContentPage
                             
                             break;
                         case "Select":
-                            Frame pickerFrame = new Frame() { CornerRadius = 8, Margin = new Thickness(5, 5), BackgroundColor = Color.FromHex("#280338"), Padding = new Thickness(5, 0), BorderColor = Color.FromArgb("00ffffff") };
-                            Frame borderProtect = new Frame() { CornerRadius = 4, Padding = new Thickness(0), BorderColor = Color.FromHex("#280338") };
-                            Picker selection = new Picker() { FontSize = 16, BackgroundColor = Color.FromHex("#280338"), TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, ClassId = componentId.ToString() };
+                            Frame pickerFrame = new Frame() { CornerRadius = 8, Margin = new Thickness(5, 5), BackgroundColor = colorSets[useColor].main, Padding = new Thickness(5, 0), BorderColor = Color.FromArgb("00ffffff"), StyleId = useColor };
+                            Frame borderProtect = new Frame() { CornerRadius = 4, Padding = new Thickness(0), BorderColor = colorSets[useColor].main, StyleId = useColor };
+                            Picker selection = new Picker() { FontSize = 16, BackgroundColor = colorSets[useColor].main, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, ClassId = componentId.ToString(), StyleId = useColor };
 
                             borderProtect.Content = selection;
                             pickerFrame.Content = borderProtect;
@@ -502,7 +551,7 @@ public partial class Scouting : ContentPage
 
                             break;
                         case "Event":
-                            Button eventTrigger = new Button() { BackgroundColor = Color.FromHex("#280338"), Text = (string)component.Trigger, ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
+                            Button eventTrigger = new Button() { BackgroundColor = colorSets[useColor].main, Text = (string)component.Trigger, ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff"), StyleId = useColor };
 
                             if (isCurrentlyEditing)
                                 eventTrigger.IsEnabled = false;
@@ -523,9 +572,9 @@ public partial class Scouting : ContentPage
                             timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) });
                             timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) });
                             timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(2, GridUnitType.Star) });
-                            Button startTimer = new Button() { BackgroundColor = Color.FromHex("#280338"), Text="Start", ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
-                            Button resetTimer = new Button() { BackgroundColor = Color.FromHex("#280338"), Text="Reset", ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff") };
-                            Label currentTime = new Label() { Text = "0s", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+                            Button startTimer = new Button() { BackgroundColor = colorSets[useColor].main, Text="Start", ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff"), StyleId = useColor };
+                            Button resetTimer = new Button() { BackgroundColor = colorSets[useColor].main, Text="Reset", ClassId = componentId.ToString(), Margin = new Thickness(5, 5), TextColor = Color.FromHex("#ffffff"), StyleId = useColor };
+                            Label currentTime = new Label() { Text = "0s", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, StyleId = useColor };
 
                             timerGrid.Add(startTimer, 0, 0);
                             timerGrid.Add(resetTimer, 1, 0);
@@ -603,19 +652,21 @@ public partial class Scouting : ContentPage
         var group = extraData[componentId].Split(";")[2];
         bool selecting = false;
 
+        var useColor = responsible.StyleId;
+
         if(int.Parse(responsible.Text) == -1)
         {
             // no current selection
             responsible.Text = componentId.ToString();
-            responsible.BackgroundColor = Color.FromHex("#680991");
-            responsible.TextColor = Color.FromHex("#680991");
+            responsible.BackgroundColor = colorSets[useColor].selected;
+            responsible.TextColor = colorSets[useColor].selected;
             selecting = true;
         }
         else if(int.Parse(responsible.Text) == componentId)
         {
             responsible.Text = "-1";
-            responsible.BackgroundColor = Color.FromHex("#280338");
-            responsible.TextColor = Color.FromHex("#280338");
+            responsible.BackgroundColor = colorSets[useColor].main;
+            responsible.TextColor = colorSets[useColor].main;
         }
         else
         {
@@ -637,16 +688,17 @@ public partial class Scouting : ContentPage
                         var xB = (Button)x;
                         return thisGrid.GetRow(xB) == row && thisGrid.GetColumn(xB) == col;
                     });
+                    useColor = b.StyleId;
                     if (selecting)
                     {
-                        b.TextColor = Color.FromHex("#3a0e4d");
-                        b.BackgroundColor = Color.FromHex("#3a0e4d");
+                        b.TextColor = colorSets[useColor].higher;
+                        b.BackgroundColor = colorSets[useColor].higher;
                         b.Text = componentId.ToString();
                     }
                     else
                     {
-                        b.TextColor = Color.FromHex("#280338");
-                        b.BackgroundColor = Color.FromHex("#280338");
+                        b.TextColor = colorSets[useColor].main;
+                        b.BackgroundColor = colorSets[useColor].main;
                         b.Text = "-1";
                     }
                     
@@ -715,6 +767,8 @@ public partial class Scouting : ContentPage
         var compType = componentTypes[compId];
         var compData = data[compId];
 
+        var useColor = responsible.StyleId;
+
         switch (compType)
         {
             case "Step":
@@ -744,14 +798,14 @@ public partial class Scouting : ContentPage
                 if(responsible.Text == ((Button)attachedComponents[compId][0]).Text)
                 {
                     // same button
-                    ((Button)attachedComponents[compId][0]).BackgroundColor = Color.FromHex("#680991");
-                    ((Button)attachedComponents[compId][1]).BackgroundColor = Color.FromHex("#280338");
+                    ((Button)attachedComponents[compId][0]).BackgroundColor = colorSets[useColor].selected;
+                    ((Button)attachedComponents[compId][1]).BackgroundColor = colorSets[useColor].main;
 
                 }
                 else
                 {
-                    ((Button)attachedComponents[compId][1]).BackgroundColor = Color.FromHex("#680991");
-                    ((Button)attachedComponents[compId][0]).BackgroundColor = Color.FromHex("#280338");
+                    ((Button)attachedComponents[compId][1]).BackgroundColor = colorSets[useColor].selected;
+                    ((Button)attachedComponents[compId][0]).BackgroundColor = colorSets[useColor].main;
                 }
                 data[compId] = responsible.Text;
                 break;
@@ -774,7 +828,7 @@ public partial class Scouting : ContentPage
                     
                 }
 
-                responsible.BackgroundColor = Color.FromHex("#680991");
+                responsible.BackgroundColor = colorSets[useColor].selected;
                 responsible.IsEnabled = false;
 
                 Device.StartTimer(TimeSpan.FromSeconds(1), () =>
@@ -783,7 +837,7 @@ public partial class Scouting : ContentPage
                     {
                         try
                         {
-                            responsible.BackgroundColor = Color.FromHex("#280338");
+                            responsible.BackgroundColor = colorSets[useColor].main;
                             responsible.IsEnabled = true;
                         }catch(Exception e)
                         {
@@ -816,7 +870,7 @@ public partial class Scouting : ContentPage
                         responsible.Text = "Pause";
                         ((Button)attachedComponents[compId][1]).IsEnabled = false;
                         //responsible.ImageSource = "pause.png";
-                        responsible.BackgroundColor = Color.FromHex("#680991");
+                        responsible.BackgroundColor = colorSets[useColor].selected;
                     }
                     else
                     {
@@ -828,7 +882,7 @@ public partial class Scouting : ContentPage
                         responsible.Text = "Start";
                         ((Button)attachedComponents[compId][1]).IsEnabled = true;
                         //responsible.ImageSource = "play.png";
-                        responsible.BackgroundColor = Color.FromHex("#280338");
+                        responsible.BackgroundColor = colorSets[useColor].main;
 
                         data[compId] = Math.Round(timers[compId].seconds, 2).ToString();
                         if (Math.Round(timers[compId].seconds, 2) > maxSec && maxSec > 0)

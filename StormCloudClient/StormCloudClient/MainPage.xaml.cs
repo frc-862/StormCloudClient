@@ -310,7 +310,7 @@ public partial class MainPage : ContentPage
         int rows = (photos.Count / 4) + 1;
         for(int i = 0; i < rows; i++)
         {
-            Data_Photos.RowDefinitions.Add(new RowDefinition() { Height = 50 });
+            Data_Photos.RowDefinitions.Add(new RowDefinition() { Height = 58 });
         }
 
         var number = 0;
@@ -328,7 +328,7 @@ public partial class MainPage : ContentPage
             Color bgColor = Color.FromHex(photo.Status == UploadStatus.NOT_TRIED ? "#280338" : (photo.Status == UploadStatus.FAILED ? "#60051a" : "#3a0e4d"));
 
             var id = photo.Path;
-            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 80, HeightRequest = 50, Margin = new Thickness(8, 4), Padding = new Thickness(4,8) };
+            Frame outside = new Frame() { BackgroundColor = bgColor, ClassId = id, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, WidthRequest = 80, HeightRequest = 50, Margin = new Thickness(8, 4), Padding = new Thickness(4,8), VerticalOptions = LayoutOptions.Center };
             Label teamNum = new Label() { Text = photo.Team == 0 ? "Unknown" : photo.Team.ToString(), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
             TapGestureRecognizer tap = new TapGestureRecognizer();
             tap.Tapped += Photo_FrameTapped;

@@ -251,7 +251,7 @@
                     </Frame.GestureRecognizers>
                     <StackLayout>
                         <StackLayout Orientation="Horizontal" HeightRequest="60" VerticalOptions="Start" HorizontalOptions="Center" x:Name="Nav_DescriptorPanel">
-                            <Label Text="Scouting"
+                            <Label Text="Scout"
                 HorizontalOptions="Center" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="40" x:Name="Nav_Descriptor" />
 
                             <ImageButton Source="arrowdown.png" Clicked="Nav_ToggleBottomBar_Clicked" x:Name="Nav_ToggleBottomBar" Margin="15,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="18" VerticalOptions="Center" Padding="5" />

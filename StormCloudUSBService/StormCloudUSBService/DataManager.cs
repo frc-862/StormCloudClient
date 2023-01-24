@@ -39,6 +39,7 @@ namespace StormCloudUSBService
             public string Identifier;
             public string Type;
             public string DeviceID;
+            public bool JustTaken;
         }
 
         public class USBPacket
@@ -49,7 +50,9 @@ namespace StormCloudUSBService
         }
         public static void HandleUSBPushData(string data)
 		{
-            //var unpacked = Newtonsoft.
+            var unpacked = Newtonsoft.Json.JsonConvert.DeserializeObject<USBPacket>(data);
+
+            APIService.SendMatches(unpacked.matches);
 		}
 	}
 }
