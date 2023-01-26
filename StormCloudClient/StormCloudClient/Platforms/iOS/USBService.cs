@@ -14,7 +14,7 @@ namespace StormCloudClient
     {
         public List<Match> matches;
         public List<Photo> photos;
-        public List<string> b64Photos;
+        public List<PhotoData> b64Photos;
     }
     public partial class USBService
     {
@@ -29,6 +29,14 @@ namespace StormCloudClient
             transfer.matches = StorageManagement.allMatches.Where(m => m.Status != UploadStatus.SUCCEEDED).ToList();
             transfer.photos = StorageManagement.allPhotos.Where(p => p.Status != UploadStatus.SUCCEEDED).ToList();
 
+            transfer.b64Photos = new List<PhotoData>();
+            //foreach(Photo p in transfer.photos)
+            //{
+            //    var n = new PhotoData() { Name = p.Path };
+            //    n.Data = StorageManagement.GetPhotoB64(p.Path);
+            //    transfer.b64Photos.Add(n);
+            //}
+
             var sendString = Newtonsoft.Json.JsonConvert.SerializeObject(transfer);
             connectedSocket.SendBufferSize = 1024;
             connectedSocket.ReceiveBufferSize = 1024;
@@ -39,14 +47,14 @@ namespace StormCloudClient
             while(sendString != "")
             {
 
-                if(sendString.Length > 200)
+                if(sendString.Length > 300)
                 {
-                    totalSent += connectedSocket.Send(Encoding.ASCII.GetBytes(sendString.Substring(0,200)));
-                    sendString = sendString.Substring(200);
+                    totalSent += connectedSocket.Send(Encoding.ASCII.GetBytes(sendString.Substring(0,300)));
+                    sendString = sendString.Substring(300);
                 }
                 else
                 {
-                    totalSent += connectedSocket.Send(Encoding.ASCII.GetBytes(sendString.PadRight(200, ' ')));
+                    totalSent += connectedSocket.Send(Encoding.ASCII.GetBytes(sendString.PadRight(300, ' ')));
                     sendString = "";
                 }
 
@@ -55,7 +63,7 @@ namespace StormCloudClient
 
             await Task.Delay(200);
 
-            connectedSocket.Send(Encoding.ASCII.GetBytes("END".PadRight(200, ' ')));
+            connectedSocket.Send(Encoding.ASCII.GetBytes("END".PadRight(300, ' ')));
 
 
             foreach (var match in transfer.matches)

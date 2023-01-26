@@ -21,6 +21,15 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         currentMenu = View_Scout;
 
+        MessagingCenter.Subscribe<NavigationPage, MessageContent>((NavigationPage)Application.Current.MainPage, "REFRESH", (s, m) =>
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                ShowMatches();
+                ShowPhotos();
+            });
+        });
+
 
 
     }

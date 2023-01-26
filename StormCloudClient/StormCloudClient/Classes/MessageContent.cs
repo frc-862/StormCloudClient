@@ -9,7 +9,8 @@ namespace StormCloudClient.Classes
     public enum MessageType
     {
         USB_RECV, 
-        USB_SEND
+        USB_SEND,
+        REFRESH
     }
     public class MessageContent
     {

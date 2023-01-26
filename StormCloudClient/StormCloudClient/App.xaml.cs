@@ -69,7 +69,11 @@ public partial class App : Application
                 PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
                 await Task.Delay(400);
                 PhysicalVibrations.TryVibrate(1000);
-
+                MessagingCenter.Send<NavigationPage, MessageContent>((NavigationPage)MainPage, "REFRESH", new MessageContent()
+                {
+                    Data = "REFRESH",
+                    Type = MessageType.REFRESH
+                });
             });
 
         });

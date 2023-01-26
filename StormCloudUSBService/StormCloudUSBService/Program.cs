@@ -16,7 +16,7 @@ namespace StormCloudUSBService
         public static void Main(string[] args)
         {
 
-
+            DataManager.Initialize();
             
 
 

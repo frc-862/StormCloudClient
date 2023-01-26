@@ -20,6 +20,12 @@ namespace StormCloudClient.Classes
         public string Data;
     }
 
+    public class PhotoData
+    {
+        public string Name;
+        public string Data;
+    }
+
     public class Match
     {
         public int Team;
@@ -265,6 +271,23 @@ namespace StormCloudClient.Classes
         static string GenerateUUID()
         {
             return Guid.NewGuid().ToString();
+        }
+
+        public static string GetPhotoB64(string name)
+        {
+            try
+            {
+                byte[] imageArray = System.IO.File.ReadAllBytes(GetPath(name));
+
+                string base64ImageRepresentation = Convert.ToBase64String(imageArray);
+                return base64ImageRepresentation;
+            }
+            catch(Exception e)
+            {
+                return "";
+            }
+            
+            
         }
     }
 }

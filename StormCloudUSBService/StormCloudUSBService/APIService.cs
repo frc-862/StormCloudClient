@@ -59,7 +59,7 @@ namespace StormCloudUSBService
             {
                 var url = _GetBaseUrl(preferredUrl) + "/api/submit/data";
 
-                Program.Print("Sending" + matches.Count.ToString() + " to " + preferredUrl, ConsoleColor.Gray);
+                Program.Print("Sending " + matches.Count.ToString() + " to " + preferredUrl, ConsoleColor.Gray);
 
 
                 var JSONToSubmit = Newtonsoft.Json.JsonConvert.SerializeObject(matches);

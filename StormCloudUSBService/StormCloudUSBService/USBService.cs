@@ -111,6 +111,7 @@ namespace StormCloudUSBService
                     var res = Encoding.ASCII.GetString(_inboxBuffer);
                     if(res.Contains("END"))
                     {
+                        currentString = currentString.Replace("\u0000", "");
                         Console.WriteLine(currentString);
                         DataManager.HandleUSBPushData(currentString);
                         currentString = "";

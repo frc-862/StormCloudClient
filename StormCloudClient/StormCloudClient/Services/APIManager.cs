@@ -84,9 +84,7 @@ namespace StormCloudClient.Services
             {
                 try
                 {
-                    byte[] imageArray = System.IO.File.ReadAllBytes(StorageManagement.GetPath(photo.Path));
-
-                    string base64ImageRepresentation = Convert.ToBase64String(imageArray);
+                    string base64ImageRepresentation = StorageManagement.GetPhotoB64(photo.Path);
                     int l = base64ImageRepresentation.Length;
                     var content = new FormUrlEncodedContent(new[]
                     {
