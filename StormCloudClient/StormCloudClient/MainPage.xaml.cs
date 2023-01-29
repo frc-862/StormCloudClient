@@ -1438,6 +1438,41 @@ public partial class MainPage : ContentPage
         return true;
     }
 
+    private async void Search_StartDocumentSearch(object sender, EventArgs e)
+    {
+        ChangeSearchView(true);
+    }
+
+    bool _searchViewVisible;
+
+    public async void ChangeSearchView(bool show)
+    {
+        if(show == _searchViewVisible)
+        {
+            return;
+        }
+
+        _searchViewVisible = show;
+        if (show)
+        {
+            Search_Docs_Backdrop.Opacity = 0;
+            Search_Docs_Backdrop.IsVisible = true;
+            Search_Docs.IsVisible = true;
+            Search_Docs_Box.IsVisible = true;
+            Search_Docs_Box.TranslationY = 1500;
+            Search_Docs_Backdrop.FadeTo(1, 250, Easing.CubicInOut);
+            
+            Search_Docs_Box.TranslateTo(0, 350, 500, Easing.CubicInOut);
+        }
+        else
+        {
+            Search_Docs_Backdrop.FadeTo(0, 250, Easing.CubicInOut);
+            await Search_Docs_Box.TranslateTo(0, 1500, 500, Easing.CubicInOut);
+            Search_Docs_Backdrop.IsVisible = false;
+            Search_Docs.IsVisible = false;
+        }
+    }
+
     
 }
 

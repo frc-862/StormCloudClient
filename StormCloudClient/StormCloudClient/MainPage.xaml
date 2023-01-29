@@ -103,6 +103,16 @@
                             <Button Grid.Column="1" Clicked="Data_StartDownload" FontSize="16" Text="Download Data" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
 
                         </Grid>
+
+                        <Grid Margin="10,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Clicked="Search_StartDocumentSearch" FontSize="16" Text="Search for Documents" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
+                            
+
+                        </Grid>
                         
                         
                         
@@ -351,6 +361,68 @@
 
 
             </Grid>
+
+            <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" x:Name="Search_Docs" IsVisible="False">
+                <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BackgroundColor="#000000" Opacity="0.4" Grid.Row="0" Grid.Column="0" x:Name="Search_Docs_Backdrop">
+                    
+                </Grid>
+
+                <StackLayout Grid.Row="0" Grid.Column="0" AbsoluteLayout.LayoutBounds="0, 1, 1, 400" TranslationY="1500" AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional" x:Name="Search_Docs_Box">
+                    <Frame BorderColor="Transparent" BackgroundColor="#280338" HeightRequest="800" CornerRadius="16" HasShadow="True">
+                    
+                        <StackLayout>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="*"/>
+
+                                </Grid.ColumnDefinitions>
+
+                                <Label Grid.Column="0" Grid.Row="0" Text="Search Type" HorizontalOptions="Center" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="16" />
+                                <Label Grid.Column="1" Grid.Row="0" Text="Search For..." HorizontalOptions="Center" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="16" />
+                                
+
+                                <Frame Margin="5" Grid.Row="1" Grid.Column="0" BorderColor="Transparent" Padding="5,0" BackgroundColor="#3a0e4d" CornerRadius="8" x:Name="Search_Docs_TypeBox">
+                                        <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#3a0e4d" CornerRadius="4">
+                                            <Picker FontSize="20" x:Name="Search_Docs_Type" TextColor="White" Grid.Column="1" BackgroundColor="#3a0e4d" HorizontalTextAlignment="Center">
+                                                <Picker.Items>
+                                                    <x:String>Team</x:String>
+                                                    <x:String>Match</x:String>
+                                                </Picker.Items>
+                                            </Picker>
+                                        </Frame>
+                                    
+                                    </Frame>
+
+                                <Frame Margin="5" Grid.Row="1" Grid.Column="1" BorderColor="Transparent" Padding="5,0" BackgroundColor="#3a0e4d" CornerRadius="8" x:Name="Search_Docs_FilterBox">
+                                        <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#3a0e4d" CornerRadius="4">
+                                            <Entry x:Name="Search_Docs_Filter" MaxLength="5" Keyboard="Numeric" TextColor="White" BackgroundColor="#3a0e4d" FontSize="24" HorizontalTextAlignment="Center"/>
+                                        </Frame>
+                                    
+                                    </Frame>
+
+                                <Button Grid.Row="1" Grid.Column="2" Text="Search" BackgroundColor="#3a0e4d" Padding="10,5" CornerRadius="8" FontSize="14" TextColor="White" Margin="5,0" VerticalOptions="Center"/>
+
+                            </Grid>
+
+                        </StackLayout>
+
+                    </Frame>
+
+
+
+                </StackLayout>
+
+            </Grid>
+            
+
+            
             
 
 
