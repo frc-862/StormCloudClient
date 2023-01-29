@@ -706,6 +706,7 @@ public partial class Scouting : ContentPage
                 }
             }
         }
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
 
 
 
@@ -720,7 +721,7 @@ public partial class Scouting : ContentPage
         var compId = Int32.Parse(responsible.ClassId);
         var compType = componentTypes[compId];
         var compData = data[compId];
-
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         switch (compType)
         {
             case "Select":
@@ -768,7 +769,7 @@ public partial class Scouting : ContentPage
         var compData = data[compId];
 
         var useColor = responsible.StyleId;
-
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         switch (compType)
         {
             case "Step":

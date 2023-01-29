@@ -1362,8 +1362,10 @@ public partial class MainPage : ContentPage
                     ChangeInfoView(InfoViewStatus.SUCCESS);
 
                     var build = VersionTracking.Default.CurrentBuild.ToString();
-
-                    DisplayAlert("Warning", "We have detected that you are on an older version of StormCloud. The website that you are using requies a version newer than yours to properly run. Please advise upgrading your app version.", "OK");
+                    if(build < int.Parse(version)){
+                        DisplayAlert("Warning", "We have detected that you are on an older version of StormCloud. The website that you are using requies a version newer than yours to properly run. Please advise upgrading your app version.", "OK");
+                    }
+                    
 
                     UpdateSettings();
 
@@ -1502,8 +1504,21 @@ public partial class MainPage : ContentPage
     }
 
     Button currentSearchPage;
+
+    private async void Search_Info_ChangePage(string page)
+    {
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+        if (currentSearchPage != null)
+        {
+            currentSearchPage.BackgroundColor = Color.FromHex("#3a0e4d");
+            ((ScrollView)FindByName("Search_Docs_Result_Info_" + currentSearchPage.ClassId)).IsVisible = false;
+        }
+        currentSearchPage = null;
+        ((ScrollView)FindByName("Search_Docs_Result_Info_" + page)).IsVisible = true;
+    }
     private async void Search_Info_ChangePage(object sender, EventArgs e)
     {
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         if (currentSearchPage != null)
         {
             currentSearchPage.BackgroundColor = Color.FromHex("#3a0e4d");
@@ -1515,6 +1530,7 @@ public partial class MainPage : ContentPage
     }
     private async void Search_Info_ChangePage_Clear()
     {
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         if (currentSearchPage != null)
         {
             currentSearchPage.BackgroundColor = Color.FromHex("#3a0e4d");
@@ -1523,8 +1539,11 @@ public partial class MainPage : ContentPage
         currentSearchPage = null;
     }
 
+
+    dynamic _currentSearchItem;
     private async void Search_StartAPISearch(object sender, EventArgs e)
     {
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         Search_Docs_Result_Box.TranslateTo(0, 600, 500, Easing.CubicInOut);
         ShowSearchResultScreen("Loading");
         var typeofdoc = (string)Search_Docs_Type.SelectedItem;
@@ -1536,10 +1555,12 @@ public partial class MainPage : ContentPage
             if(response.Status == System.Net.HttpStatusCode.NotFound)
             {
                 ShowSearchResultScreen("Failed");
+                PhysicalVibrations.TryVibrate(1000);
                 Search_Docs_Result_Box.TranslateTo(0, 650, 500, Easing.CubicInOut);
                 return;
             }
             dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
+            _currentSearchItem = data;
             ShowSearchResultScreen("Info");
             Search_Docs_Result_InfoTitle.Text = "Match " + (string)data.match.matchNumber;
             Search_Docs_Result_Box.TranslateTo(0, 300, 500, Easing.CubicInOut);
@@ -1613,12 +1634,19 @@ public partial class MainPage : ContentPage
                         matchStats.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
 
                         Label keyLabel = new Label() { Text = key, FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
-                        Label redLabel = new Label() { Text = red[key].ToString(), FontSize = 20, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
-                        Label blueLabel = new Label() { Text = blue[key].ToString(), FontSize = 20, TextColor = Color.FromHex("#290991"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+
+                        Frame redFrame = new Frame() { Padding = new Thickness(5, 5), Margin = new Thickness(0), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 0, HasShadow = false, BackgroundColor = Color.FromHex("#910929") };
+                        Frame blueFrame = new Frame() { Padding = new Thickness(5, 5), Margin = new Thickness(0), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 0, HasShadow = false, BackgroundColor = Color.FromHex("#290991") };
+
+                        Label redLabel = new Label() { Text = red[key].ToString(), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                        Label blueLabel = new Label() { Text = blue[key].ToString(), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+
+                        redFrame.Content = redLabel;
+                        blueFrame.Content = blueLabel;
 
                         matchStats.Add(keyLabel, 0, matchStats.RowDefinitions.Count - 1);
-                        matchStats.Add(redLabel, 1, matchStats.RowDefinitions.Count - 1);
-                        matchStats.Add(blueLabel, 2, matchStats.RowDefinitions.Count - 1);
+                        matchStats.Add(redFrame, 1, matchStats.RowDefinitions.Count - 1);
+                        matchStats.Add(blueFrame, 2, matchStats.RowDefinitions.Count - 1);
                     }
                     
                     
@@ -1631,7 +1659,7 @@ public partial class MainPage : ContentPage
                 StackLayout documents = new StackLayout();
                 if(data.match.documents.Count == 0)
                 {
-                    Label noDocuments = new Label() { Text = "No Documents", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
+                    Label noDocuments = new Label() { Text = "No Documents", Margin=new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
                     documents.Add(noDocuments);
                 }
                 foreach (var doc in data.match.documents)
@@ -1640,6 +1668,7 @@ public partial class MainPage : ContentPage
                     dynamic docData = Newtonsoft.Json.JsonConvert.DeserializeObject((string)doc.json);
 
                     Grid docInfo = new Grid(){ Margin = new Thickness(10,5) };
+                    docInfo.ClassId = (string)doc._id;
                     docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
                     docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
@@ -1673,16 +1702,81 @@ public partial class MainPage : ContentPage
             if (response.Status == System.Net.HttpStatusCode.NotFound)
             {
                 ShowSearchResultScreen("Failed");
+                PhysicalVibrations.TryVibrate(1000);
                 Search_Docs_Result_Box.TranslateTo(0, 650, 500, Easing.CubicInOut);
+
                 return;
             }
             dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
             ShowSearchResultScreen("Info");
             Search_Docs_Result_InfoTitle.Text = "Team " + (string)data.team.teamNumber;
-            Search_Docs_Result_Box.TranslateTo(0, 400, 500, Easing.CubicInOut);
+            Search_Docs_Result_Box.TranslateTo(0, 300, 500, Easing.CubicInOut);
 
 
+            StackLayout details = new StackLayout();
+            Label teamName = new Label() { Text = (string)data.team.name, FontSize = 32, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
+            details.Add(teamName);
+
+            Label matchesLabel = new Label() { Text = "Matches This Competition", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 15, 0, 10) };
+
+            StackLayout details_matches = new StackLayout();
+
+            foreach(var match in data.team.matches){
+                if((bool)match.finished){
+                    // match is done
+                    Frame matchFrame = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
+                    Grid matchDetails = new Grid();
+                    matchDetails.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                    matchDetails.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    matchDetails.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+
+                    var result = "T";
+                    var scoreString = "";
+                    if(int.Parse((string)match.score.red) > int.Parse((string)match.score.blue)){
+                        if(((string)match.color).ToLower() == "red")
+                            result = "W";
+                        else
+                            result = "L";
+                        scoreString = (string)match.score.red + " - " + (string)match.score.blue;
+                    }else if(int.Parse((string)match.score.red) < int.Parse((string)match.score.blue)){
+                        if(((string)match.color).ToLower() == "blue")
+                            result = "W";
+                        else
+                            result = "L";
+                        scoreString = (string)match.score.blue + " - " + (string)match.score.red;
+                    }
+
+                    Label matchNumber = new Label() { Text = "Match " + (string)match.matchNumber, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
+                    Label matchStatus = new Label() { Text = result, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                    Label matchScore = new Label() { Text = scoreString, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center };
+                    matchDetails.Add(matchNumber, 0, 0);
+                    matchDetails.Add(matchStatus, 1, 0);
+                    matchDetails.Add(matchScore, 2, 0);
+                    matchFrame.Content = matchDetails;
+                    details_matches.Add(matchFrame);
+                }else{
+                    // match is not done
+                    Frame matchFrame = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
+                    Grid matchDetails = new Grid();
+                    matchDetails.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    matchDetails.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                    Label matchNumber = new Label() { Text = "Match " + (string)match.matchNumber, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
+                    Label matchStatus = new Label() { Text = "Not Done", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center };
+
+                    matchDetails.Add(matchNumber, 0, 0);
+                    matchDetails.Add(matchStatus, 1, 0);
+                    matchFrame.Content = matchDetails;
+                    details_matches.Add(matchFrame);
+                }
+
+            }
+            details.Add(matchesLabel);
+            details.Add(details_matches);
+            Search_Docs_Result_Info_Details.Content = details;
+            
             StackLayout documents = new StackLayout();
+        
             if (data.team.documents.Count == 0)
             {
                 Label noDocuments = new Label() { Text = "No Documents", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
@@ -1701,6 +1795,14 @@ public partial class MainPage : ContentPage
 
             Search_Info_ChangePage_Clear();
         }
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+
+    }
+
+    public async void GoToDocumentView(object sender, TappedEventArgs e){
+        Search_Info_ChangePage("Document");
+
+        Grid doc = (Grid)sender;
 
     }
 

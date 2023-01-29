@@ -459,6 +459,7 @@
                                         </Grid.ColumnDefinitions>
                                         <Button Clicked="Search_Info_ChangePage" Grid.Row="0" Grid.Column="0" FontSize="16" Text="Details" BackgroundColor="#3a0e4d" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,0" ClassId="Details"/>
                                         <Button Clicked="Search_Info_ChangePage" Grid.Row="0" Grid.Column="1" FontSize="16" Text="Documents" BackgroundColor="#3a0e4d" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,0" ClassId="Documents"/>
+                                        
                                       
 
                                     </Grid>
