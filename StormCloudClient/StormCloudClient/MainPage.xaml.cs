@@ -1438,6 +1438,18 @@ public partial class MainPage : ContentPage
         return true;
     }
 
+    private async void Search_Exit(object sender, SwipedEventArgs e)
+    {
+        ChangeSearchView(false);
+        
+    }
+
+    private async void Search_Exit(object sender, EventArgs e)
+    {
+        ChangeSearchView(false);
+
+    }
+
     private async void Search_StartDocumentSearch(object sender, EventArgs e)
     {
         ChangeSearchView(true);
@@ -1459,20 +1471,239 @@ public partial class MainPage : ContentPage
             Search_Docs_Backdrop.IsVisible = true;
             Search_Docs.IsVisible = true;
             Search_Docs_Box.IsVisible = true;
-            Search_Docs_Box.TranslationY = 1500;
-            Search_Docs_Backdrop.FadeTo(1, 250, Easing.CubicInOut);
-            
-            Search_Docs_Box.TranslateTo(0, 350, 500, Easing.CubicInOut);
+            Search_Docs_Box.TranslationY = -1500;
+            Search_Docs_Result_Box.TranslationY = 1500;
+            Search_Docs_Backdrop.FadeTo(.5, 250, Easing.CubicInOut);
+
+            ShowSearchResultScreen("Start");
+            Search_Docs_Box.TranslateTo(0, -650, 500, Easing.CubicInOut);
+            Search_Docs_Result_Box.TranslateTo(0, 650, 500, Easing.CubicInOut);
+
+
         }
         else
         {
             Search_Docs_Backdrop.FadeTo(0, 250, Easing.CubicInOut);
-            await Search_Docs_Box.TranslateTo(0, 1500, 500, Easing.CubicInOut);
+            Search_Docs_Result_Box.TranslateTo(0, 1500, 500, Easing.CubicInOut);
+            await Search_Docs_Box.TranslateTo(0, -1500, 500, Easing.CubicInOut);
             Search_Docs_Backdrop.IsVisible = false;
             Search_Docs.IsVisible = false;
         }
     }
 
-    
+    public async void ShowSearchResultScreen(string name)
+    {
+        Search_Docs_Result_Failed.IsVisible = false;
+        Search_Docs_Result_Start.IsVisible = false;
+        Search_Docs_Result_Loading.IsVisible = false;
+        Search_Docs_Result_Info.IsVisible = false;
+
+        ((StackLayout)FindByName("Search_Docs_Result_" + name)).IsVisible = true;
+    }
+
+    Button currentSearchPage;
+    private async void Search_Info_ChangePage(object sender, EventArgs e)
+    {
+        if (currentSearchPage != null)
+        {
+            currentSearchPage.BackgroundColor = Color.FromHex("#3a0e4d");
+            ((ScrollView)FindByName("Search_Docs_Result_Info_" + currentSearchPage.ClassId)).IsVisible = false;
+        }
+        currentSearchPage = (Button)sender;
+        currentSearchPage.BackgroundColor = Color.FromHex("#680991");
+        ((ScrollView)FindByName("Search_Docs_Result_Info_" + currentSearchPage.ClassId)).IsVisible = true;
+    }
+    private async void Search_Info_ChangePage_Clear()
+    {
+        if (currentSearchPage != null)
+        {
+            currentSearchPage.BackgroundColor = Color.FromHex("#3a0e4d");
+            ((ScrollView)FindByName("Search_Docs_Result_Info_" + currentSearchPage.ClassId)).IsVisible = false;
+        }
+        currentSearchPage = null;
+    }
+
+    private async void Search_StartAPISearch(object sender, EventArgs e)
+    {
+        Search_Docs_Result_Box.TranslateTo(0, 600, 500, Easing.CubicInOut);
+        ShowSearchResultScreen("Loading");
+        var typeofdoc = (string)Search_Docs_Type.SelectedItem;
+        var value = int.Parse(Search_Docs_Filter.Text);
+        APIResponse response;
+        if(typeofdoc == "Match")
+        {
+            response = await APIManager.GetMatchInformation(value);
+            if(response.Status == System.Net.HttpStatusCode.NotFound)
+            {
+                ShowSearchResultScreen("Failed");
+                Search_Docs_Result_Box.TranslateTo(0, 650, 500, Easing.CubicInOut);
+                return;
+            }
+            dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
+            ShowSearchResultScreen("Info");
+            Search_Docs_Result_InfoTitle.Text = "Match " + (string)data.match.matchNumber;
+            Search_Docs_Result_Box.TranslateTo(0, 300, 500, Easing.CubicInOut);
+
+            StackLayout details = new StackLayout();
+
+            Grid teamGrid = new Grid(){Margin = new Thickness(0, 10)};
+            teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            for(int i = 0; i < data.match.teams.Count/2; i++){
+                teamGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            }
+            
+            var blueCount = 0;
+            var redCount = 0;
+            foreach (var team in data.match.teams)
+            {
+                Frame f = new Frame(){Padding = new Thickness(10,5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 4, HasShadow = false};
+                Label teamLabel = new Label(){Text = (string)team.team, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center};
+                f.Content = teamLabel;
+                if((string)team.color == "Red"){
+                    f.BackgroundColor = Color.FromHex("#910929");
+                    teamGrid.Add(f, redCount, 0);
+                    redCount++;
+                }
+                else if((string)team.color == "Blue"){
+                    f.BackgroundColor = Color.FromHex("#290991");
+                    teamGrid.Add(f, blueCount, 1);
+                    blueCount++;
+                }
+            }
+            details.Add(teamGrid);
+            Search_Docs_Result_Info_Details.Content = details;
+            
+            if(data.match.results == null || !((bool)data.match.results.finished)){
+                // match has NOT completed
+                Label status = new Label(){Text = "Match Not Complete", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7};
+                details.Add(status);
+            }else{
+                // match has completed
+                Label status = new Label(){Text = "Completed Match Stats", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 10)};
+                details.Add(status);
+                Frame winnerFrame = new Frame(){Padding = new Thickness(10,5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 4, HasShadow = false};
+                if(int.Parse((string)data.match.results.red) > int.Parse((string)data.match.results.blue)){
+                    // red won
+                    Label winner = new Label(){Text = "Red Won " + ((string)data.match.results.red) + " - " + ((string)data.match.results.blue), FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 10)};
+                    winnerFrame.BackgroundColor = Color.FromHex("#910929");
+                    winnerFrame.Content = winner;
+                }else if(int.Parse((string)data.match.results.red) < int.Parse((string)data.match.results.blue)){
+                    // blue won
+                    Label winner = new Label(){Text = "Blue Won " + ((string)data.match.results.blue) + " - " + ((string)data.match.results.red), FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 10)};
+                    winnerFrame.BackgroundColor = Color.FromHex("#290991");
+                    winnerFrame.Content = winner;
+                }else{
+                    // tie
+                    Label winner = new Label(){Text = "Tie " + ((string)data.match.results.red) + " - " + ((string)data.match.results.blue), FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 10)};
+                    winnerFrame.BackgroundColor = Color.FromHex("#5a5a5a");
+                    winnerFrame.Content = winner;
+                }
+                details.Add(winnerFrame);
+
+                if(data.match.results.redStats != null){
+                    Dictionary<string, object> red = data.match.results.redStats.ToObject<Dictionary<string, object>>();
+                    Dictionary<string, object> blue = data.match.results.redStats.ToObject<Dictionary<string, object>>();
+                    Grid matchStats = new Grid() { Margin = new Thickness(0, 10) };
+                    matchStats.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(3, GridUnitType.Star) });
+                    matchStats.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    matchStats.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    foreach (var key in red.Keys)
+                    {
+                        matchStats.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+
+                        Label keyLabel = new Label() { Text = key, FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
+                        Label redLabel = new Label() { Text = red[key].ToString(), FontSize = 20, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                        Label blueLabel = new Label() { Text = blue[key].ToString(), FontSize = 20, TextColor = Color.FromHex("#290991"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+
+                        matchStats.Add(keyLabel, 0, matchStats.RowDefinitions.Count - 1);
+                        matchStats.Add(redLabel, 1, matchStats.RowDefinitions.Count - 1);
+                        matchStats.Add(blueLabel, 2, matchStats.RowDefinitions.Count - 1);
+                    }
+                    
+                    
+                    details.Add(matchStats);
+                }
+
+
+
+
+                StackLayout documents = new StackLayout();
+                if(data.match.documents.Count == 0)
+                {
+                    Label noDocuments = new Label() { Text = "No Documents", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
+                    documents.Add(noDocuments);
+                }
+                foreach (var doc in data.match.documents)
+                {
+                    Frame docFrame = new Frame() { Padding = new Thickness(5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
+                    dynamic docData = Newtonsoft.Json.JsonConvert.DeserializeObject((string)doc.json);
+
+                    Grid docInfo = new Grid(){ Margin = new Thickness(10,5) };
+                    docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                    docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                    var docNameText = "Unknown Team";
+                    if(docData.team != null){
+                        docNameText = "Team " + (string)docData.team;
+                    }
+                    Label docName = new Label() { Text = docNameText, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
+                    Label docType = new Label() { Text = (string)docData.type, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center };
+                    docInfo.Add(docName, 0, 0);
+                    docInfo.Add(docType, 1, 0);
+
+                    docFrame.Content = docInfo;
+
+                    documents.Add(docFrame);
+                }
+
+                Search_Docs_Result_Info_Documents.Content = documents;
+
+
+
+
+            }
+
+
+            Search_Info_ChangePage_Clear();
+        }
+        else if(typeofdoc == "Team")
+        {
+            response = await APIManager.GetTeamInformation(value);
+            if (response.Status == System.Net.HttpStatusCode.NotFound)
+            {
+                ShowSearchResultScreen("Failed");
+                Search_Docs_Result_Box.TranslateTo(0, 650, 500, Easing.CubicInOut);
+                return;
+            }
+            dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
+            ShowSearchResultScreen("Info");
+            Search_Docs_Result_InfoTitle.Text = "Team " + (string)data.team.teamNumber;
+            Search_Docs_Result_Box.TranslateTo(0, 400, 500, Easing.CubicInOut);
+
+
+            StackLayout documents = new StackLayout();
+            if (data.team.documents.Count == 0)
+            {
+                Label noDocuments = new Label() { Text = "No Documents", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
+                documents.Add(noDocuments);
+            }
+            foreach (var doc in data.team.documents)
+            {
+                Frame docFrame = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
+                var docData = Newtonsoft.Json.JsonConvert.DeserializeObject((string)doc.json);
+                documents.Add(docFrame);
+            }
+
+            Search_Docs_Result_Info_Documents.Content = documents;
+
+
+
+            Search_Info_ChangePage_Clear();
+        }
+
+    }
+
+
 }
 
