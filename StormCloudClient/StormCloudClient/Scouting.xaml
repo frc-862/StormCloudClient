@@ -32,7 +32,8 @@
                             <Grid HeightRequest="60" Margin="10,0" x:Name="Status_PostConfirm" Opacity="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackLayout Grid.Column="0" Orientation="Horizontal" VerticalOptions="Center">
                                     <StackLayout HorizontalOptions="Start" VerticalOptions="Center">
@@ -44,8 +45,10 @@
 
                                     <ImageButton IsVisible="False" Source="arrowdown.png" Clicked="Status_ToggleBottomBar_Clicked" x:Name="Status_ExtendBar" Margin="15,0,0,0" BackgroundColor="#3a0e4d" WidthRequest="40" HeightRequest="40" CornerRadius="18" VerticalOptions="Center" Padding="5"/>
                                 </StackLayout>
+
+                                <Button Clicked="ToggleDisabled" Grid.Column="1" FontSize="14" Text="Disabled" HorizontalOptions="Center" VerticalOptions="Center"  BackgroundColor="#3a0e4d" Padding="10,5" CornerRadius="8" TextColor="White" Margin="5,5" x:Name="Disabled_Robot"/>
                                 
-                                <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="End">
+                                <StackLayout Grid.Column="2" Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="End">
                                     <ImageButton Source="cancel.png" Clicked="Back" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="50" HeightRequest="50" CornerRadius="8" Padding="5" Margin="3,0"/>
 
                                     <ImageButton Source="check.png" Clicked="SaveMatch" VerticalOptions="Center" BackgroundColor="#3a0e4d" WidthRequest="50" HeightRequest="50" CornerRadius="8" Padding="5" Margin="3,0"/>
@@ -144,9 +147,12 @@
                             </Grid>
                             
                         </StackLayout>
-                        <StackLayout x:Name="Status_PostContent" IsVisible="True" Opacity="1">
+                        <StackLayout x:Name="Status_PostContent" IsVisible="True" Opacity="0" Margin="0,20,0,0">
+                            <Label Text="Robot Has Been Disabled For"
+                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="20" Margin="20,5" />
+
                             <Label Text="0:00"
-                HorizontalOptions="CenterAndExpand" TextColor="White" IsVisible="False" FontSize="32" Margin="20,10" x:Name="Match_Time" />
+                HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="36" Margin="20,5" x:Name="Match_Disabled_Time" />
                             
                         </StackLayout>
 

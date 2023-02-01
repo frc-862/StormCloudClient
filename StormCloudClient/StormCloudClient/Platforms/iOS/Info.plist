@@ -36,10 +36,5 @@
 	<string></string>
 	<key>CFBundleDisplayName</key>
 	<string>StormCloud</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>external-accessory</string>
-		<string>remote-notification</string>
-	</array>
 </dict>
 </plist>

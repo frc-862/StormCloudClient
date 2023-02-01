@@ -21,14 +21,7 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         currentMenu = View_Scout;
 
-        MessagingCenter.Subscribe<NavigationPage, MessageContent>((NavigationPage)Application.Current.MainPage, "REFRESH", (s, m) =>
-        {
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                ShowMatches();
-                ShowPhotos();
-            });
-        });
+       
 
 
 
@@ -41,6 +34,7 @@ public partial class MainPage : ContentPage
         { "Data", new string[]{ "Scout", "Settings" } }
     };
 
+    static bool setup;
     List<object> settingsComponents;
     protected override void OnAppearing()
     {
@@ -48,10 +42,23 @@ public partial class MainPage : ContentPage
 
         base.OnAppearing();
 
+        if (!setup)
+        {
+            MessagingCenter.Subscribe<NavigationPage, MessageContent>((NavigationPage)Application.Current.MainPage, "REFRESH", (s, m) =>
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    ShowMatches();
+                    ShowPhotos();
+                    
+                });
+            });
+            setup = true;
+        }
         
 
 
-        
+
         StorageManagement.AddData_Schema("Rapid React Test", "{'Name':'Rapid React Test','Parts':[{'Name':'Autonomous','Time':0,'Components':[{'Type':'Step','Name':'Cargo Low','Min':0,'Max':10},{'Type':'Check','Name':'Off the Tarmac','On':'Yes','Off':'No'},{'Type':'Select','Name':'Level','Options':['A','B','C']},{'Type':'Event','Name':'Balls Shot','Trigger':'Shot Now!','Max':30},{'Type':'Timer','Name':'Playing Defense'}]}]}");
 
         // get initial settings data
@@ -1362,7 +1369,7 @@ public partial class MainPage : ContentPage
                     ChangeInfoView(InfoViewStatus.SUCCESS);
 
                     var build = VersionTracking.Default.CurrentBuild.ToString();
-                    if(build < int.Parse(version)){
+                    if(int.Parse(build) < int.Parse((string)version)){
                         DisplayAlert("Warning", "We have detected that you are on an older version of StormCloud. The website that you are using requies a version newer than yours to properly run. Please advise upgrading your app version.", "OK");
                     }
                     

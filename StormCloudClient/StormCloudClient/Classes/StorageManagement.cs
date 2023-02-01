@@ -39,6 +39,7 @@ namespace StormCloudClient.Classes
         public UploadStatus Status;
         public string Identifier;
         public string DeviceID;
+        public int Disabled;
     }
     public class Photo
     {
@@ -137,7 +138,7 @@ namespace StormCloudClient.Classes
         }
 
 
-        public static void AddData_Match(int Number, int Team, string Scouter, string Color, string Schema, string Environment, string Data)
+        public static void AddData_Match(int Number, int Team, string Scouter, string Color, string Schema, string Environment, string Data, int Disabled)
         {
             var alreadyExists = allMatches.Exists(s => s.Number == Number && s.Environment == Environment);
             if (alreadyExists)
@@ -148,6 +149,7 @@ namespace StormCloudClient.Classes
                 allMatches.Find(s => s.Number == Number && s.Environment == Environment).Team = Team;
                 allMatches.Find(s => s.Number == Number && s.Environment == Environment).Created = DateTime.Now;
                 allMatches.Find(s => s.Number == Number && s.Environment == Environment).Status = UploadStatus.NOT_TRIED;
+                allMatches.Find(s => s.Number == Number && s.Environment == Environment).Disabled = Disabled;
             }
             else
             {
@@ -159,6 +161,7 @@ namespace StormCloudClient.Classes
                     Schema = Schema,
                     Environment = Environment,
                     Data = Data,
+                    Disabled = Disabled,
                     Created = DateTime.Now,
                     Status = UploadStatus.NOT_TRIED,
                     DeviceID = (string)DataManagement.GetValue("deviceId"),

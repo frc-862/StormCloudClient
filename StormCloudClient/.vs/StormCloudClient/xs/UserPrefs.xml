@@ -1,31 +1,29 @@
 ﻿<Properties StartupConfiguration="{A5E98BCF-44CF-4B19-A199-751F497580D3}|Default">
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <Xamarin.Addins.Core.Project ActiveDebugTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.00008120-001214310A0B401E" />
-  <MonoDevelop.Ide.ItemProperties.StormCloudClient PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.00008120-001214310A0B401E" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/Services/DataManagement.cs" relfile="StormCloudClient/Services/DataManagement.cs" line="52" column="1" />
       <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/Services/APIManager.cs" relfile="StormCloudClient/Services/APIManager.cs" line="89" column="1" />
-      <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/Scouting.xaml.cs" relfile="StormCloudClient/Scouting.xaml.cs" line="535" column="1" />
-      <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/Scouting.xaml.cs" relfile="StormCloudClient/Scouting.xaml.cs" line="590" column="1" />
+      <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/Scouting.xaml.cs" relfile="StormCloudClient/Scouting.xaml.cs" line="530" column="1" />
+      <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/Scouting.xaml.cs" relfile="StormCloudClient/Scouting.xaml.cs" line="585" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workbench ActiveDocument="StormCloudClient/MainPage.xaml.cs">
+  <MultiItemStartupConfigurations />
+  <Xamarin.Addins.Core.Project ActiveDebugTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.00008120-001214310A0B401E" />
+  <MonoDevelop.Ide.ItemProperties.StormCloudClient PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.00008120-001214310A0B401E" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="StormCloudClient/Scouting.xaml">
     <Files>
       <File FileName="StormCloudClient/Scouting.xaml.cs" Line="28" Column="1" IsPinned="True" />
-      <File FileName="StormCloudClient/MainPage.xaml" Line="493" Column="103" />
-      <File FileName="StormCloudClient/MainPage.xaml.cs" Line="1650" Column="69" />
+      <File FileName="StormCloudClient/MainPage.xaml" Line="245" Column="25" />
+      <File FileName="StormCloudClient/MainPage.xaml.cs" />
       <File FileName="StormCloudClient/StormEntry.xaml.cs" />
-      <File FileName="StormCloudClient/StormEntry.xaml" />
-      <File FileName="StormCloudClient/Classes/StorageManagement.cs" />
+      <File FileName="StormCloudClient/StormEntry.xaml" Line="1" Column="1" />
+      <File FileName="StormCloudClient/Classes/StorageManagement.cs" Line="39" Column="36" />
       <File FileName="StormCloudClient/App.xaml.cs" />
       <File FileName="StormCloudClient/Initializer.xaml" />
       <File FileName="StormCloudClient/Initializer.xaml.cs" />
-      <File FileName="StormCloudClient/Platforms/iOS/USBService.cs" Line="43" Column="1" />
-      <File FileName="StormCloudClient/Scouting.xaml" />
-      <File FileName="StormCloudClient/Platforms/iOS/Program.cs" Line="14" Column="1" />
+      <File FileName="StormCloudClient/Platforms/iOS/USBService.cs" />
+      <File FileName="StormCloudClient/Scouting.xaml" Line="64" Column="29" />
+      <File FileName="StormCloudClient/Platforms/iOS/Program.cs" />
       <File FileName="StormCloudClient/Services/DataManagement.cs" />
       <File FileName="StormCloudClient/Services/APIManager.cs" />
       <File FileName="StormCloudClient/MauiProgram.cs" />
@@ -62,4 +60,6 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
 </Properties>

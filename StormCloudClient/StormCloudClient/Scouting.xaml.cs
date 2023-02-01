@@ -43,6 +43,7 @@ public partial class Scouting : ContentPage
 
     public Dictionary<int, List<object>> attachedComponents = new Dictionary<int, List<object>>();
     public Dictionary<int, TimerSet> timers = new Dictionary<int, TimerSet>();
+    public TimerSet disabledTimer = new TimerSet() { enabled = false, seconds = 0, track = DateTime.Now };
     public string SchemaName;
     public string Environment;
     public DateTime start;
@@ -118,20 +119,14 @@ public partial class Scouting : ContentPage
                 }
             }
 
-            var timeBetween = (now - start);
-
-            var totalSeconds = (int)timeBetween.TotalSeconds;
-            if (timerSections.ContainsKey(totalSeconds))
+            // calculate disabled time
+            if(disabledTimer.enabled)
             {
-                if (currentTimerSection != null)
-                    currentTimerSection.BackgroundColor = Color.FromHex("#190024");
-                currentTimerSection = timerSections[totalSeconds];
-                currentTimerSection.BackgroundColor = Color.FromHex("#3a0e4d");
+                var time = disabledTimer.seconds + (now - disabledTimer.track).TotalSeconds;
+                var seconds = Math.Round(time, 0) % 60;
+                var minutes = Math.Floor(Math.Round(time, 0) / 60);
+                Match_Disabled_Time.Text = minutes.ToString() + ":" + seconds.ToString().PadLeft(2, '0');
             }
-
-            var seconds = timeBetween.Seconds.ToString().PadLeft(2, '0');
-            var minutes = timeBetween.Minutes.ToString();
-            Match_Time.Text = minutes + ":" + seconds;
 
 
             return true;
@@ -205,11 +200,11 @@ public partial class Scouting : ContentPage
 
         if(EditingMatch != null)
         {
-            StorageManagement.AddData_Match(EditingMatch.Number, EditingMatch.Team, EditingMatch.Scouter, EditingMatch.Color, EditingMatch.Schema, EditingMatch.Environment, stringContents);
+            StorageManagement.AddData_Match(EditingMatch.Number, EditingMatch.Team, EditingMatch.Scouter, EditingMatch.Color, EditingMatch.Schema, EditingMatch.Environment, stringContents, (int)disabledTimer.seconds);
         }
         else
         {
-            StorageManagement.AddData_Match(Number, Team, Scouter, AllianceColor, SchemaName, Environment, stringContents);
+            StorageManagement.AddData_Match(Number, Team, Scouter, AllianceColor, SchemaName, Environment, stringContents, (int)disabledTimer.seconds);
         }
         
 
@@ -640,6 +635,34 @@ public partial class Scouting : ContentPage
         
     }
 
+    private async void ToggleDisabled(object sender, EventArgs e){
+        if(!disabledTimer.enabled)
+        {
+            disabledTimer.enabled = true;
+            disabledTimer.track = DateTime.Now;
+
+            ChangeStatusExpansion(true);
+            Disabled_Robot.BackgroundColor = Color.FromHex("#680991");
+            
+        }
+        else
+        {
+            var now = DateTime.Now;
+            var secondsToAdd = (now - disabledTimer.track).TotalSeconds;
+
+            ChangeStatusExpansion(false);
+            disabledTimer.seconds += (float)secondsToAdd;
+            disabledTimer.enabled = false;
+            var time = disabledTimer.seconds;
+            var seconds = Math.Round(time, 0) % 60;
+            var minutes = Math.Floor(Math.Round(time, 0) / 60);
+            Match_Disabled_Time.Text = minutes.ToString() + ":" + seconds.ToString().PadLeft(2, '0');
+            Disabled_Robot.BackgroundColor = Color.FromHex("#3a0e4d");
+            
+        }
+        
+    }
+
     private async void HandleGridPress(object sender, EventArgs e)
     {
         Button responsible = (Button)sender as Button;
@@ -926,7 +949,7 @@ public partial class Scouting : ContentPage
             Status_EditContent.IsVisible = false;
             Status_PostContent.IsVisible = true;
 
-            Status_PostContent.FadeTo(1, 250, Easing.CubicInOut);
+            Status_PostContent.FadeTo(0, 250, Easing.CubicInOut);
             ClickBlock.IsVisible = false;
             return;
         }
@@ -988,7 +1011,7 @@ public partial class Scouting : ContentPage
         Status_PreContent.IsVisible = false;
         Status_PostContent.IsVisible = true;
 
-        Status_PostContent.FadeTo(1, 250, Easing.CubicInOut);
+        Status_PostContent.FadeTo(0, 250, Easing.CubicInOut);
         ClickBlock.IsVisible = false;
 	}
     private async void Status_ToggleBottomBar_Clicked(object sender, EventArgs e)
