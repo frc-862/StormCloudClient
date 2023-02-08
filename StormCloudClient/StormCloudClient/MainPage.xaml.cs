@@ -1514,6 +1514,7 @@ public partial class MainPage : ContentPage
 
     private async void Search_Info_ChangePage(string page)
     {
+        Search_Docs_Result_Info_Document.IsVisible = false;
         PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         if (currentSearchPage != null)
         {
@@ -1525,6 +1526,7 @@ public partial class MainPage : ContentPage
     }
     private async void Search_Info_ChangePage(object sender, EventArgs e)
     {
+        Search_Docs_Result_Info_Document.IsVisible = false;
         PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         if (currentSearchPage != null)
         {
@@ -1537,6 +1539,7 @@ public partial class MainPage : ContentPage
     }
     private async void Search_Info_ChangePage_Clear()
     {
+        Search_Docs_Result_Info_Document.IsVisible = false;
         PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         if (currentSearchPage != null)
         {
@@ -1551,6 +1554,7 @@ public partial class MainPage : ContentPage
     private async void Search_StartAPISearch(object sender, EventArgs e)
     {
         PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+        Search_Docs_Result_Info_Document.IsVisible = false;
         Search_Docs_Result_Box.TranslateTo(0, 600, 500, Easing.CubicInOut);
         ShowSearchResultScreen("Loading");
         var typeofdoc = (string)Search_Docs_Type.SelectedItem;
@@ -1581,6 +1585,8 @@ public partial class MainPage : ContentPage
                 teamGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             }
             
+            bool auth = (bool)data.auth;
+
             var blueCount = 0;
             var redCount = 0;
             foreach (var team in data.match.teams)
@@ -1664,34 +1670,48 @@ public partial class MainPage : ContentPage
 
 
                 StackLayout documents = new StackLayout();
-                if(data.match.documents.Count == 0)
-                {
-                    Label noDocuments = new Label() { Text = "No Documents", Margin=new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
-                    documents.Add(noDocuments);
-                }
-                foreach (var doc in data.match.documents)
-                {
-                    Frame docFrame = new Frame() { Padding = new Thickness(5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
-                    dynamic docData = Newtonsoft.Json.JsonConvert.DeserializeObject((string)doc.json);
-
-                    Grid docInfo = new Grid(){ Margin = new Thickness(10,5) };
-                    docInfo.ClassId = (string)doc._id;
-                    docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
-                    docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-                    var docNameText = "Unknown Team";
-                    if(docData.team != null){
-                        docNameText = "Team " + (string)docData.team;
+                if(auth){
+                    if(data.match.documents.Count == 0)
+                    {
+                        Label noDocuments = new Label() { Text = "No Documents", Margin=new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
+                        documents.Add(noDocuments);
                     }
-                    Label docName = new Label() { Text = docNameText, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
-                    Label docType = new Label() { Text = (string)docData.type, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center };
-                    docInfo.Add(docName, 0, 0);
-                    docInfo.Add(docType, 1, 0);
+                    foreach (var doc in data.match.documents)
+                    {
 
-                    docFrame.Content = docInfo;
+                        bool flagged = (bool)doc.flagged;
 
-                    documents.Add(docFrame);
+                        Frame docFrame = new Frame() { Padding = new Thickness(5), Margin = new Thickness(5), BorderColor = flagged ? Color.FromHex("#ffff00") : Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
+                        dynamic docData = Newtonsoft.Json.JsonConvert.DeserializeObject((string)doc.json);
+
+                        Grid docInfo = new Grid(){ Margin = new Thickness(10,5) };
+                        
+                        docInfo.ClassId = (string)doc._id;
+                        docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                        docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                        docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                        var docNameText = "Unknown Team";
+                        if(docData.team != null){
+                            docNameText = "Team " + (string)docData.team;
+                        }
+                        Label docName = new Label() { Text = docNameText, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
+                        Label docType = new Label() { Text = ((string)docData.type).ToUpper(), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center };
+                        Button docView = new Button(){ Text = "View", FontSize = 12, Padding = new Thickness(2), TextColor = Color.FromHex("#ffffff"), BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.Center, CornerRadius = 4, Margin = new Thickness(0,0,0,0), ClassId = (string)doc._id };
+                        docView.Clicked += GoToDocumentView;
+                        docInfo.Add(docName, 0, 0);
+                        docInfo.Add(docType, 1, 0);
+                        docInfo.Add(docView, 2, 0);
+
+                        docFrame.Content = docInfo;
+
+                        documents.Add(docFrame);
+                    }
+                }else{
+                    Label noAuth = new Label() { Text = "Not Authenticated", Margin=new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                    documents.Add(noAuth);
                 }
+                
 
                 Search_Docs_Result_Info_Documents.Content = documents;
 
@@ -1715,6 +1735,7 @@ public partial class MainPage : ContentPage
                 return;
             }
             dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
+            _currentSearchItem = data;
             ShowSearchResultScreen("Info");
             Search_Docs_Result_InfoTitle.Text = "Team " + (string)data.team.teamNumber;
             Search_Docs_Result_Box.TranslateTo(0, 300, 500, Easing.CubicInOut);
@@ -1724,6 +1745,7 @@ public partial class MainPage : ContentPage
             Label teamName = new Label() { Text = (string)data.team.name, FontSize = 32, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
             details.Add(teamName);
 
+            bool auth = (bool)data.auth;
             Label matchesLabel = new Label() { Text = "Matches This Competition", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 15, 0, 10) };
 
             StackLayout details_matches = new StackLayout();
@@ -1783,18 +1805,54 @@ public partial class MainPage : ContentPage
             Search_Docs_Result_Info_Details.Content = details;
             
             StackLayout documents = new StackLayout();
+
+            if(auth){
+
+                if (data.team.documents.Count == 0)
+                {
+                    Label noDocuments = new Label() { Text = "No Documents", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
+                    documents.Add(noDocuments);
+                }
+                foreach (var doc in data.team.documents)
+                {
+                    
+
+
+
+                    bool flagged = doc.flagged == null ? false : (bool)doc.flagged;
+
+                    Frame docFrame = new Frame() { Padding = new Thickness(5), Margin = new Thickness(5), BorderColor = flagged ? Color.FromHex("#ffff00") : Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
+                    dynamic docData = Newtonsoft.Json.JsonConvert.DeserializeObject((string)doc.json);
+
+                    Grid docInfo = new Grid(){ Margin = new Thickness(10,5) };
+                    
+                    docInfo.ClassId = (string)doc._id;
+                    docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                    docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    docInfo.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                    var docNameText = "Unknown Match";
+                    if(docData.match != null && (string)docData.match != "undefined"){
+                        docNameText = "Match " + (string)docData.match;
+                    }
+                    Label docName = new Label() { Text = docNameText, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
+                    Label docType = new Label() { Text = ((string)docData.type).ToUpper(), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center };
+                    Button docView = new Button(){ Text = "View", FontSize = 12, Padding = new Thickness(2), TextColor = Color.FromHex("#ffffff"), BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.Center, CornerRadius = 4, Margin = new Thickness(0,0,0,0), ClassId = (string)doc._id };
+                    docView.Clicked += GoToDocumentView;
+                    docInfo.Add(docName, 0, 0);
+                    docInfo.Add(docType, 1, 0);
+                    docInfo.Add(docView, 2, 0);
+
+                    docFrame.Content = docInfo;
+
+                    documents.Add(docFrame);
+                }
+            }else{
+                Label noAuth = new Label() { Text = "Not Authenticated", Margin=new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                documents.Add(noAuth);
+            }
         
-            if (data.team.documents.Count == 0)
-            {
-                Label noDocuments = new Label() { Text = "No Documents", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
-                documents.Add(noDocuments);
-            }
-            foreach (var doc in data.team.documents)
-            {
-                Frame docFrame = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
-                var docData = Newtonsoft.Json.JsonConvert.DeserializeObject((string)doc.json);
-                documents.Add(docFrame);
-            }
+            
 
             Search_Docs_Result_Info_Documents.Content = documents;
 
@@ -1806,10 +1864,102 @@ public partial class MainPage : ContentPage
 
     }
 
-    public async void GoToDocumentView(object sender, TappedEventArgs e){
+    public async void GoToDocumentView(object sender, EventArgs e){
         Search_Info_ChangePage("Document");
 
-        Grid doc = (Grid)sender;
+        Button doc = (Button)sender;
+        var findDocID = doc.ClassId;
+        StackLayout documentInformation = new StackLayout(){Margin = new Thickness(0,10,0,0)};
+
+
+        dynamic document = null;
+        if(_currentSearchItem.match == null){
+            // must be from teams
+            foreach(var d in _currentSearchItem.team.documents){
+                if((string)d._id == (string)findDocID){
+                    document = d;
+                    break;
+                }
+            }
+
+        }else{
+            // must be from matches
+            foreach(var d in _currentSearchItem.match.documents){
+                if((string)d._id == (string)findDocID){
+                    document = d;
+                    break;
+                }
+            }
+        }
+
+        if(document != null){
+            dynamic docData = Newtonsoft.Json.JsonConvert.DeserializeObject((string)document.json);
+            var name = "Team " + (string)docData.team + " " + ((string)docData.type).ToUpper();
+            if(document.name != null && (string)document.name != ""){
+                name = (string)document.name;
+            }
+
+            var flagged = document.flagged == null ? false : (bool)document.flagged;
+
+
+            Label documentTitle = new Label() { Text = name, FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+            documentInformation.Add(documentTitle);
+
+            Grid actionGrid = new Grid();
+            actionGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            actionGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            Button flaggedIndicator = new Button() { Text = flagged ? "Flagged" : "Not Flagged", FontSize = 16, TextColor = Color.FromHex("#ffffff"), BackgroundColor = flagged ? Color.FromHex("#680991") : Color.FromHex("#3a0e4d"), Margin = new Thickness(5), VerticalOptions = LayoutOptions.Center, ClassId = (string)document._id };
+            Button deleteButton = new Button() { Text = "Delete", FontSize = 16, TextColor = Color.FromHex("#ffffff"), BackgroundColor = Color.FromHex("#910929"), Margin = new Thickness(5), VerticalOptions = LayoutOptions.Center, ClassId = (string)document._id };
+            
+            flaggedIndicator.Clicked += async (object s, EventArgs e) => {
+                APIResponse response = await APIManager.FlagDocument((string)document._id, flaggedIndicator.Text == "Flagged" ? false : true);
+                if(response.Status == System.Net.HttpStatusCode.OK){
+                    flagged = flaggedIndicator.Text == "Flagged" ? false : true;
+                    flaggedIndicator.Text = flagged ? "Flagged" : "Not Flagged";
+                    flaggedIndicator.BackgroundColor = flagged ? Color.FromHex("#680991") : Color.FromHex("#3a0e4d");
+                }else{
+                    await DisplayAlert("Oops!", "There was an error changing the flag status on this document. Please try again later.", "OK");
+                }
+            };
+            deleteButton.Clicked += async (object s, EventArgs e) => {
+                APIResponse response = await APIManager.DeleteDocument((string)document._id);
+                if(response.Status == System.Net.HttpStatusCode.OK){
+                    // just reload the entire page
+                    Search_StartAPISearch(null, null);
+                }else{
+                    await DisplayAlert("Oops!", "There was an error deleting this document. Please try again later.", "OK");
+                }
+            };
+            
+            actionGrid.Add(flaggedIndicator, 0, 0);
+            actionGrid.Add(deleteButton, 1, 0);
+            documentInformation.Add(actionGrid);
+
+            try{
+                StackLayout documentContents = new StackLayout(){Margin = new Thickness(0,10,0,0)};
+                 switch((string)docData.type){
+                    case "note":
+                        Frame noteFrame = new Frame() { BackgroundColor = Color.FromHex("#190024"), Padding = new Thickness(5, 10), Margin = new Thickness(5), CornerRadius = 8, HasShadow = false, BorderColor = Color.FromArgb("00ffffff") };
+                        Label noteText = new Label() { Text = (string)docData.contents, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                        noteFrame.Content = noteText;
+                        Label author = new Label() { Text = "by " + (docData.author == null || (string)docData.author == "" ? "???" : (string)docData.author), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.5 };
+                        documentContents.Add(noteFrame);
+                        documentContents.Add(author);
+                        break;
+                 }
+                documentInformation.Add(documentContents);
+            
+            }catch(Exception dex){
+                Label noAuth = new Label() { Text = "Cannot Load Data", Margin=new Thickness(5), FontSize = 18, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                documentInformation.Add(noAuth);
+            }
+           
+
+
+            Search_Docs_Result_Info_Document.Content = documentInformation;
+        }
+
+        
 
     }
 

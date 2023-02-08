@@ -10,7 +10,7 @@
         <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
             <StackLayout VerticalOptions="Center" x:Name="Screen_Start" Grid.Row="0" Grid.Column="0" IsVisible="False">
                 <Label Margin="10, 10, 10, 50" Text="Welcome" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="40" FontAttributes="Bold" />
-                <Grid Margin="10,5">
+                <Grid Margin="10,5" IsVisible="False">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>

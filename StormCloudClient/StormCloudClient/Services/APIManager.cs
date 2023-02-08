@@ -53,7 +53,10 @@ namespace StormCloudClient.Services
         {
             try
             {
-                var url = _GetBaseUrl() + "/api/request/match?matchNumber="+matchNumber.ToString();
+                string authKey = (DataManagement.GetValue("authentication_key") == null ? "" : (string)DataManagement.GetValue("authentication_key"));
+                
+
+                var url = _GetBaseUrl() + "/api/request/match?matchNumber="+matchNumber.ToString() + "&authKey=" + authKey;
                 var response = await client.GetAsync(url);
                 return new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode };
             }
@@ -68,7 +71,9 @@ namespace StormCloudClient.Services
         {
             try
             {
-                var url = _GetBaseUrl() + "/api/request/team?teamNumber=" + teamNumber.ToString();
+                string authKey = (DataManagement.GetValue("authentication_key") == null ? "" : (string)DataManagement.GetValue("authentication_key"));
+
+                var url = _GetBaseUrl() + "/api/request/team?teamNumber=" + teamNumber.ToString() + "&authKey=" + authKey;
                 var response = await client.GetAsync(url);
                 return new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode };
             }
@@ -77,6 +82,49 @@ namespace StormCloudClient.Services
                 return new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest };
             }
 
+        }
+
+        public static async Task<APIResponse> FlagDocument(string identifier, bool flagStatus){
+
+            try
+            {
+                string authKey = (DataManagement.GetValue("authentication_key") == null ? "" : (string)DataManagement.GetValue("authentication_key"));
+                
+                var content = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("flagged", flagStatus.ToString()),
+                    new KeyValuePair<string, string>("docId", identifier)
+                });
+
+                var url = _GetBaseUrl() + "/api/request/document/flag?authKey=" + authKey;
+                var response = await client.PostAsync(url, content);
+                return new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode };
+            }
+            catch (Exception e)
+            {
+                return new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest };
+            }
+        }
+
+        public static async Task<APIResponse> DeleteDocument(string identifier){
+                
+            try
+            {
+                string authKey = (DataManagement.GetValue("authentication_key") == null ? "" : (string)DataManagement.GetValue("authentication_key"));
+                
+                var content = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("docId", identifier)
+                });
+
+                var url = _GetBaseUrl() + "/api/request/document/delete?authKey=" + authKey;
+                var response = await client.PostAsync(url, content);
+                return new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode };
+            }
+            catch (Exception e)
+            {
+                return new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest };
+            }
         }
 
         public static async Task<APIResponse> SendMatches(List<Match> matches)

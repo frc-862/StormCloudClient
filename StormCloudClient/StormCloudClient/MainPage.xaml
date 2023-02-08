@@ -97,10 +97,9 @@
                         <Grid Margin="10,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Clicked="Data_StartQRScan" FontSize="16" Text="Scan QR Code" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
-                            <Button Grid.Column="1" Clicked="Data_StartDownload" FontSize="16" Text="Download Data" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
+                            <Button Grid.Column="0" Clicked="Data_StartQRScan" FontSize="16" Text="Scan QR Code" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0" IsVisible="False"/>
+                            <Button Grid.Column="0" Clicked="Data_StartDownload" FontSize="16" Text="Download Data" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="10,0"/>
 
                         </Grid>
 
@@ -459,6 +458,7 @@
                                         </Grid.ColumnDefinitions>
                                         <Button Clicked="Search_Info_ChangePage" Grid.Row="0" Grid.Column="0" FontSize="16" Text="Details" BackgroundColor="#3a0e4d" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,0" ClassId="Details"/>
                                         <Button Clicked="Search_Info_ChangePage" Grid.Row="0" Grid.Column="1" FontSize="16" Text="Documents" BackgroundColor="#3a0e4d" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,0" ClassId="Documents"/>
+                                        <Button Clicked="Search_Info_ChangePage" Grid.Row="0" Grid.Column="0" FontSize="16" Text="Document" BackgroundColor="#3a0e4d" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,0" ClassId="Document" IsVisible="False"/>
                                         
                                       
 
@@ -480,6 +480,13 @@
 
                                         </ScrollView>
                                         
+                                        <ScrollView x:Name="Search_Docs_Result_Info_Document" Grid.Row="0" Grid.Column="0" IsVisible="False" MaximumHeightRequest="300">
+                                            <StackLayout>
+
+
+                                            </StackLayout>
+
+                                        </ScrollView>
 
                                        
 
