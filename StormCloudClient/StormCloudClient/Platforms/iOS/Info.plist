@@ -36,5 +36,7 @@
 	<string></string>
 	<key>CFBundleDisplayName</key>
 	<string>StormCloud</string>
+	<key>MinimumOSVersion</key>
+	<string>12.0</string>
 </dict>
 </plist>

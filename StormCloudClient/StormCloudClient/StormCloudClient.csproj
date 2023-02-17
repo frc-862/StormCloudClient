@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0-android;net7.0-ios16.1;net7.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks>net7.0-android;net7.0-ios;net7.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
@@ -19,10 +19,10 @@
 		<ApplicationIdGuid>462F1F20-4BDD-4DEC-AE49-765E6D948A0F</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.5.3</ApplicationDisplayVersion>
-		<ApplicationVersion>14</ApplicationVersion>
+		<ApplicationDisplayVersion>1.6</ApplicationDisplayVersion>
+		<ApplicationVersion>17</ApplicationVersion>
 
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">16.1</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">12.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
@@ -67,14 +67,17 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios16.0|AnyCPU'">
 	  <CreatePackage>false</CreatePackage>
-	  <CodesignKey>iPhone Developer</CodesignKey>
+	  <CodesignKey>Apple Development: Created via API (5AK8PKB3PG)</CodesignKey>
 	  <MtouchLink>Full</MtouchLink>
+	  <CodesignProvision>Automatic</CodesignProvision>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios16.0|AnyCPU'">
 	  <CreatePackage>false</CreatePackage>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios16.1|AnyCPU'">
 	  <CreatePackage>false</CreatePackage>
+	  <CodesignKey>iPhone Developer</CodesignKey>
+	  <MtouchDebug>true</MtouchDebug>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios16.1|AnyCPU'">
 	  <CreatePackage>false</CreatePackage>

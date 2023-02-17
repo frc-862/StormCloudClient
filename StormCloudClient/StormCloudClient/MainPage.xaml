@@ -55,7 +55,7 @@
                     <StackLayout>
                         <Label Margin="10, 20" Text="Next Up..." HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
                         
-                        <Button Clicked="GoToMatch" FontSize="24" Text="Scout Next Match" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="20,0"/>
+                        <Button Clicked="GoToMatch" FontSize="24" Text="Scout Next Match" BackgroundColor="#280338" Padding="20,20" CornerRadius="8" TextColor="White" Margin="20,0"/>
                         <Grid>
                             <StackLayout Grid.Row="0" Grid.Column="0" x:Name="Data_SomeMatches">
                                 <Label Text="Matches Completed"
@@ -410,6 +410,7 @@
                                                 <Picker.Items>
                                                     <x:String>Team</x:String>
                                                     <x:String>Match</x:String>
+                                                    <x:String>Scouter</x:String>
                                                 </Picker.Items>
                                             </Picker>
                                         </Frame>
@@ -418,7 +419,7 @@
 
                                 <Frame Margin="5" Grid.Row="1" Grid.Column="1" BorderColor="Transparent" Padding="5,0" BackgroundColor="#3a0e4d" CornerRadius="8" x:Name="Search_Docs_FilterBox">
                                         <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#3a0e4d" CornerRadius="4">
-                                            <Entry x:Name="Search_Docs_Filter" MaxLength="5" Keyboard="Numeric" TextColor="White" BackgroundColor="#3a0e4d" FontSize="24" HorizontalTextAlignment="Center"/>
+                                            <Entry x:Name="Search_Docs_Filter" MaxLength="20" TextColor="White" BackgroundColor="#3a0e4d" FontSize="24" HorizontalTextAlignment="Center"/>
                                         </Frame>
                                     
                                     </Frame>
