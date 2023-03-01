@@ -1,5 +1,7 @@
 ﻿using StormCloudClient.Classes;
 using StormCloudClient.Services;
+using Plugin.LocalNotification;
+
 namespace StormCloudClient;
 
 public partial class App : Application
@@ -16,7 +18,7 @@ public partial class App : Application
         StorageManagement.Initialize();
 
 
-
+        
 
 #if IOS
 		USBService = new USBService();
@@ -83,5 +85,17 @@ public partial class App : Application
 
 
 
+    }
+
+    protected override async void OnStart()
+    {
+
+        if(await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
+        {
+            // then enable them lol
+            await LocalNotificationCenter.Current.RequestNotificationPermission();
+        }
+
+        base.OnStart();
     }
 }

@@ -55,7 +55,17 @@
                     <StackLayout>
                         <Label Margin="10, 20" Text="Next Up..." HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
                         
-                        <Button Clicked="GoToMatch" FontSize="24" Text="Scout Next Match" BackgroundColor="#280338" Padding="20,20" CornerRadius="8" TextColor="White" Margin="20,0"/>
+                        <Frame BorderColor="Transparent" Padding="5" BackgroundColor="#280338" CornerRadius="8">
+                            <StackLayout>
+                                <Label Text="Unknown Competition" x:Name="Data_CompetitionName" TextColor="White" FontSize="24" Margin="0,10,0,5"/>
+                                <Label Text="Unknown Competition" x:Name="Data_CompetitionLocation" TextColor="White" FontSize="16" Margin="0,5,0,10"/>
+                                <Grid>
+                                </Grid>
+                                <Button Clicked="GoToMatch" FontSize="24" Text="Scout Next Match" BackgroundColor="#3a0e4d" Padding="20,20" CornerRadius="8" TextColor="White" Margin="20,0"/>
+                            </StackLayout>
+                        </Frame>
+
+                        
                         <Grid>
                             <StackLayout Grid.Row="0" Grid.Column="0" x:Name="Data_SomeMatches">
                                 <Label Text="Matches Completed"

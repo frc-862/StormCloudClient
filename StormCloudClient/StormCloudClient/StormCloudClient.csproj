@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0-android;net7.0-ios;net7.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net7.0-android;net7.0-ios</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
 		<OutputType>Exe</OutputType>
@@ -23,11 +22,9 @@
 		<ApplicationVersion>17</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">12.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
+		
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
-		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		
 		<Title>StormCloud Client</Title>
 		<ProvisioningType>automatic</ProvisioningType>
 		<CodesignProvision>iOS Team Provisioning Profile: *</CodesignProvision>
@@ -147,6 +144,9 @@
 	  <None Remove="Resources\Splash\sccurrent.svg" />
 	  <None Remove="Resources\Splash\sccurrent_large.svg" />
 	  <None Remove="Plugin.NFC" />
+	  <None Remove="Plugin.LocalNotification" />
+	  <None Remove="GoogleService-Info.plist" />
+	  <None Remove="Plugin.Firebase" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -154,6 +154,8 @@
 	  <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
 	  <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
 	  <PackageReference Include="Plugin.NFC" Version="0.1.26" />
+	  <PackageReference Include="Plugin.LocalNotification" Version="10.1.3" />
+	  <PackageReference Include="Plugin.Firebase" Version="1.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -173,9 +175,70 @@
 	  </PackageReference>
 	</ItemGroup>
 
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
+		<BundleResource Include="GoogleService-Info.plist" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\Contents.json" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloud20x20%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloud20x20%403x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloud29x29%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloud29x29%403x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloud40x40%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloud40x40%403x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloud60x60%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloud60x60%403x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloud76x76%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloud83.5x83.5%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\actool\cloned-assets\Assets.xcassets\stormcloud.appiconset\stormcloudItunesArtwork.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\Contents.json" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloud20x20%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloud20x20%403x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloud29x29%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloud29x29%403x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloud40x40%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloud40x40%403x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloud60x60%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloud60x60%403x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloud76x76%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloud83.5x83.5%402x.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\r\Assets.xcassets\stormcloud.appiconset\stormcloudItunesArtwork.png" />
+	  <BundleResource Remove="bin\Debug\net7.0-ios\ios-arm64\StormCloudClient.app\obj\Debug\net7.0-ios\ios-arm64\resizetizer\sp\MauiSplash.storyboard" />
+	</ItemGroup>
 	<ItemGroup>
 	  <BundleResource Include="Resources\AppIcon\stormcloud.svg" />
 	  <BundleResource Include="Resources\Splash\sccurrent_large.svg" />
+	  <BundleResource Include="**/*" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	  <ImageAsset Include="**/*" />
+	</ItemGroup>
+	<ItemGroup>
+	  <InterfaceDefinition Include="**/*" />
 	</ItemGroup>
   <Target Name="_FixMauiSplashScreens" BeforeTargets="ResizetizeCollectItems" Condition="'$(_ResizetizerIsiOSApp)' == 'True'">
 
