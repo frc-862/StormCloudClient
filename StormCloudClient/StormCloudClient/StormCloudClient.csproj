@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net7.0-android;net7.0-ios</TargetFrameworks>
@@ -18,8 +18,8 @@
 		<ApplicationIdGuid>462F1F20-4BDD-4DEC-AE49-765E6D948A0F</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.6</ApplicationDisplayVersion>
-		<ApplicationVersion>17</ApplicationVersion>
+		<ApplicationDisplayVersion>1.7</ApplicationDisplayVersion>
+		<ApplicationVersion>18</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">12.0</SupportedOSPlatformVersion>
 		
@@ -27,23 +27,12 @@
 		
 		<Title>StormCloud Client</Title>
 		<ProvisioningType>automatic</ProvisioningType>
-		<CodesignProvision>iOS Team Provisioning Profile: *</CodesignProvision>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	  <WarningLevel>4</WarningLevel>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)'=='net7.0-ios'">
-	  <CodesignKey>Apple Development: Created via API (5AK8PKB3PG)</CodesignKey>
-	  <CodesignProvision>VS: WildCard Development</CodesignProvision>
-	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
 	  <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
-	  <CreatePackage>false</CreatePackage>
-	  <CodesignProvision>Automatic</CodesignProvision>
-	  <CodesignKey>Apple Development: Created via API (5AK8PKB3PG)</CodesignKey>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -127,6 +116,9 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+		<MauiIcon Include="Resources\AppIcon\stormcloud.svg" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" />
+		<MauiSplashScreen Include="Resources\Splash\sccurrent_large.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -155,7 +147,7 @@
 	  <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
 	  <PackageReference Include="Plugin.NFC" Version="0.1.26" />
 	  <PackageReference Include="Plugin.LocalNotification" Version="10.1.3" />
-	  <PackageReference Include="Plugin.Firebase" Version="1.3.0" />
+	  <PackageReference Include="OneSignalSDK.DotNet" Version="4.3.3" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -170,13 +162,13 @@
 	  </MauiXaml>
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
-	  <PackageReference Include="BarcodeScanner.Mobile.Maui" Version="6.3.0.23-pre">
-	  </PackageReference>
-	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
 		<BundleResource Include="GoogleService-Info.plist" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+  		<PackageReference Include="Xamarin.Kotlin.StdLib.Jdk7" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
+  		<PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -239,6 +231,11 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <InterfaceDefinition Include="**/*" />
+	</ItemGroup>
+	<ItemGroup>
+	  <InterfaceDefinition Remove="Resources\AppIcon\stormcloud.svg" />
+	  <InterfaceDefinition Remove="Resources\AppIcon\appicon.svg" />
+	  <InterfaceDefinition Remove="Resources\Splash\sccurrent_large.svg" />
 	</ItemGroup>
   <Target Name="_FixMauiSplashScreens" BeforeTargets="ResizetizeCollectItems" Condition="'$(_ResizetizerIsiOSApp)' == 'True'">
 

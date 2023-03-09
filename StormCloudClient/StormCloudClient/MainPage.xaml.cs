@@ -18,20 +18,46 @@ public partial class MainPage : ContentPage
         FAIL
     }
 
+    public void UpdateStateInformationFields()
+    {
+        try
+        {
+
+            Data_CompetitionName.Text = StorageManagement.compCache.Name;
+            Data_CompetitionLocation.Text = StorageManagement.compCache.Location;
+            Data_NextMatch.Text = StorageManagement.compCache.NextMatch > 0 ? StorageManagement.compCache.NextMatch.ToString() : "--";
+            Data_OurNextMatch.Text = int.Parse(StorageManagement.compCache.OurNextMatch["matchNumber"]) > 0 ? StorageManagement.compCache.OurNextMatch["matchNumber"].ToString() : "--";
+            Data_OurNextMatchFrame.BackgroundColor = StorageManagement.compCache.OurNextMatch["color"].ToString() == "Red" ? Color.FromHex("#910929") : Color.FromHex("#290991");
+
+        }
+        catch (Exception e) {
+
+        }
+    }
     public async void UpdateStateInformation(){
+
+
+        UpdateStateInformationFields();
         APIResponse response = await APIManager.GetCurrentState();
         dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
 
 
         if (response.Status == System.Net.HttpStatusCode.OK)
         {
-            Data_CompetitionName.Text = data["competitionName"].ToString();
-            Data_CompetitionLocation.Text = data["location"].ToString();
-        }
-        else
-        {
-            Data_CompetitionName.Text = "Some Event";
-            Data_CompetitionLocation.Text = "Somewhere...";
+
+            StorageManagement.compCache.Name = data["competitionName"].ToString();
+            StorageManagement.compCache.Location = data["location"].ToString();
+            StorageManagement.compCache.MatchType = data["matchType"].ToString();
+            int nextMatch = 0;
+            bool isNextMatchAvailable = int.TryParse(data["currentMatch"], out nextMatch);
+            if (isNextMatchAvailable) {
+                StorageManagement.compCache.NextMatch = nextMatch;
+            }
+
+            StorageManagement.compCache.OurNextMatch = data["ourNextMatch"];
+
+            UpdateStateInformationFields();
+
         }
         
 
@@ -49,12 +75,10 @@ public partial class MainPage : ContentPage
             Title = "Matches to Submit",
             Description = "Don't forget... You still have " + matchesLeftToSubmit.Count().ToString() + " left to submit to the server!",
             ReturningData = "SUBMIT",
-            Schedule =
-                {
-                    NotifyRepeatInterval = TimeSpan.FromSeconds(30),
-                    RepeatType = NotificationRepeat.TimeInterval,
-                    NotifyTime = DateTime.Now.AddSeconds(5)
-                }
+            Silent = true,
+            CategoryType = NotificationCategoryType.Reminder,
+            Group = "Submit",
+            Image = new NotificationImage() {ResourceName = "play.png" }
         };
         LocalNotificationCenter.Current.Show(matchesNotif);
         
@@ -97,6 +121,17 @@ public partial class MainPage : ContentPage
                     
                 });
             });
+
+
+            Device.StartTimer(TimeSpan.FromSeconds(45), () =>
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    UpdateStateInformationFields();
+                });
+                return true;
+            });
+
             setup = true;
 
 

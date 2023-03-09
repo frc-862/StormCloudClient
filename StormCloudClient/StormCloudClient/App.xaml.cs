@@ -1,6 +1,8 @@
 ﻿using StormCloudClient.Classes;
 using StormCloudClient.Services;
 using Plugin.LocalNotification;
+using OneSignalSDK.DotNet;
+using OneSignalSDK.DotNet.Core;
 
 namespace StormCloudClient;
 
@@ -82,7 +84,8 @@ public partial class App : Application
 
         //MainPage = new NavigationPage(new MainPage());
 
-
+        OneSignal.Default.Initialize("e5b08ab2-484c-4e7f-ad43-3635832e137e");
+        OneSignal.Default.PromptForPushNotificationsWithUserResponse();
 
 
     }
