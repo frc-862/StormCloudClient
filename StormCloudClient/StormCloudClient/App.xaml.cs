@@ -1,6 +1,9 @@
 ﻿using StormCloudClient.Classes;
 using StormCloudClient.Services;
 namespace StormCloudClient;
+using Plugin.LocalNotification;
+using OneSignalSDK.DotNet;
+using OneSignalSDK.DotNet.Core;
 
 public partial class App : Application
 {
@@ -14,6 +17,10 @@ public partial class App : Application
 
 		
         StorageManagement.Initialize();
+        OneSignal.Default.RequiresPrivacyConsent = true;
+        OneSignal.Default.Initialize("87497f10-4ff9-4d08-8da1-191301bad90d");
+        OneSignal.Default.PrivacyConsent = true;
+        OneSignal.Default.PromptForPushNotificationsWithUserResponse(true);
 
 
 
@@ -84,4 +91,15 @@ public partial class App : Application
 
 
     }
+     protected override async void OnStart()
+     {
+
+         if(await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
+         {
+             // then enable them lol
+             await LocalNotificationCenter.Current.RequestNotificationPermission();
+         }
+
+         base.OnStart();
+     }
 }

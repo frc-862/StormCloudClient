@@ -245,7 +245,7 @@ public partial class Scouting : ContentPage
                     if((string)component.Type == "Label")
                     {
 
-                        if((string)component.Name == "")
+                        if((string)component.Name != "")
                         {
                             Label titleText = new Label() { Text = (string)component.Name, FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, 20, 20, 5), HorizontalTextAlignment = TextAlignment.Center };
                             Form_Content_Fields.Add(titleText);
@@ -517,9 +517,13 @@ public partial class Scouting : ContentPage
                             pickerFrame.Content = borderProtect;
                             
                             List<string> items = new List<string>();
-                            foreach(dynamic option in component.Options)
+                            dynamic options = component.Options;
+                            foreach(dynamic option in options)
                             {
-                                items.Add((string)option);
+                                Console.WriteLine(option.Name);
+                                Console.WriteLine(option);
+                                items.Add(option.Name.ToString());
+
                             }
                             selection.ItemsSource = items;
 

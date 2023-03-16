@@ -53,12 +53,21 @@ namespace StormCloudClient.Classes
         public string DeviceID;
         public bool JustTaken;
     }
+    public class CompetitionCache
+    {
+        public string Name;
+        public string Location;
+        public string MatchType;
+        public int NextMatch;
+        public dynamic OurNextMatch;
+    }
     public class StorageManagement
     {
 
         public static List<Schema> allSchemas;
         public static List<Match> allMatches;
         public static List<Photo> allPhotos;
+        public static CompetitionCache compCache;
         public static int matchesCreated;
 
 
@@ -69,6 +78,7 @@ namespace StormCloudClient.Classes
             allSchemas = new List<Schema>();
             allMatches = new List<Match>();
             allPhotos = new List<Photo>();
+            compCache = new CompetitionCache();
             // try to get schema data if exists; if does, set schemas variable to List deserialization
             if (File.Exists(_GetPath("schemas.json")))
             {
@@ -102,6 +112,18 @@ namespace StormCloudClient.Classes
                 try
                 {
                     allPhotos = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Photo>>(contents);
+                }
+                catch (Exception e)
+                {
+
+                }
+            }
+            if (File.Exists(_GetPath("cache.json")))
+            {
+                var contents = File.ReadAllText(_GetPath("cache.json"));
+                try
+                {
+                    compCache = Newtonsoft.Json.JsonConvert.DeserializeObject<CompetitionCache>(contents);
                 }
                 catch (Exception e)
                 {
@@ -259,6 +281,12 @@ namespace StormCloudClient.Classes
         {
             var finalContents = Newtonsoft.Json.JsonConvert.SerializeObject(allPhotos);
             File.WriteAllText(_GetPath("photos.json"), finalContents);
+        }
+
+        public static void _SaveData_Comp()
+        {
+            var finalContents = Newtonsoft.Json.JsonConvert.SerializeObject(compCache);
+            File.WriteAllText(_GetPath("cache.json"), finalContents);
         }
 
 

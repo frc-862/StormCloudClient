@@ -101,6 +101,21 @@ namespace StormCloudClient.Services
 
         }
 
+        public static async Task<APIResponse> GetCurrentState(){
+             try
+             {
+
+
+                 var url = _GetBaseUrl() + "/api/quick/state";
+                 var response = await client.GetAsync(url);
+                 return new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode };
+             }
+             catch (Exception e)
+             {
+                 return new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest };
+             }
+         }
+
         public static async Task<APIResponse> FlagDocument(string identifier, bool flagStatus){
 
             try

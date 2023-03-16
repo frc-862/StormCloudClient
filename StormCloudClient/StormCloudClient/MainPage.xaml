@@ -55,7 +55,60 @@
                     <StackLayout>
                         <Label Margin="10, 20" Text="Next Up..." HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="32" FontAttributes="Bold" />
                         
-                        <Button Clicked="GoToMatch" FontSize="24" Text="Scout Next Match" BackgroundColor="#280338" Padding="20,20" CornerRadius="8" TextColor="White" Margin="20,0"/>
+                        <Frame BorderColor="Transparent" Padding="5,10" BackgroundColor="#280338" CornerRadius="8" Margin="20,5">
+                            <StackLayout>
+                                <Label Text="Unknown Competition" x:Name="Data_CompetitionName" TextColor="White" FontSize="20" Margin="10,10,10,5" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                                <Label Text="Unknown Competition" x:Name="Data_CompetitionLocation" TextColor="White" FontSize="16" Margin="10,5,10,10" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                                <Grid Margin="10, 10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+
+                                    </Grid.ColumnDefinitions>
+                                    <StackLayout Grid.Row="0" Grid.Column="0">
+                                        <Label Text="Next Match Up" TextColor="White" FontSize="14" Margin="5" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                                        <Frame BackgroundColor="#3a0e4d" Padding="5" CornerRadius="8" BorderColor="Transparent" Margin="5">
+                                            <Grid>
+                                                <Label Grid.Row="0" Grid.Column="0" Text="--" x:Name="Data_NextMatch" TextColor="White" FontSize="20" Margin="5" HorizontalOptions="Center" HorizontalTextAlignment="Center">
+                                                
+
+                                                </Label>
+                                                <Button Text="Open" Opacity=".5" Grid.Row="0" Grid.Column="0" Clicked="Info_Show"/>
+
+                                            </Grid>
+                                            
+
+                                        </Frame>
+
+                                    </StackLayout>
+                                    <StackLayout Grid.Row="0" Grid.Column="1">
+                                        <Label Text="Our Next Match" TextColor="White" FontSize="14" Margin="5" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                                        <Frame x:Name="Data_OurNextMatchFrame" BackgroundColor="#3a0e4d" Padding="5" CornerRadius="8" BorderColor="Transparent" Margin="5">
+                                            <Frame.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="Info_Show"/>
+
+                                            </Frame.GestureRecognizers>
+                                            <Label Text="--" x:Name="Data_OurNextMatch" TextColor="White" FontSize="20" Margin="5" HorizontalOptions="Center" HorizontalTextAlignment="Center" >
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="Info_Show"/>
+
+                                                </Label.GestureRecognizers>
+
+                                            </Label>
+
+                                        </Frame>
+
+                                    </StackLayout>
+                                    
+                                </Grid>
+                                <Button Clicked="GoToMatch" FontSize="24" Text="Scout Next Match" BackgroundColor="#3a0e4d" Padding="20,20" CornerRadius="8" TextColor="White" Margin="20,0,20,10"/>
+                                
+                            </StackLayout>
+                        </Frame>
+
+                        
+
+                        
                         <Grid>
                             <StackLayout Grid.Row="0" Grid.Column="0" x:Name="Data_SomeMatches">
                                 <Label Text="Matches Completed"
@@ -503,6 +556,50 @@
                                     <ActivityIndicator WidthRequest="50" HeightRequest="50" Color="White" IsRunning="True"/>
 
                                 </StackLayout>
+
+                            </Grid>
+                            
+
+                            
+
+                        </StackLayout>
+
+                    </Frame>
+
+
+
+                </StackLayout>
+
+            </Grid>
+
+            <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" x:Name="Info_View" IsVisible="False">
+                <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BackgroundColor="#000000" Opacity="0.4" Grid.Row="0" Grid.Column="0" x:Name="Info_View_Backdrop">
+                    <Grid.GestureRecognizers>
+                       
+                        <SwipeGestureRecognizer Direction="Down" Swiped="Info_Exit"/>
+                    </Grid.GestureRecognizers>
+                </Grid>
+
+                
+                <StackLayout Grid.Row="0" Grid.Column="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 400" TranslationY="600" AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional" x:Name="Info_View_Result_Box">
+                    <Frame BorderColor="Transparent" BackgroundColor="#280338" HeightRequest="800" CornerRadius="16" HasShadow="True">
+                    
+                        <StackLayout>
+
+                            <Grid Padding="10">
+
+                                <StackLayout Grid.Column="0" Grid.Row="0"  x:Name="Info_View_Result_Main" IsVisible="False">
+                                    <Label Text="Waiting for Search" Opacity="0.7" HorizontalOptions="Center" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="24" />
+
+                                </StackLayout>
+                                <StackLayout Grid.Column="0" Grid.Row="0"  x:Name="Info_View_Result_Detail" IsVisible="False">
+                                    <Label Text="Waiting for Search" Opacity="0.7" HorizontalOptions="Center" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="24" />
+
+                                </StackLayout>
+
+                                
+
+                               
 
                             </Grid>
                             
