@@ -35,6 +35,14 @@
 	  <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
 	</PropertyGroup>
 
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
+	  <CreatePackage>false</CreatePackage>
+	  <CodesignProvision>Automatic</CodesignProvision>
+	  <CodesignKey>Apple Development: Created via API (5AK8PKB3PG)</CodesignKey>
+	  <CodesignEntitlements></CodesignEntitlements>
+	</PropertyGroup>
+
 	<PropertyGroup>
     <!-- Properties used to strip bitcode from frameworks when using Visual Studio for Mac -->
     <_StripBitcodeFromFrameworksMasterAfterTargets Condition="'$(OS)'=='Unix'">_ExpandNativeReferences</_StripBitcodeFromFrameworksMasterAfterTargets>

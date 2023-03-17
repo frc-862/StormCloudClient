@@ -245,7 +245,7 @@ public partial class Scouting : ContentPage
                     if((string)component.Type == "Label")
                     {
 
-                        if((string)component.Name == "")
+                        if((string)component.Name != "")
                         {
                             Label titleText = new Label() { Text = (string)component.Name, FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, 20, 20, 5), HorizontalTextAlignment = TextAlignment.Center };
                             Form_Content_Fields.Add(titleText);
@@ -468,7 +468,33 @@ public partial class Scouting : ContentPage
                             };
 
                             break;
-                        
+                        case "Input":
+                            Frame entryFrame = new Frame() { CornerRadius = 8, Margin = new Thickness(5, 5), BackgroundColor = colorSets[useColor].main, Padding = new Thickness(5, 0), BorderColor = Color.FromArgb("00ffffff"), StyleId = useColor };
+                            Frame borderProtectE = new Frame() { CornerRadius = 4, Padding = new Thickness(0), BorderColor = colorSets[useColor].main, StyleId = useColor };
+
+                            Entry e = new Entry() { FontSize = 14, BackgroundColor = colorSets[useColor].main, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, ClassId = componentId.ToString() };
+
+                            e.TextChanged += HandleFormEntry;
+
+                            borderProtectE.Content = e;
+                            entryFrame.Content = borderProtectE;
+                            container.Add(entryFrame, 1, 0);
+
+                            attachedComponents[componentId] = new List<object>
+                            {
+                                e
+                            };
+
+                            if (isCurrentlyEditing)
+                            {
+                                e.Text = data[componentId].ToString();
+                            }
+                            else
+                            {
+                                data[componentId] = "";
+                            }
+
+                            break;
                         case "Check":
                             Grid buttonView = new Grid() { Margin = new Thickness(0, 5) };
                             buttonView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
@@ -508,6 +534,33 @@ public partial class Scouting : ContentPage
                             
                             
                             break;
+                        case "Multi-Select":
+                            StackLayout optionsList = new StackLayout() { Margin = new Thickness(0, 5) };
+                            attachedComponents[componentId] = new List<object>();
+                            foreach (var option in component.Options)
+                            {
+                                Button b = new Button() { BackgroundColor = colorSets[useColor].main, Text = (string)option.Name, ClassId = componentId.ToString(), Margin = new Thickness(5, 2), Padding = new Thickness(5), TextColor = Color.FromHex("#ffffff"), StyleId = useColor, FontSize = 12 };
+                                optionsList.Add(b);
+
+                                b.Clicked += HandleFormButton;
+
+                                attachedComponents[componentId].Add(b);
+                            }
+
+                            extraData[componentId] = (string)component.MaxSelect;
+                            if (isCurrentlyEditing)
+                            {
+                                
+                            }
+                            else
+                            {
+                                data[componentId] = "";
+                            }
+
+                            container.Add(optionsList, 1, 0);
+
+                            
+                            break;
                         case "Select":
                             Frame pickerFrame = new Frame() { CornerRadius = 8, Margin = new Thickness(5, 5), BackgroundColor = colorSets[useColor].main, Padding = new Thickness(5, 0), BorderColor = Color.FromArgb("00ffffff"), StyleId = useColor };
                             Frame borderProtect = new Frame() { CornerRadius = 4, Padding = new Thickness(0), BorderColor = colorSets[useColor].main, StyleId = useColor };
@@ -517,9 +570,11 @@ public partial class Scouting : ContentPage
                             pickerFrame.Content = borderProtect;
                             
                             List<string> items = new List<string>();
-                            foreach(dynamic option in component.Options)
+                            dynamic options = component.Options;
+                            foreach(dynamic option in options)
                             {
-                                items.Add((string)option);
+                                items.Add(option.Name.ToString());
+
                             }
                             selection.ItemsSource = items;
 
@@ -780,6 +835,10 @@ public partial class Scouting : ContentPage
 
                 
                 break;
+            case "Input":
+
+                data[compId] = (string)responsible.Text;
+                break;
         }
     }
     private async void HandleFormButton(object sender, EventArgs e)
@@ -832,6 +891,41 @@ public partial class Scouting : ContentPage
                     ((Button)attachedComponents[compId][0]).BackgroundColor = colorSets[useColor].main;
                 }
                 data[compId] = responsible.Text;
+                break;
+            case "Multi-Select":
+                var currentlySelectedOptions = data[compId].Split(";").ToList();
+
+                var optionToToggle = responsible.Text;
+
+                if (currentlySelectedOptions.Contains(optionToToggle))
+                {
+                    // disable option
+                    currentlySelectedOptions.Remove(optionToToggle);
+                    responsible.BackgroundColor = colorSets[useColor].main;
+                }
+                else
+                {
+                    var maxSelect = int.Parse(extraData[compId]);
+                    if(currentlySelectedOptions.Count() <= maxSelect || maxSelect <= 0)
+                    {
+                        // enable option
+                        currentlySelectedOptions.Add(optionToToggle);
+                        responsible.BackgroundColor = colorSets[useColor].selected;
+                    }
+                    
+
+                    
+                }
+                var putBack = "";
+                foreach(var option in currentlySelectedOptions)
+                {
+                    putBack += option + ";";
+                }
+                if(putBack != "")
+                {
+                    putBack = putBack.Substring(0, putBack.Length - 1);
+                }
+                data[compId] = putBack;
                 break;
             case "Event":
                 if (EditingMatch != null)

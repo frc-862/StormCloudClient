@@ -2,7 +2,6 @@
 
 namespace StormCloudClient;
 
-using Microsoft.Maui.LifecycleEvents;
 using Plugin.LocalNotification;
 
 
