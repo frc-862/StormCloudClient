@@ -1,5 +1,9 @@
-﻿using StormCloudClient.Classes;
+using StormCloudClient.Classes;
 using StormCloudClient.Services;
+using Plugin.LocalNotification;
+using OneSignalSDK.DotNet;
+using OneSignalSDK.DotNet.Core;
+
 namespace StormCloudClient;
 using Plugin.LocalNotification;
 using OneSignalSDK.DotNet;
@@ -23,7 +27,7 @@ public partial class App : Application
         OneSignal.Default.PromptForPushNotificationsWithUserResponse(true);
 
 
-
+        
 
 #if IOS
 		USBService = new USBService();
@@ -87,9 +91,22 @@ public partial class App : Application
 
         //MainPage = new NavigationPage(new MainPage());
 
+        OneSignal.Default.Initialize("e5b08ab2-484c-4e7f-ad43-3635832e137e");
+        OneSignal.Default.PromptForPushNotificationsWithUserResponse();
 
 
+    }
 
+    protected override async void OnStart()
+    {
+
+        if(await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
+        {
+            // then enable them lol
+            await LocalNotificationCenter.Current.RequestNotificationPermission();
+        }
+
+        base.OnStart();
     }
      protected override async void OnStart()
      {
