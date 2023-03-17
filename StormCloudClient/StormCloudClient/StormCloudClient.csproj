@@ -47,7 +47,7 @@
 	  <CreatePackage>false</CreatePackage>
 	  <CodesignProvision>Automatic</CodesignProvision>
 	  <CodesignKey>Apple Development: Created via API (5AK8PKB3PG)</CodesignKey>
-	  <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+	  <CodesignEntitlements></CodesignEntitlements>
 	</PropertyGroup>
 
 	<PropertyGroup>

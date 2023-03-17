@@ -42,7 +42,5 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
-	<key>NSUserNotificationsUsageDescription</key>
-	<string>To be able to deliver you match updates from your team on StormCloud!</string>
 </dict>
 </plist>

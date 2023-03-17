@@ -70,10 +70,13 @@
                                         <Frame BackgroundColor="#3a0e4d" Padding="5" CornerRadius="8" BorderColor="Transparent" Margin="5">
                                             <Grid>
                                                 <Label Grid.Row="0" Grid.Column="0" Text="--" x:Name="Data_NextMatch" TextColor="White" FontSize="20" Margin="5" HorizontalOptions="Center" HorizontalTextAlignment="Center">
-                                                
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer Tapped="Info_Show"/>
+
+                                                    </Label.GestureRecognizers>
 
                                                 </Label>
-                                                <Button Text="Open" Opacity=".5" Grid.Row="0" Grid.Column="0" Clicked="Info_Show"/>
+                                                
 
                                             </Grid>
                                             
