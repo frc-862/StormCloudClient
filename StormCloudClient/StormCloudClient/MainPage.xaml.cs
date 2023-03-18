@@ -77,6 +77,10 @@ public partial class MainPage : ContentPage
 
             StorageManagement.compCache.OurNextMatch = data["ourNextMatch"];
 
+            StorageManagement.compCache.Matches = data["matches"];
+
+            StorageManagement.compCache.TeamNumber = int.Parse(data["teamNumber"].ToString());
+
             UpdateStateInformationFields();
 
         }
@@ -188,9 +192,8 @@ public partial class MainPage : ContentPage
         UpdateStateInformation();
 
 
-
-
-        StorageManagement.AddData_Schema("Rapid React Test", "{'Name':'Rapid React Test','Parts':[{'Name':'Autonomous','Time':0,'Components':[{'Type':'Step','Name':'Cargo Low','Min':0,'Max':10},{'Type':'Check','Name':'Off the Tarmac','On':'Yes','Off':'No'},{'Type':'Select','Name':'Level','Options':['A','B','C']},{'Type':'Event','Name':'Balls Shot','Trigger':'Shot Now!','Max':30},{'Type':'Timer','Name':'Playing Defense'}]}]}");
+        
+        //StorageManagement.AddData_Schema("Rapid React Test", "{'Name':'Rapid React Test','Parts':[{'Name':'Autonomous','Time':0,'Components':[{'Type':'Step','Name':'Cargo Low','Min':0,'Max':10},{'Type':'Check','Name':'Off the Tarmac','On':'Yes','Off':'No'},{'Type':'Select','Name':'Level','Options':['A','B','C']},{'Type':'Event','Name':'Balls Shot','Trigger':'Shot Now!','Max':30},{'Type':'Timer','Name':'Playing Defense'}]}]}");
 
         // get initial settings data
 
@@ -417,16 +420,35 @@ public partial class MainPage : ContentPage
             Frame outside = new Frame() { BackgroundColor = bgColor, BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, MaximumWidthRequest = 400, Padding = new Thickness(0, 12), ClassId = id };
             
             Grid contentsInside = new Grid() { Margin = new Thickness(5, 0) };
-            contentsInside.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
-            contentsInside.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
 
-            Label matchNum = new Label() { VerticalOptions = LayoutOptions.Center, Text = "Match " + m.Number.ToString(), HorizontalTextAlignment = TextAlignment.Start, TextColor = Color.FromHex("#ffffff"), FontSize = 20, Margin = new Thickness(10, 0, 0, 0) };
-            Label teamNum = new Label() { VerticalOptions = LayoutOptions.Center, Text = "Team " + m.Team.ToString() + " - " + m.Color, HorizontalOptions = LayoutOptions.End, TextColor = Color.FromHex("#ffffff"), FontSize = 14, Margin = new Thickness(0,0,10,0) };
+            if(m.Number > 0)
+            {
+                // General Document
+                contentsInside.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+                contentsInside.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+                Label matchNum = new Label() { VerticalOptions = LayoutOptions.Center, Text = "Match " + m.Number.ToString(), HorizontalTextAlignment = TextAlignment.Start, TextColor = Color.FromHex("#ffffff"), FontSize = 20, Margin = new Thickness(10, 0, 0, 0) };
+                Label teamNum = new Label() { VerticalOptions = LayoutOptions.Center, Text = "Team " + m.Team.ToString() + " - " + m.Color, HorizontalOptions = LayoutOptions.End, TextColor = Color.FromHex("#ffffff"), FontSize = 14, Margin = new Thickness(0, 0, 10, 0) };
 
-            contentsInside.Add(matchNum, 0, 0);
-            contentsInside.Add(teamNum, 1, 0);
+                contentsInside.Add(matchNum, 0, 0);
+                contentsInside.Add(teamNum, 1, 0);
 
-            outside.Content = contentsInside;
+                outside.Content = contentsInside;
+            }
+            else
+            {
+                contentsInside.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+                contentsInside.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+                
+
+                Label teamNum = new Label() { VerticalOptions = LayoutOptions.Center, Text = "Team " + m.Team.ToString(), HorizontalTextAlignment = TextAlignment.Start, TextColor = Color.FromHex("#ffffff"), FontSize = 20, Margin = new Thickness(10, 0, 0, 0) };
+                Label dateEdited = new Label() { VerticalOptions = LayoutOptions.Center, Text = m.Created.ToShortTimeString(), HorizontalOptions = LayoutOptions.End, TextColor = Color.FromHex("#ffffff"), FontSize = 14, Margin = new Thickness(0, 0, 10, 0) };
+
+                contentsInside.Add(teamNum, 0, 0);
+                contentsInside.Add(dateEdited, 1, 0);
+
+                outside.Content = contentsInside;
+            }
+            
 
             TapGestureRecognizer tap = new TapGestureRecognizer();
             tap.Tapped += Match_FrameTapped;
@@ -721,17 +743,24 @@ public partial class MainPage : ContentPage
 
         var match = StorageManagement.allMatches.Find(m => m.Environment == details[1] && m.Number == Int32.Parse(details[0]));
         var res = "";
+
+        var topText = "Match " + match.Number.ToString();
+        if(match.Number <= 0)
+        {
+            topText = "General Document";
+        }
+
         PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
         switch (match.Status)
         {
             case UploadStatus.NOT_TRIED:
-                res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", "Delete", "Submit", "Edit Details", "Edit Data");
+                res = await DisplayActionSheet(topText, "Never Mind", "Delete", "Submit", "Edit Details", "Edit Data");
                 break;
             case UploadStatus.SUCCEEDED:
-                res = await DisplayActionSheet("Match " + match.Number.ToString() + " (Submitted)", "Never Mind", "Delete", "Mark as 'Not Submitted'", "Edit Details", "Edit Data");
+                res = await DisplayActionSheet(topText + " (Submitted)", "Never Mind", "Delete", "Mark as 'Not Submitted'", "Edit Details", "Edit Data");
                 break;
             case UploadStatus.FAILED:
-                res = await DisplayActionSheet("Match " + match.Number.ToString(), "Never Mind", "Delete", "Retry Submit", "Edit Details", "Edit Data");
+                res = await DisplayActionSheet(topText, "Never Mind", "Delete", "Retry Submit", "Edit Details", "Edit Data");
                 break;
         }
 
@@ -809,8 +838,10 @@ public partial class MainPage : ContentPage
         {
             Overlay_Content.Clear();
             overlayInputs.Clear();
+
+            var generalDocument = match.Number <= 0;
             Label matchNLabel = new Label() { Text = "Match Number", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
-            StormEntry matchN = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Keyboard = Keyboard.Numeric, Text = match.Number.ToString() };
+            StormEntry matchN = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Keyboard = Keyboard.Numeric, Text = generalDocument ? "N/A" : match.Number.ToString(), IsEnabled=!generalDocument, Opacity= generalDocument ? 0.7 : 1 };
 
             Label teamNLabel = new Label() { Text = "Team Number", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
             StormEntry teamN = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Keyboard = Keyboard.Numeric, Text = match.Team.ToString() };
@@ -819,7 +850,7 @@ public partial class MainPage : ContentPage
             StormEntry scout = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = match.Scouter };
 
             Label colorLabel = new Label() { Text = "Team Color", FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, Margin = new Thickness(0, 10) };
-            StormEntry color = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = match.Color };
+            StormEntry color = new StormEntry() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = generalDocument ? "N/A" : match.Color, IsEnabled = !generalDocument, Opacity = generalDocument ? 0.7 : 1 };
             Overlay_Title.Text = "Editing Match";
             Overlay_Content.Add(matchNLabel);
             Overlay_Content.Add(matchN);
@@ -859,35 +890,42 @@ public partial class MainPage : ContentPage
                     teamNum = match.Team;
                 }
 
-                int matchNum = 0;
-
-                try
+                if (!generalDocument)
                 {
-                    var elem = overlayInputs[0];
-                    var matchN = elem.Text;
+                    int matchNum = 0;
 
-                    if (matchN == "")
+                    try
+                    {
+                        var elem = overlayInputs[0];
+                        var matchN = elem.Text;
+
+                        if (matchN == "")
+                        {
+                            matchNum = match.Number;
+                        }
+                        else
+                        {
+                            matchNum = Int32.Parse(matchN);
+                        }
+                    }
+                    catch (Exception e)
                     {
                         matchNum = match.Number;
                     }
-                    else
-                    {
-                        matchNum = Int32.Parse(matchN);
-                    }
-                }
-                catch (Exception e)
-                {
-                    matchNum = match.Number;
-                }
 
-                var elemC = overlayInputs[2];
-                var color = elemC.Text;
-                if (color.ToLower() == "red")
-                    color = "Red";
-                else if (color.ToLower() == "blue")
-                    color = "Blue";
-                else
-                    color = match.Color;
+                    var elemC = overlayInputs[2];
+                    var color = elemC.Text;
+                    if (color.ToLower() == "red")
+                        color = "Red";
+                    else if (color.ToLower() == "blue")
+                        color = "Blue";
+                    else
+                        color = match.Color;
+
+                    match.Number = matchNum;
+                    match.Color = color;
+                }
+                
 
                 var scout = overlayInputs[3].Text;
                 if (scout == "")
@@ -895,10 +933,10 @@ public partial class MainPage : ContentPage
 
 
 
-                match.Number = matchNum;
+                
                 match.Team = teamNum;
                 match.Scouter = scout;
-                match.Color = color;
+                
                 match.Status = UploadStatus.NOT_TRIED;
 
                 PhysicalVibrations.TryHaptic(HapticFeedbackType.LongPress);
@@ -1492,7 +1530,7 @@ public partial class MainPage : ContentPage
                 var selectedSchema = contentObject["settings"]["selectedSchema"];
                 var version = contentObject["settings"]["minBuild"];
                 dynamic schemaObject = contentObject["schema"];
-                StorageManagement.AddData_Schema((string)schemaObject["Name"], Newtonsoft.Json.JsonConvert.SerializeObject(schemaObject));
+                StorageManagement.AddData_Schema((string)schemaObject["Name"], Newtonsoft.Json.JsonConvert.SerializeObject(schemaObject), (dynamic)schemaObject["Settings"]);
 
 
 
@@ -1600,6 +1638,20 @@ public partial class MainPage : ContentPage
     private async void Info_Show(object sender, EventArgs e)
     {
         ChangeInfoView(true);
+        Label sendL = sender as Label;
+        if(sendL != null)
+        {
+            PutInfoOnInfoView(sendL.ClassId);
+            return;
+        }
+
+        Button sendB = sender as Button;
+        if (sendB != null)
+        {
+            PutInfoOnInfoView(sendB.ClassId);
+            return;
+        }
+
 
     }
 
@@ -1624,21 +1676,119 @@ public partial class MainPage : ContentPage
             Info_View_Backdrop.Opacity = 0;
             Info_View_Backdrop.IsVisible = true;
             Info_View.IsVisible = true;
-            Info_View_Result_Box.TranslationY = 1500;
+            Info_View_Result_Box.TranslationY = 1800;
             Info_View_Backdrop.FadeTo(.5, 250, Easing.CubicInOut);
 
             
-            Info_View_Result_Box.TranslateTo(0, 650, 500, Easing.CubicInOut);
+            Info_View_Result_Box.TranslateTo(0, 300, 500, Easing.CubicInOut);
 
 
         }
         else
         {
             Info_View_Backdrop.FadeTo(0, 250, Easing.CubicInOut);
-            Info_View_Result_Box.TranslateTo(0, 1500, 500, Easing.CubicInOut);
+            await Info_View_Result_Box.TranslateTo(0, 1800, 500, Easing.CubicInOut);
             Info_View_Backdrop.IsVisible = false;
             Info_View.IsVisible = false;
         }
+    }
+
+    public async void PutInfoOnInfoView(string infoEvent){
+        Info_View_Result_Detail.IsVisible = false;
+        Info_View_Result_Main.IsVisible = true;
+        Info_View_Result_Main.Content = null;
+        
+        try
+        {
+            switch (infoEvent)
+            {
+                case "matches":
+                    StackLayout matchesContent = new StackLayout() { Margin = new Thickness(10, 5) };
+                    foreach (dynamic match in StorageManagement.compCache.Matches)
+                    {
+                        Label matchNum = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 18, Text = "#" + match["matchNumber"].ToString(), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
+
+
+                        Grid matchDetails = new Grid() { Margin = new Thickness(0,10)};
+                        matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+                        matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(4, GridUnitType.Star)));
+                        matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+
+                        
+
+                        Grid teamGrid = new Grid() { Margin = new Thickness(0, 10) };
+                        teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                        teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                        for (int i = 0; i < match.teams.Count / 2; i++)
+                        {
+                            teamGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                        }
+
+                        var blueCount = 0;
+                        var redCount = 0;
+                        foreach (var team in match.teams)
+                        {
+                            Frame f = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 4, HasShadow = false };
+                            Label teamLabel = new Label() { Text = (string)team.team, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            f.Content = teamLabel;
+                            if ((string)team.color == "Red")
+                            {
+                                f.BackgroundColor = Color.FromHex("#910929");
+                                teamGrid.Add(f, redCount, 0);
+                                redCount++;
+                            }
+                            else if ((string)team.color == "Blue")
+                            {
+                                f.BackgroundColor = Color.FromHex("#290991");
+                                teamGrid.Add(f, blueCount, 1);
+                                blueCount++;
+                            }
+                        }
+
+                        matchDetails.Add(matchNum, 0, 0);
+                        matchDetails.Add(teamGrid, 1, 0);
+
+
+
+                        matchesContent.Add(matchDetails);
+                    }
+                    Info_View_Result_Main.Content = matchesContent;
+                    break;
+                case "our_matches":
+                    StackLayout ourMatchesContent = new StackLayout() { Margin = new Thickness(10, 5) };
+                    foreach(dynamic match in StorageManagement.compCache.Matches)
+                    {
+
+                        bool weAreIn = false;
+                        foreach(var team in match.teams)
+                        {
+                            if (team.team.ToString() == StorageManagement.compCache.TeamNumber.ToString())
+                            {
+                                weAreIn = true;
+                                break;
+                            }
+                                
+
+                        }
+
+                        if (weAreIn)
+                        {
+                            Label matchNum = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 18, Text = "Match " + match["matchNumber"].ToString(), HorizontalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
+                            ourMatchesContent.Add(matchNum);
+                        }
+
+                        
+                    }
+                    Info_View_Result_Main.Content = ourMatchesContent;
+                    break;
+            }
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+
     }
 
     public async void ChangeSearchView(bool show)

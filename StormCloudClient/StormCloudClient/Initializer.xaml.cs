@@ -163,7 +163,7 @@ public partial class Initializer : ContentPage
                 dynamic contentObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
                 var selectedSchema = contentObject["settings"]["selectedSchema"];
                 dynamic schemaObject = contentObject["schema"];
-                StorageManagement.AddData_Schema((string)schemaObject["Name"], Newtonsoft.Json.JsonConvert.SerializeObject(schemaObject));
+                StorageManagement.AddData_Schema((string)schemaObject["Name"], Newtonsoft.Json.JsonConvert.SerializeObject(schemaObject), (dynamic)schemaObject["Settings"]);
 
             }
         }
