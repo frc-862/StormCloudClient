@@ -18,6 +18,7 @@ namespace StormCloudClient.Classes
     {
         public string Name;
         public string Data;
+        public dynamic Settings;
     }
 
     public class PhotoData
@@ -60,6 +61,8 @@ namespace StormCloudClient.Classes
         public string MatchType;
         public int NextMatch;
         public dynamic OurNextMatch;
+        public dynamic Matches;
+        public int TeamNumber;
     }
     public class StorageManagement
     {
@@ -132,16 +135,17 @@ namespace StormCloudClient.Classes
             }
         }
         
-        public static void AddData_Schema(string Name, string Contents)
+        public static void AddData_Schema(string Name, string Contents, dynamic Settings)
         {
             var alreadyExists = allSchemas.Exists(s => s.Name == Name);
             if (alreadyExists)
             {
                 allSchemas.Find(s => s.Name == Name).Data = Contents;
+                allSchemas.Find(s => s.Name == Name).Settings = Settings;
             }
             else
             {
-                allSchemas.Add(new Schema() { Name = Name, Data = Contents });
+                allSchemas.Add(new Schema() { Name = Name, Data = Contents, Settings = Settings });
             }
 
 

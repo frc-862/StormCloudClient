@@ -93,9 +93,31 @@ public partial class Scouting : ContentPage
         }
     }
 
+    public bool UseMatches = true;
+    public bool DisabledRobots = true;
+
     protected override void OnAppearing()
     {
         var Schema = StorageManagement.allSchemas.Find(s => s.Name == SchemaName);
+
+        UseMatches = (bool)Schema.Settings["UseMatchNumbers"];
+        DisabledRobots = (bool)Schema.Settings["AllowRobotDisable"];
+
+        if (!UseMatches)
+        {
+            Status_PreContent_MatchNumber.Text = "N/A";
+            Status_PreContent_MatchNumber.IsEnabled = false;
+            Status_PreContent_MatchNumber.Opacity = 0.7;
+
+            Status_PreContent_AllianceColor.IsEnabled = false;
+            Status_PreContent_AllianceColor.Title = "N/A";
+            Status_PreContent_AllianceColor.TitleColor = Color.FromHex("#ffffff");
+
+        }
+        if (!DisabledRobots)
+        {
+            Disabled_Robot.IsVisible = false;
+        }
 
 
         var defaultScouter = DataManagement.GetValue("default_scouter");
@@ -537,10 +559,21 @@ public partial class Scouting : ContentPage
                         case "Multi-Select":
                             StackLayout optionsList = new StackLayout() { Margin = new Thickness(0, 5) };
                             attachedComponents[componentId] = new List<object>();
+                            if (!isCurrentlyEditing)
+                            {
+                                data[componentId] = "";
+                            }
+                            
+
                             foreach (var option in component.Options)
                             {
                                 Button b = new Button() { BackgroundColor = colorSets[useColor].main, Text = (string)option.Name, ClassId = componentId.ToString(), Margin = new Thickness(5, 2), Padding = new Thickness(5), TextColor = Color.FromHex("#ffffff"), StyleId = useColor, FontSize = 12 };
                                 optionsList.Add(b);
+
+                                if(isCurrentlyEditing && data[componentId].Split(";").ToList().Contains((string)option.Name))
+                                {
+                                    b.BackgroundColor = colorSets[useColor].selected;
+                                }
 
                                 b.Clicked += HandleFormButton;
 
@@ -548,14 +581,7 @@ public partial class Scouting : ContentPage
                             }
 
                             extraData[componentId] = (string)component.MaxSelect;
-                            if (isCurrentlyEditing)
-                            {
-                                
-                            }
-                            else
-                            {
-                                data[componentId] = "";
-                            }
+                            
 
                             container.Add(optionsList, 1, 0);
 
@@ -1051,9 +1077,13 @@ public partial class Scouting : ContentPage
         // check if fields are valid...
 
         var matchText = Status_PreContent_MatchNumber.Text;
-        int matchNum;
-        if (matchText == "" || !Int32.TryParse(matchText, out matchNum))
+        int matchNum = 0;
+        if ((matchText == "" || !Int32.TryParse(matchText, out matchNum)) && UseMatches)
             return;
+        if(UseMatches && matchNum <= 0)
+        {
+            return;
+        }
 
         var teamText = Status_PreContent_TeamNumber.Text;
         int teamNumber;
@@ -1061,31 +1091,42 @@ public partial class Scouting : ContentPage
             return;
 
         var allianceColor = (string)Status_PreContent_AllianceColor.SelectedItem;
-        if (allianceColor != "Red" && allianceColor != "Blue")
+        if (allianceColor != "Red" && allianceColor != "Blue" && UseMatches)
             return;
 
         var scouterName = Status_PreContent_ScouterName.Text;
         if (scouterName == "")
             return;
 
-        var matchExists = StorageManagement.allMatches.Exists(m => m.Environment == Environment && m.Number == matchNum);
-        if (matchExists)
+        if (UseMatches)
         {
-            var res = await DisplayAlert("FYI...", "A match with the same number and environment already exists. Submitting this match will overwrite the match that already exists. Are you sure you want to continue?", "Yes", "No");
-            if (!res)
+            var matchExists = StorageManagement.allMatches.Exists(m => m.Environment == Environment && m.Number == matchNum);
+            if (matchExists)
             {
-                return;
+                var res = await DisplayAlert("FYI...", "A match with the same number and environment already exists. Submitting this match will overwrite the match that already exists. Are you sure you want to continue?", "Yes", "No");
+                if (!res)
+                {
+                    return;
+                }
             }
         }
+        
 
         Team = teamNumber;
         Number = matchNum;
-        AllianceColor = allianceColor;
+        AllianceColor = UseMatches ? allianceColor : "";
         Scouter = scouterName;
 
 
-
-        Status_PostContent_MatchNumber.Text = "Match " + matchNum.ToString();
+        if (UseMatches)
+        {
+            Status_PostContent_MatchNumber.Text = "Match " + matchNum.ToString();
+        }
+        else
+        {
+            Status_PostContent_MatchNumber.Text = "General Document";
+        }
+        
         Status_PostContent_TeamNumber.Text = "Team " + teamNumber.ToString();
 
 		_readyTransitionLock = true;
