@@ -32,6 +32,7 @@
       <File FileName="StormCloudClient/Initializer.xaml" />
       <File FileName="StormCloudClient/Scouting.xaml" Line="74" Column="89" />
       <File FileName="StormCloudClient/Platforms/iOS/Info.plist" />
+      <File FileName="StormCloudClient/App.xaml" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -43,11 +44,13 @@
                 <Node name="Android" expanded="True" />
                 <Node name="iOS" expanded="True" />
                 <Node name="MacCatalyst" expanded="True" />
+                <Node name=".DS_Store" selected="True" />
               </Node>
               <Node name="Resources" expanded="True">
                 <Node name="AppIcon" expanded="True" />
                 <Node name="Images" expanded="True" />
                 <Node name="Splash" expanded="True" />
+                <Node name="Styles" expanded="True" />
               </Node>
               <Node name="Services" expanded="True" />
               <Node name="App.xaml" expanded="True" />

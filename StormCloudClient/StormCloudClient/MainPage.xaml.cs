@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Platform;
+
+using Microsoft.Maui.Platform;
 using Plugin.LocalNotification;
 using StormCloudClient.Classes;
 using StormCloudClient.Services;
@@ -25,6 +26,7 @@ public partial class MainPage : ContentPage
         {
 
             Data_CompetitionName.Text = StorageManagement.compCache.Name;
+
             Data_CompetitionLocation.Text = "@ "+StorageManagement.compCache.Location;
             if (StorageManagement.compCache.NextMatch > 900)
             {
@@ -43,6 +45,7 @@ public partial class MainPage : ContentPage
                 Data_OurNextMatch.Text = int.Parse(StorageManagement.compCache.OurNextMatch["matchNumber"]) > 0 ? "Match " + StorageManagement.compCache.OurNextMatch["matchNumber"].ToString() : "--";
             }
             
+
             Data_OurNextMatchFrame.BackgroundColor = StorageManagement.compCache.OurNextMatch["color"].ToString() == "Red" ? Color.FromHex("#910929") : Color.FromHex("#290991");
 
         }
@@ -65,7 +68,9 @@ public partial class MainPage : ContentPage
             StorageManagement.compCache.Location = data["location"].ToString();
             StorageManagement.compCache.MatchType = data["matchType"].ToString();
             int nextMatch = 0;
+
             bool isNextMatchAvailable = int.TryParse(data["currentMatch"].ToString(), out nextMatch);
+
             if (isNextMatchAvailable) {
                 StorageManagement.compCache.NextMatch = nextMatch;
             }
@@ -89,6 +94,7 @@ public partial class MainPage : ContentPage
         LocalNotificationCenter.Current.CancelAll();
         // create initial notification based on matches
         var matchesLeftToSubmit = StorageManagement.allMatches.Where(m => m.Status != UploadStatus.SUCCEEDED);
+
         if(matchesLeftToSubmit.Count() == 0)
         {
             var matchesNotif = new NotificationRequest()
@@ -120,6 +126,7 @@ public partial class MainPage : ContentPage
             LocalNotificationCenter.Current.Show(matchesNotif);
         }
         
+
         
     }
 

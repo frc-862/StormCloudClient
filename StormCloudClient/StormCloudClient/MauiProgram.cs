@@ -1,7 +1,9 @@
 ﻿
 
 namespace StormCloudClient;
+
 using Plugin.LocalNotification;
+
 
 
 public static class MauiProgram
@@ -25,4 +27,6 @@ public static class MauiProgram
 
         return builder.Build();
 	}
+
+
 }
