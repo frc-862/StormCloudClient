@@ -97,17 +97,7 @@ public partial class App : Application
 
     }
 
-    protected override async void OnStart()
-    {
-
-        if(await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
-        {
-            // then enable them lol
-            await LocalNotificationCenter.Current.RequestNotificationPermission();
-        }
-
-        base.OnStart();
-    }
+    
      protected override async void OnStart()
      {
 

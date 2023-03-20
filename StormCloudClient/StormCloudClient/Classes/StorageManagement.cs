@@ -27,6 +27,15 @@ namespace StormCloudClient.Classes
         public string Data;
     }
 
+    public class Download
+    {
+        public dynamic analysisSets;
+        public dynamic schemas;
+        public dynamic matches;
+        public dynamic rankings;
+        public dynamic documents;
+    }
+
     public class Match
     {
         public int Team;
@@ -71,6 +80,7 @@ namespace StormCloudClient.Classes
         public static List<Match> allMatches;
         public static List<Photo> allPhotos;
         public static CompetitionCache compCache;
+        public static Download downloadCache;
         public static int matchesCreated;
 
 
@@ -82,6 +92,7 @@ namespace StormCloudClient.Classes
             allMatches = new List<Match>();
             allPhotos = new List<Photo>();
             compCache = new CompetitionCache();
+            downloadCache = new Download();
             // try to get schema data if exists; if does, set schemas variable to List deserialization
             if (File.Exists(_GetPath("schemas.json")))
             {
@@ -127,6 +138,18 @@ namespace StormCloudClient.Classes
                 try
                 {
                     compCache = Newtonsoft.Json.JsonConvert.DeserializeObject<CompetitionCache>(contents);
+                }
+                catch (Exception e)
+                {
+
+                }
+            }
+            if (File.Exists(_GetPath("download.json")))
+            {
+                var contents = File.ReadAllText(_GetPath("download.json"));
+                try
+                {
+                    downloadCache = Newtonsoft.Json.JsonConvert.DeserializeObject<Download>(contents);
                 }
                 catch (Exception e)
                 {
@@ -291,6 +314,11 @@ namespace StormCloudClient.Classes
         {
             var finalContents = Newtonsoft.Json.JsonConvert.SerializeObject(compCache);
             File.WriteAllText(_GetPath("cache.json"), finalContents);
+        }
+        public static void _SaveData_Download()
+        {
+            var finalContents = Newtonsoft.Json.JsonConvert.SerializeObject(downloadCache);
+            File.WriteAllText(_GetPath("download.json"), finalContents);
         }
 
 

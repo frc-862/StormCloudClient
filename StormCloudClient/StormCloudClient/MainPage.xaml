@@ -591,6 +591,10 @@
 
                             <Grid Padding="10">
 
+                                <ScrollView Grid.Column="0" Grid.Row="0"  x:Name="Info_View_Result_Loading" IsVisible="False" MaximumHeightRequest="400">
+                                    <ActivityIndicator WidthRequest="50" HeightRequest="50" Color="White" IsRunning="True"/>
+
+                                </ScrollView>
                                 <ScrollView Grid.Column="0" Grid.Row="0"  x:Name="Info_View_Result_Main" IsVisible="False" MaximumHeightRequest="400">
                                     <Label Text="Waiting for Search" Opacity="0.7" HorizontalOptions="Center" TextColor="White" VerticalOptions="Center" FontAttributes="Bold" FontSize="24" />
 

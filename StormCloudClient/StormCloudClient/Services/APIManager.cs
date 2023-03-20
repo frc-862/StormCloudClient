@@ -49,6 +49,28 @@ namespace StormCloudClient.Services
             
         }
 
+        public static async Task<APIResponse> GetDownload(){
+            try{
+                var url = _GetBaseUrl() + "/api/quick/download";
+                var response = await client.GetAsync(url);
+                return new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode };
+            }
+            catch(Exception e){
+                return new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest };
+            }
+        }
+
+        public static async Task<APIResponse> GetSchemas(){
+            try{
+                var url = _GetBaseUrl() + "/api/schemas";
+                var response = await client.GetAsync(url);
+                return new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode };
+            }
+            catch(Exception e){
+                return new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest };
+            }
+        }
+
         public static async Task<APIResponse> GetMatchInformation(int matchNumber)
         {
             try

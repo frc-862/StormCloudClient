@@ -158,6 +158,18 @@ public partial class Initializer : ContentPage
             bool import = await DisplayAlert("Success!", "Would you like to initialize your application further by importing the configuration data from the server you provided?", "Yes", "No");
             if (import)
             {
+
+                var schemasRes = await APIManager.GetSchemas();
+                if(schemasRes.Status == System.Net.HttpStatusCode.OK){
+                    var contentS = schemasRes.Content;
+                    dynamic contentObjectS = Newtonsoft.Json.JsonConvert.DeserializeObject(contentS);
+
+                    foreach(var schema in contentObjectS.schemas){
+                        StorageManagement.AddData_Schema((string)schema["Name"], Newtonsoft.Json.JsonConvert.SerializeObject(schema), (dynamic)schema["Settings"]);
+                    }
+                }
+
+
                 var content = savedSetupData.Content;
 
                 dynamic contentObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);

@@ -100,24 +100,32 @@ public partial class Scouting : ContentPage
     {
         var Schema = StorageManagement.allSchemas.Find(s => s.Name == SchemaName);
 
-        UseMatches = (bool)Schema.Settings["UseMatchNumbers"];
-        DisabledRobots = (bool)Schema.Settings["AllowRobotDisable"];
-
-        if (!UseMatches)
+        try
         {
-            Status_PreContent_MatchNumber.Text = "N/A";
-            Status_PreContent_MatchNumber.IsEnabled = false;
-            Status_PreContent_MatchNumber.Opacity = 0.7;
+            UseMatches = (bool)Schema.Settings["UseMatchNumbers"];
+            DisabledRobots = (bool)Schema.Settings["AllowRobotDisable"];
 
-            Status_PreContent_AllianceColor.IsEnabled = false;
-            Status_PreContent_AllianceColor.Title = "N/A";
-            Status_PreContent_AllianceColor.TitleColor = Color.FromHex("#ffffff");
+            if (!UseMatches)
+            {
+                Status_PreContent_MatchNumber.Text = "N/A";
+                Status_PreContent_MatchNumber.IsEnabled = false;
+                Status_PreContent_MatchNumber.Opacity = 0.7;
+
+                Status_PreContent_AllianceColor.IsEnabled = false;
+                Status_PreContent_AllianceColor.Title = "N/A";
+                Status_PreContent_AllianceColor.TitleColor = Color.FromHex("#ffffff");
+
+            }
+            if (!DisabledRobots)
+            {
+                Disabled_Robot.IsVisible = false;
+            }
+        }
+        catch(Exception e)
+        {
 
         }
-        if (!DisabledRobots)
-        {
-            Disabled_Robot.IsVisible = false;
-        }
+        
 
 
         var defaultScouter = DataManagement.GetValue("default_scouter");

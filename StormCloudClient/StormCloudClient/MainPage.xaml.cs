@@ -36,17 +36,26 @@ public partial class MainPage : ContentPage
             {
                 Data_NextMatch.Text = StorageManagement.compCache.NextMatch > 0 ? "Match " + StorageManagement.compCache.NextMatch : "--";
             }
-            if (int.Parse(StorageManagement.compCache.OurNextMatch["matchNumber"]) > 900)
+            if (int.Parse(StorageManagement.compCache.OurNextMatch["matchNumber"].ToString()) > 900)
             {
-                Data_OurNextMatch.Text = "Playoff " + (StorageManagement.compCache.OurNextMatch["matchNumber"] - 900).ToString();
+                Data_OurNextMatch.Text = "Playoff " + (int.Parse(StorageManagement.compCache.OurNextMatch["matchNumber"].ToString()) - 900).ToString();
             }
             else
             {
-                Data_OurNextMatch.Text = int.Parse(StorageManagement.compCache.OurNextMatch["matchNumber"]) > 0 ? "Match " + StorageManagement.compCache.OurNextMatch["matchNumber"].ToString() : "--";
+                Data_OurNextMatch.Text = int.Parse(StorageManagement.compCache.OurNextMatch["matchNumber"].ToString()) > 0 ? "Match " + StorageManagement.compCache.OurNextMatch["matchNumber"].ToString() : "--";
+            }
+
+            var ourColor = "";
+            foreach(var team in StorageManagement.compCache.OurNextMatch["teams"])
+            {
+                if(team.team.ToString() == StorageManagement.compCache.TeamNumber.ToString())
+                {
+                    ourColor = team.color.ToString();
+                }
             }
             
 
-            Data_OurNextMatchFrame.BackgroundColor = StorageManagement.compCache.OurNextMatch["color"].ToString() == "Red" ? Color.FromHex("#910929") : Color.FromHex("#290991");
+            Data_OurNextMatchFrame.BackgroundColor = ourColor == "Red" ? Color.FromHex("#910929") : Color.FromHex("#290991");
 
         }
         catch (Exception e) {
@@ -82,6 +91,7 @@ public partial class MainPage : ContentPage
             StorageManagement.compCache.TeamNumber = int.Parse(data["teamNumber"].ToString());
 
             UpdateStateInformationFields();
+            StorageManagement._SaveData_Comp();
 
         }
         
@@ -1519,6 +1529,16 @@ public partial class MainPage : ContentPage
 
         Task.Run(async () =>
         {
+            var schemasRes = await APIManager.GetSchemas();
+            if(schemasRes.Status == System.Net.HttpStatusCode.OK){
+                var content = schemasRes.Content;
+                dynamic contentObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
+
+                foreach(var schema in contentObject.schemas){
+                    StorageManagement.AddData_Schema((string)schema["Name"], Newtonsoft.Json.JsonConvert.SerializeObject(schema), (dynamic)schema["Settings"]);
+                }
+            }
+
             var response = await APIManager.GetSetupData();
             if(response.Status == System.Net.HttpStatusCode.OK)
             {
@@ -1637,7 +1657,8 @@ public partial class MainPage : ContentPage
 
     private async void Info_Show(object sender, EventArgs e)
     {
-        ChangeInfoView(true);
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+        await ChangeInfoView(true);
         Label sendL = sender as Label;
         if(sendL != null)
         {
@@ -1662,17 +1683,21 @@ public partial class MainPage : ContentPage
 
     bool _searchViewVisible;
     bool _infoViewVisible;
+    Dictionary<string, string> infoData = new Dictionary<string, string>();
 
-    public async void ChangeInfoView(bool show)
+    public async Task<bool> ChangeInfoView(bool show)
     {
         if (show == _infoViewVisible)
         {
-            return;
+            return false;
         }
 
         _infoViewVisible = show;
         if (show)
         {
+            Info_View_Result_Detail.IsVisible = false;
+            Info_View_Result_Loading.IsVisible = true;
+            Info_View_Result_Main.IsVisible = false;
             Info_View_Backdrop.Opacity = 0;
             Info_View_Backdrop.IsVisible = true;
             Info_View.IsVisible = true;
@@ -1680,7 +1705,7 @@ public partial class MainPage : ContentPage
             Info_View_Backdrop.FadeTo(.5, 250, Easing.CubicInOut);
 
             
-            Info_View_Result_Box.TranslateTo(0, 300, 500, Easing.CubicInOut);
+            await Info_View_Result_Box.TranslateTo(0, 300, 500, Easing.CubicInOut);
 
 
         }
@@ -1691,25 +1716,26 @@ public partial class MainPage : ContentPage
             Info_View_Backdrop.IsVisible = false;
             Info_View.IsVisible = false;
         }
+        return true;
     }
 
     public async void PutInfoOnInfoView(string infoEvent){
-        Info_View_Result_Detail.IsVisible = false;
-        Info_View_Result_Main.IsVisible = true;
+        
         Info_View_Result_Main.Content = null;
         
         try
         {
+            infoData["event"] = infoEvent;
             switch (infoEvent)
             {
                 case "matches":
-                    StackLayout matchesContent = new StackLayout() { Margin = new Thickness(10, 5) };
+                    StackLayout matchesContent = new StackLayout() { Margin = new Thickness(0, 5) };
                     foreach (dynamic match in StorageManagement.compCache.Matches)
                     {
                         Label matchNum = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 18, Text = "#" + match["matchNumber"].ToString(), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
 
 
-                        Grid matchDetails = new Grid() { Margin = new Thickness(0,10)};
+                        Grid matchDetails = new Grid() { Margin = new Thickness(0,5), ClassId = match.matchNumber.ToString()};
                         matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
                         matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(4, GridUnitType.Star)));
                         matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
@@ -1717,6 +1743,26 @@ public partial class MainPage : ContentPage
                         
 
                         Grid teamGrid = new Grid() { Margin = new Thickness(0, 10) };
+
+                        if(match.matchNumber.ToString() == StorageManagement.compCache.NextMatch.ToString())
+                        {
+                            matchDetails.BackgroundColor = Color.FromArgb("20ffffff");
+                        }
+
+                        TapGestureRecognizer tgr = new TapGestureRecognizer();
+                        tgr.Tapped += (s, e) => {
+
+                            Grid send = s as Grid;
+                            var matchNumber = send.ClassId;
+                            Info_View_Result_Detail.IsVisible = false;
+                            Info_View_Result_Loading.IsVisible = true;
+                            Info_View_Result_Main.IsVisible = false;
+                            PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+                            PutInfoOnDetailView("match", matchNumber, true);
+                        };
+
+                        matchDetails.GestureRecognizers.Add(tgr);
+
                         teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
                         teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
                         for (int i = 0; i < match.teams.Count / 2; i++)
@@ -1728,8 +1774,8 @@ public partial class MainPage : ContentPage
                         var redCount = 0;
                         foreach (var team in match.teams)
                         {
-                            Frame f = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 4, HasShadow = false };
-                            Label teamLabel = new Label() { Text = (string)team.team, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            Frame f = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = (string)team.team == StorageManagement.compCache.TeamNumber.ToString() ? Color.FromHex("#ffffff") : Color.FromArgb("00ffffff"), CornerRadius = 4, HasShadow = false };
+                            Label teamLabel = new Label() { Text = (string)team.team, FontSize = 18, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
                             f.Content = teamLabel;
                             if ((string)team.color == "Red")
                             {
@@ -1745,8 +1791,36 @@ public partial class MainPage : ContentPage
                             }
                         }
 
+                        StackLayout resultsStack = new StackLayout() { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+                        if ((bool)match.results.finished)
+                        {
+                            var redScore = int.Parse(match.results.red.ToString());
+                            var blueScore = int.Parse(match.results.blue.ToString());
+                            // show the blue and red scores
+                            Frame resultFrameRed = new Frame() { Padding = new Thickness(10, 5), CornerRadius = 4, BorderColor = redScore > blueScore ? Color.FromHex("#ffffff") : Color.FromArgb("00ffffff"), HasShadow = false, BackgroundColor = Color.FromHex("#910929"), Margin=new Thickness(2) };
+                            Label redScoreLabel = new Label() { Text = redScore.ToString(), FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            Frame resultFrameBlue = new Frame() { Padding = new Thickness(10, 5), CornerRadius = 4, BorderColor = redScore < blueScore ? Color.FromHex("#ffffff") : Color.FromArgb("00ffffff"), HasShadow = false, BackgroundColor = Color.FromHex("#290991"), Margin = new Thickness(2) };
+                            Label blueScoreLabel = new Label() { Text = blueScore.ToString(), FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            resultFrameRed.Content = redScoreLabel;
+                            resultFrameBlue.Content = blueScoreLabel;
+                            resultsStack.Add(resultFrameRed);
+                            resultsStack.Add(resultFrameBlue);
+                        }
+                        else
+                        {
+                            DateTime planned = DateTime.Parse(match.planned.ToString());
+                            Frame plannedFrame = new Frame() { Padding = new Thickness(10, 5), CornerRadius = 4, BorderColor = Color.FromArgb("00ffffff"), HasShadow = false, BackgroundColor = Color.FromHex("#5a5a5a") };
+                            Label plannedLabel = new Label() { Text = planned.ToShortTimeString(), FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            plannedFrame.Content = plannedLabel;
+                            resultsStack.Add(plannedFrame);
+                        }
+
+
+                        
+
                         matchDetails.Add(matchNum, 0, 0);
                         matchDetails.Add(teamGrid, 1, 0);
+                        matchDetails.Add(resultsStack, 2, 0);
 
 
 
@@ -1771,13 +1845,105 @@ public partial class MainPage : ContentPage
 
                         }
 
-                        if (weAreIn)
+                        if (!weAreIn)
                         {
-                            Label matchNum = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 18, Text = "Match " + match["matchNumber"].ToString(), HorizontalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
-                            ourMatchesContent.Add(matchNum);
+                            continue;
                         }
 
-                        
+                        Label matchNum = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 18, Text = "#" + match["matchNumber"].ToString(), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
+
+
+                        Grid matchDetails = new Grid() { Margin = new Thickness(0, 5), ClassId = match.matchNumber.ToString() };
+                        matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+                        matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(4, GridUnitType.Star)));
+                        matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+
+                        if (match.matchNumber.ToString() == StorageManagement.compCache.OurNextMatch["matchNumber"].ToString())
+                        {
+                            matchDetails.BackgroundColor = Color.FromArgb("20ffffff");
+                        }
+
+                        TapGestureRecognizer tgr = new TapGestureRecognizer();
+                        tgr.Tapped += (s, e) => {
+
+                            Grid send = s as Grid;
+                            var matchNumber = send.ClassId;
+                            Info_View_Result_Detail.IsVisible = false;
+                            Info_View_Result_Loading.IsVisible = true;
+                            Info_View_Result_Main.IsVisible = false;
+                            PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+                            PutInfoOnDetailView("match", matchNumber, true);
+
+                        };
+
+                        matchDetails.GestureRecognizers.Add(tgr);
+
+
+                        Grid teamGrid = new Grid() { Margin = new Thickness(0, 10) };
+                        teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                        teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                        for (int i = 0; i < match.teams.Count / 2; i++)
+                        {
+                            teamGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                        }
+
+                        var blueCount = 0;
+                        var redCount = 0;
+                        foreach (var team in match.teams)
+                        {
+                            Frame f = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(4), BorderColor = (string)team.team == StorageManagement.compCache.TeamNumber.ToString() ? Color.FromHex("#ffffff") : Color.FromArgb("00ffffff"), CornerRadius = 4, HasShadow = false };
+                            Label teamLabel = new Label() { Text = (string)team.team, FontSize = 18, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            f.Content = teamLabel;
+                            if ((string)team.color == "Red")
+                            {
+                                f.BackgroundColor = Color.FromHex("#910929");
+                                teamGrid.Add(f, redCount, 0);
+                                redCount++;
+                            }
+                            else if ((string)team.color == "Blue")
+                            {
+                                f.BackgroundColor = Color.FromHex("#290991");
+                                teamGrid.Add(f, blueCount, 1);
+                                blueCount++;
+                            }
+                        }
+
+                        StackLayout resultsStack = new StackLayout() { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+                        if ((bool)match.results.finished)
+                        {
+                            var redScore = int.Parse(match.results.red.ToString());
+                            var blueScore = int.Parse(match.results.blue.ToString());
+                            // show the blue and red scores
+                            Frame resultFrameRed = new Frame() { Padding = new Thickness(10, 5), CornerRadius = 4, BorderColor = redScore > blueScore ? Color.FromHex("#ffffff") : Color.FromArgb("00ffffff"), HasShadow = false, BackgroundColor = Color.FromHex("#910929"), Margin = new Thickness(2) };
+                            Label redScoreLabel = new Label() { Text = redScore.ToString(), FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            Frame resultFrameBlue = new Frame() { Padding = new Thickness(10, 5), CornerRadius = 4, BorderColor = redScore < blueScore ? Color.FromHex("#ffffff") : Color.FromArgb("00ffffff"), HasShadow = false, BackgroundColor = Color.FromHex("#290991"), Margin = new Thickness(2) };
+                            Label blueScoreLabel = new Label() { Text = blueScore.ToString(), FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            resultFrameRed.Content = redScoreLabel;
+                            resultFrameBlue.Content = blueScoreLabel;
+                            resultsStack.Add(resultFrameRed);
+                            resultsStack.Add(resultFrameBlue);
+                        }
+                        else
+                        {
+                            DateTime planned = DateTime.Parse(match.planned.ToString());
+                            Frame plannedFrame = new Frame() { Padding = new Thickness(10, 5), CornerRadius = 4, BorderColor = Color.FromArgb("00ffffff"), HasShadow = false, BackgroundColor = Color.FromHex("#5a5a5a") };
+                            Label plannedLabel = new Label() { Text = planned.ToShortTimeString(), FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            plannedFrame.Content = plannedLabel;
+                            resultsStack.Add(plannedFrame);
+                        }
+
+
+
+
+                        matchDetails.Add(matchNum, 0, 0);
+                        matchDetails.Add(teamGrid, 1, 0);
+                        matchDetails.Add(resultsStack, 2, 0);
+
+
+
+                        ourMatchesContent.Add(matchDetails);
+
+
                     }
                     Info_View_Result_Main.Content = ourMatchesContent;
                     break;
@@ -1788,7 +1954,61 @@ public partial class MainPage : ContentPage
             Console.WriteLine(e);
         }
 
+        Info_View_Result_Detail.IsVisible = false;
+        Info_View_Result_Loading.IsVisible = false;
+        Info_View_Result_Main.IsVisible = true;
 
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+
+
+    }
+
+    public async void PutInfoOnDetailView(string detailEvent, string detailData, bool canGoBack)
+    {
+
+        Info_View_Result_Detail.IsVisible = true;
+        Info_View_Result_Loading.IsVisible = false;
+        Info_View_Result_Main.IsVisible = false;
+        Info_View_Result_Detail.Content = null;
+
+        StackLayout detailContent = new StackLayout();
+
+        if(canGoBack){
+            Button backButton = new Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = "Go Back", Margin=new Thickness(0,10,0,30), TextColor = Color.FromHex("#ffffff") };
+            backButton.Clicked += (sender, e) =>
+            {
+                Info_View_Result_Detail.IsVisible = false;
+                Info_View_Result_Loading.IsVisible = false;
+                Info_View_Result_Main.IsVisible = true;
+                PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+                //PutInfoOnInfoView(infoData["event"]);
+            };
+            detailContent.Add(backButton);
+        } 
+
+        try{
+            switch(detailEvent){
+                case "match":
+                    // format of detailData should JUST be matchNumber
+
+                    var matchNumber = int.Parse(detailData);
+
+                    Label matchLabel = new Label() { Text = "Match " + matchNumber.ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 20) };
+                    detailContent.Add(matchLabel);
+
+                    break;
+            }
+        }catch(Exception e){
+
+        }
+
+        Info_View_Result_Detail.Content = detailContent;
+        PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
+        
+
+
+
+        // assuming that infoData is set as well
     }
 
     public async void ChangeSearchView(bool show)
