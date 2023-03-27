@@ -206,6 +206,33 @@ namespace StormCloudClient.Services
 
         }
 
+        public static async Task<APIResponse> GetAnalysis(int[] teams)
+        {
+            try
+            {
+
+                string finalTeams = "";
+                foreach(int team in teams)
+                {
+                    finalTeams += team.ToString() + ",";
+                }
+                finalTeams = finalTeams.Substring(0, finalTeams.Length - 1);
+
+                string authKey = (DataManagement.GetValue("authentication_key") == null ? "" : (string)DataManagement.GetValue("authentication_key"));
+                string analysis = (DataManagement.GetValue("selected_analysis") == null ? "" : (string)DataManagement.GetValue("selected_analysis"));
+
+                var url = _GetBaseUrl() + "/api/request/analysis?teams=" + finalTeams + "&authKey=" + authKey + "&analysis=" + analysis;
+
+                var response = await client.GetAsync(url);
+                return new APIResponse() { Content = await response.Content.ReadAsStringAsync(), Status = response.StatusCode };
+            }
+            catch (Exception e)
+            {
+                return new APIResponse() { Content = "", Status = HttpStatusCode.BadRequest };
+            }
+
+        }
+
         public static async Task<List<APIResponse>> SendPhotos(List<Photo> photos)
         {
             var url = _GetBaseUrl() + "/api/submit/paper";

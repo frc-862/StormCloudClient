@@ -72,6 +72,8 @@ namespace StormCloudClient.Classes
         public dynamic OurNextMatch;
         public dynamic Matches;
         public int TeamNumber;
+        public dynamic Teams;
+        public dynamic Rankings;
     }
     public class StorageManagement
     {

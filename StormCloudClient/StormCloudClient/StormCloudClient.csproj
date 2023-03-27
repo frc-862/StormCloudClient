@@ -19,8 +19,8 @@
 		<ApplicationIdGuid>462F1F20-4BDD-4DEC-AE49-765E6D948A0F</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.7.1</ApplicationDisplayVersion>
-		<ApplicationVersion>23</ApplicationVersion>
+		<ApplicationDisplayVersion>1.7.2</ApplicationDisplayVersion>
+		<ApplicationVersion>25</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">12.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
@@ -128,6 +128,7 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+		<MauiIcon Include="Resources\AppIcon\stormcloud.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -154,6 +155,7 @@
 	  <PackageReference Include="Plugin.NFC" Version="0.1.26" />
 	  <PackageReference Include="Plugin.LocalNotification" Version="10.1.3" />
 	  <PackageReference Include="OneSignalSDK.DotNet" Version="4.3.3" />
+	  <PackageReference Include="AlohaKit" Version="1.0.74" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -173,7 +175,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <BundleResource Include="Resources\AppIcon\stormcloud.svg" />
 	  <BundleResource Include="Resources\Splash\sccurrent_large.svg" />
 	</ItemGroup>
   <Target Name="_FixMauiSplashScreens" BeforeTargets="ResizetizeCollectItems" Condition="'$(_ResizetizerIsiOSApp)' == 'True'">

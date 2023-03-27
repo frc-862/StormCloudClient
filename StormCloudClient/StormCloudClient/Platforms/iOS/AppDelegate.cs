@@ -56,6 +56,7 @@ public class AppDelegate : MauiUIApplicationDelegate, IUNUserNotificationCenterD
             Messaging.SharedInstance.Delegate = this;
             Messaging.SharedInstance.Subscribe("queue");
             Messaging.SharedInstance.Subscribe("results");
+            Messaging.SharedInstance.Subscribe("resultsAll");
             Messaging.SharedInstance.Subscribe("general");
             //this.Log("Messaging.SharedInstance SET");
         }
@@ -94,6 +95,14 @@ public class AppDelegate : MauiUIApplicationDelegate, IUNUserNotificationCenterD
 
         var match = userInfo["match"];
         Console.WriteLine(match);
+
+        //var notificationPreferences = (string)DataManagement.GetValue("notifications");
+
+        //if(notificationPreferences == "0" || notificationPreferences == null){
+        //    completionHandler(UNNotificationPresentationOptions.None);
+        //    return;
+        //}
+
 
         //this.Log($"{nameof(WillPresentNotification)}: " + userInfo);
 

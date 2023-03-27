@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 namespace StormCloudClient
 {
 
-    public class iOSUSBPacket
+    public class USBPacket
     {
         public List<Match> matches;
         public List<Photo> photos;
         public List<PhotoData> b64Photos;
     }
-    public partial class USBService
+    public class USBService
     {
         public static AsyncCallback cb = async (ac) =>
         {
@@ -25,7 +25,7 @@ namespace StormCloudClient
 
             // need to send latest matches and photos
 
-            iOSUSBPacket transfer = new iOSUSBPacket();
+            USBPacket transfer = new USBPacket();
             transfer.matches = StorageManagement.allMatches.Where(m => m.Status != UploadStatus.SUCCEEDED).ToList();
             transfer.photos = StorageManagement.allPhotos.Where(p => p.Status != UploadStatus.SUCCEEDED).ToList();
 
@@ -44,12 +44,12 @@ namespace StormCloudClient
 
             var totalSent = 0;
             var result = new byte[1024];
-            while(sendString != "")
+            while (sendString != "")
             {
 
-                if(sendString.Length > 300)
+                if (sendString.Length > 300)
                 {
-                    totalSent += connectedSocket.Send(Encoding.ASCII.GetBytes(sendString.Substring(0,300)));
+                    totalSent += connectedSocket.Send(Encoding.ASCII.GetBytes(sendString.Substring(0, 300)));
                     sendString = sendString.Substring(300);
                 }
                 else
@@ -87,7 +87,7 @@ namespace StormCloudClient
 
         };
         public static Socket socket;
-        public partial void StartService()
+        public void StartService()
         {
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(new IPEndPoint(IPAddress.Loopback, 5050));

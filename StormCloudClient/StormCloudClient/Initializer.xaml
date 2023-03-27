@@ -106,6 +106,27 @@
                         <ColumnDefinition Width="3*"/>
                     </Grid.ColumnDefinitions>
 
+                    <Label VerticalOptions="Center" Text="Notifications" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                    <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
+                        <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#280338" CornerRadius="4">
+                            <Picker x:Name="Screen_Manual_Notifications" TextColor="White" Grid.Column="1" BackgroundColor="#280338">
+                                <Picker.Items>
+                                    <x:String>No Notifications</x:String>
+                                    <x:String>Team Notifications Only</x:String>
+                                    <x:String>All Event Notifications</x:String>
+                                </Picker.Items>
+                            </Picker>
+                        </Frame>
+
+                    </Frame>
+
+                </Grid>
+                <Grid Margin="10,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+
                     <Label VerticalOptions="Center" Text="Default Scouter" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
                     <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
                         <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#280338" CornerRadius="4">

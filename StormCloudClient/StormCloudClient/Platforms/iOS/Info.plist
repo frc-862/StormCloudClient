@@ -42,5 +42,7 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>To enable accuracy in the viewing of the current competition</string>
 </dict>
 </plist>

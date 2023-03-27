@@ -82,8 +82,27 @@ public partial class Scouting : ContentPage
             Status_PreContent.IsVisible = false;
             Status_EditContent.IsVisible = true;
 
+            var Schema = StorageManagement.allSchemas.Find(s => s.Name == SchemaName);
+
             Status_EditContent_Notice.Text = "You are editing Match " + EditingMatch.Number.ToString() + " for Team " + EditingMatch.Team.ToString() + ". Since this was a timed match, you will not be able to modify any Event components. To restart a match, please delete this match and recreate it with the same details.";
             Status_BottomBar.TranslateTo(0, 300, 500, Easing.CubicInOut);
+
+            try
+            {
+                UseMatches = (bool)Schema.Settings["UseMatchNumbers"];
+                DisabledRobots = (bool)Schema.Settings["AllowRobotDisable"];
+
+                if (!UseMatches)
+                {
+                    Status_EditContent_Notice.Text = "You are editing the General Document for Team " + EditingMatch.Team.ToString() + ". This was not a timed document, so all changes you make (as long as you save) will be reflected upon exiting this form. No version history is stored, so you are overwriting your previous data.  ";
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            
 
         }
         else
@@ -282,7 +301,7 @@ public partial class Scouting : ContentPage
                         }
 
                         
-                        Label mainText = new Label() { Text = (string)component.Contents, FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, (string)component.Name == "" ? 0 : 5, 20, 20), HorizontalTextAlignment = TextAlignment.Center };
+                        Label mainText = new Label() { Text = (string)component.Contents, FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, (string)component.Name == "" ? 20 : 5, 20, 20), HorizontalTextAlignment = TextAlignment.Center };
 
                         Form_Content_Fields.Add(mainText);
 
@@ -1057,7 +1076,8 @@ public partial class Scouting : ContentPage
 
         if(EditingMatch != null)
         {
-            Status_PostContent_MatchNumber.Text = "Match " + EditingMatch.Number.ToString();
+            if(UseMatches)
+                Status_PostContent_MatchNumber.Text = "Match " + EditingMatch.Number.ToString();
             Status_PostContent_TeamNumber.Text = "Team " + EditingMatch.Team.ToString();
 
             _readyTransitionLock = true;

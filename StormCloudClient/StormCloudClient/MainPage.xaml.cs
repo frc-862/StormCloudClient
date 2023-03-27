@@ -8,6 +8,9 @@ using ZXing;
 using ZXing.Mobile;
 using OneSignalSDK.DotNet;
 using OneSignalSDK.DotNet.Core;
+using AlohaKit.Controls;
+using AlohaKit.Models;
+using System.Collections.ObjectModel;
 
 namespace StormCloudClient;
 
@@ -36,9 +39,13 @@ public partial class MainPage : ContentPage
             {
                 Data_NextMatch.Text = StorageManagement.compCache.NextMatch > 0 ? "Match " + StorageManagement.compCache.NextMatch : "--";
             }
-            if (int.Parse(StorageManagement.compCache.OurNextMatch["matchNumber"].ToString()) > 900)
+            if (StorageManagement.compCache.OurNextMatch["matchNumber"] != null && int.Parse(StorageManagement.compCache.OurNextMatch["matchNumber"].ToString()) > 900)
             {
                 Data_OurNextMatch.Text = "Playoff " + (int.Parse(StorageManagement.compCache.OurNextMatch["matchNumber"].ToString()) - 900).ToString();
+            }
+            else if (StorageManagement.compCache.OurNextMatch["matchNumber"] == null)
+            {
+                Data_OurNextMatch.Text = "--";
             }
             else
             {
@@ -79,14 +86,22 @@ public partial class MainPage : ContentPage
             int nextMatch = 0;
 
             bool isNextMatchAvailable = int.TryParse(data["currentMatch"].ToString(), out nextMatch);
-
-            if (isNextMatchAvailable) {
+            bool currentlyRunning = (bool)data["currentlyRunning"];
+            if (isNextMatchAvailable && currentlyRunning) {
                 StorageManagement.compCache.NextMatch = nextMatch;
+            }
+            else
+            {
+                StorageManagement.compCache.NextMatch = -1;
             }
 
             StorageManagement.compCache.OurNextMatch = data["ourNextMatch"];
 
             StorageManagement.compCache.Matches = data["matches"];
+
+            StorageManagement.compCache.Teams = data["teams"];
+
+            StorageManagement.compCache.Rankings = data["rankings"];
 
             StorageManagement.compCache.TeamNumber = int.Parse(data["teamNumber"].ToString());
 
@@ -180,7 +195,7 @@ public partial class MainPage : ContentPage
             });
 
 
-            Device.StartTimer(TimeSpan.FromSeconds(45), () =>
+            Device.StartTimer(TimeSpan.FromSeconds(30), () =>
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
@@ -212,7 +227,7 @@ public partial class MainPage : ContentPage
         ShowMatches();
         ShowPhotos();
 
-        currentButtonMenu = Button_Scout;
+        ButtonMenu = Button_Scout;
         currentMenu = View_Scout;
 
 
@@ -249,6 +264,7 @@ public partial class MainPage : ContentPage
         var _serverAddress = DataManagement.GetValue("server_address");
         var _defaultScouter = DataManagement.GetValue("default_scouter");
         var _matchesScouted = DataManagement.GetValue("matches_created");
+        var _notifications = DataManagement.GetValue("notifications");
 
         var deviceId = (string)DataManagement.GetValue("deviceId");
         if(deviceId == "")
@@ -265,7 +281,7 @@ public partial class MainPage : ContentPage
 
         settingsComponents = new List<object>()
         {
-            Settings_AuthenticationKey, Settings_EnvironmentCode, Settings_SelectedSchema, Settings_UploadMode, Settings_ServerAddress, Settings_DefaultScouter
+            Settings_AuthenticationKey, Settings_EnvironmentCode, Settings_SelectedSchema, Settings_UploadMode, Settings_ServerAddress, Settings_DefaultScouter, Settings_Notifications
         };
 
         if (_envCode != null)
@@ -282,6 +298,10 @@ public partial class MainPage : ContentPage
             Settings_DefaultScouter.Text = _defaultScouter.ToString();
         if (_matchesScouted != null)
             StorageManagement.matchesCreated = Int32.Parse(_matchesScouted.ToString());
+        if (_notifications != null)
+            Settings_Notifications.SelectedIndex = Int32.Parse(_notifications.ToString());
+        else
+            Settings_Notifications.SelectedIndex = 0;
 
         List<string> schemaNames = new List<string>();
         foreach (Schema s in StorageManagement.allSchemas)
@@ -322,7 +342,7 @@ public partial class MainPage : ContentPage
     double _navBase;
     bool _first = true;
     ScrollView currentMenu;
-    Button currentButtonMenu;
+    Microsoft.Maui.Controls.Button ButtonMenu;
     private async void Nav_ToggleBottomBar_Clicked(object sender, EventArgs e)
     {
 
@@ -333,7 +353,7 @@ public partial class MainPage : ContentPage
     private async void Nav_GoTo(object sender, EventArgs e)
     {
 
-        Button clicker = (Button)sender as Button;
+        Microsoft.Maui.Controls.Button clicker = (Microsoft.Maui.Controls.Button)sender as Microsoft.Maui.Controls.Button;
 
         var goTo = clicker.ClassId;
 
@@ -341,7 +361,7 @@ public partial class MainPage : ContentPage
         {
             
 
-            currentButtonMenu = clicker;
+            ButtonMenu = clicker;
 
             ChangeNavigation(goTo, false);
         }
@@ -367,7 +387,7 @@ public partial class MainPage : ContentPage
         Button_Scout.BackgroundColor = Color.FromHex("#3A0E4D");
         Button_Data.BackgroundColor = Color.FromHex("#3A0E4D");
         Button_Settings.BackgroundColor = Color.FromHex("#3A0E4D");
-        ((Button)FindByName("Button_" + final)).BackgroundColor = Color.FromHex("#680991");
+        ((Microsoft.Maui.Controls.Button)FindByName("Button_" + final)).BackgroundColor = Color.FromHex("#680991");
 
         if (goToItem.ClassId == currentMenu.ClassId)
             return;
@@ -645,9 +665,9 @@ public partial class MainPage : ContentPage
             photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
             photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
 
-            Button paperButton = new Button() { BackgroundColor = Color.FromHex(photo.Type != "Paper" ? "#3a0e4d" : "#680991"), Text = "Paper", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10, 0) };
+            Microsoft.Maui.Controls.Button paperButton = new Microsoft.Maui.Controls.Button() { BackgroundColor = Color.FromHex(photo.Type != "Paper" ? "#3a0e4d" : "#680991"), Text = "Paper", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10, 0) };
 
-            Button otherButton = new Button() { BackgroundColor = Color.FromHex(photo.Type != "Other" ? "#3a0e4d" : "#680991"), Text = "Other", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10, 0) };
+            Microsoft.Maui.Controls.Button otherButton = new Microsoft.Maui.Controls.Button() { BackgroundColor = Color.FromHex(photo.Type != "Other" ? "#3a0e4d" : "#680991"), Text = "Other", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10, 0) };
 
             paperButton.Clicked += (s, e) =>
             {
@@ -1033,7 +1053,7 @@ public partial class MainPage : ContentPage
             // Navbar goes up/down :: 500ms (No await)
             Nav_BottomBar.TranslateTo(0, (navExpanded ? 100 : 250), 500, Easing.CubicInOut);
 
-            // Button spins :: 250ms (No await)
+            // Microsoft.Maui.Controls.Button spins :: 250ms (No await)
             Nav_ToggleBottomBar.RotateTo(navExpanded ? 180 : 0, 250, Easing.CubicInOut);
 
             // Await for longest anim -> 500ms
@@ -1175,9 +1195,9 @@ public partial class MainPage : ContentPage
         photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
         photoButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
 
-        Button paperButton = new Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = "Paper", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10,0) };
+        Microsoft.Maui.Controls.Button paperButton = new Microsoft.Maui.Controls.Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = "Paper", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10,0) };
         
-        Button otherButton = new Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = "Other", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10, 0) };
+        Microsoft.Maui.Controls.Button otherButton = new Microsoft.Maui.Controls.Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = "Other", FontSize = 16, TextColor = Color.FromHex("#ffffff"), Margin = new Thickness(10, 0) };
 
         paperButton.Clicked += (s, e) =>
         {
@@ -1666,7 +1686,7 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        Button sendB = sender as Button;
+        Microsoft.Maui.Controls.Button sendB = sender as Microsoft.Maui.Controls.Button;
         if (sendB != null)
         {
             PutInfoOnInfoView(sendB.ClassId);
@@ -1728,11 +1748,88 @@ public partial class MainPage : ContentPage
             infoData["event"] = infoEvent;
             switch (infoEvent)
             {
+                case "teams":
+                    StackLayout teamsContent = new StackLayout() { Margin = new Thickness(0, 5) };
+                    Label headerTeams = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 24, Text = "Teams Competing", HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5, 0, 5) };
+                    Label subheaderTeams = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 16, Text = "Please click on a team to view its most recent analysis. Some teams may have incomplete or missing documents due to scouter error. Please visit your StormCloud portal for document management.", HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(10, 5, 10, 20) };
+                    teamsContent.Add(headerTeams);
+                    teamsContent.Add(subheaderTeams);
+
+                    Grid allTeams = new Grid() { Margin = new Thickness(10, 5) };
+                    allTeams.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+                    allTeams.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+                    allTeams.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+                    allTeams.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+
+                    int teamCount = 0;
+                    foreach(dynamic team in StorageManagement.compCache.Teams){
+                        if(teamCount % 4 == 0)
+                        {
+                            allTeams.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+                        }
+                        Frame teamFrame = new Frame() { CornerRadius = 8, BackgroundColor = Color.FromHex("#3a0e4d"), Margin = new Thickness(5), Padding = new Thickness(5), HasShadow = false, BorderColor = (string)team.teamNumber == StorageManagement.compCache.TeamNumber.ToString() ? Color.FromHex("#ffffff") : Color.FromArgb("00ffffff"), ClassId = (string)team.teamNumber };
+                        Label teamLabel = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 20, Text = (string)team.teamNumber, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(5), ClassId = (string)team.teamNumber };
+                        
+                        teamFrame.Content = teamLabel;
+
+                        TapGestureRecognizer teamTap = new TapGestureRecognizer();
+                        teamTap.Tapped += (s,e) => {
+                            Frame teamFrameTapped = s as Frame;
+
+                            PutInfoOnDetailView("team",teamFrameTapped.ClassId,true);
+                        };
+
+                        teamFrame.GestureRecognizers.Add(teamTap);
+
+                        allTeams.Add(teamFrame, teamCount % 4, teamCount / 4);
+                        teamCount++;
+                    }
+
+                    teamsContent.Add(allTeams);
+
+                    Info_View_Result_Main.Content = teamsContent;
+
+
+
+                    break;
+
+                case "rankings":
+                    StackLayout rankingsContent = new StackLayout() { Margin = new Thickness(0, 5) };
+                    Label header = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 24, Text = "Rankings", HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5, 0, 20) };
+                    rankingsContent.Add(header);
+
+                    foreach(dynamic ranking in StorageManagement.compCache.Rankings)
+                    {
+                        Frame rankingContainer = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = (string)ranking.team == StorageManagement.compCache.TeamNumber.ToString() ? Color.FromHex("#ffffff") : Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
+                        Grid rankingContent = new Grid();
+                        rankingContent.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+                        rankingContent.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(2, GridUnitType.Star)));
+                        rankingContent.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(2, GridUnitType.Star)));
+                        rankingContent.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(2, GridUnitType.Star)));
+
+                        Label rank = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 16, Text = "#" + (string)ranking.rank, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
+                        Label team = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 20, Text = (string)ranking.team, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
+                        Label record = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 16, Text = (string)ranking.record.wins + "-" + (string)ranking.record.losses + "-" + (string)ranking.record.ties, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
+                        Label RP = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 16, Text = (string)ranking.rankingPoints + " RP", VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
+
+                        rankingContent.Add(rank, 0, 0);
+                        rankingContent.Add(team, 1, 0);
+                        rankingContent.Add(record, 2, 0);
+                        rankingContent.Add(RP, 3, 0);
+
+                        rankingContainer.Content = rankingContent;
+
+                        rankingsContent.Add(rankingContainer);
+
+                    }
+
+                    Info_View_Result_Main.Content = rankingsContent;
+                    break;
                 case "matches":
                     StackLayout matchesContent = new StackLayout() { Margin = new Thickness(0, 5) };
                     foreach (dynamic match in StorageManagement.compCache.Matches)
                     {
-                        Label matchNum = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 18, Text = "#" + match["matchNumber"].ToString(), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
+                        Label matchNum = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 18, Text = "#" + match["matchNumber"].ToString(), VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
 
 
                         Grid matchDetails = new Grid() { Margin = new Thickness(0,5), ClassId = match.matchNumber.ToString()};
@@ -1858,10 +1955,18 @@ public partial class MainPage : ContentPage
                         matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(4, GridUnitType.Star)));
                         matchDetails.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
 
-                        if (match.matchNumber.ToString() == StorageManagement.compCache.OurNextMatch["matchNumber"].ToString())
+
+                        try
                         {
-                            matchDetails.BackgroundColor = Color.FromArgb("20ffffff");
+                            if (StorageManagement.compCache.OurNextMatch["matchNumber"] != null && match.matchNumber.ToString() == StorageManagement.compCache.OurNextMatch["matchNumber"].ToString())
+                            {
+                                matchDetails.BackgroundColor = Color.FromArgb("20ffffff");
+                            }
+                        }catch(Exception cex)
+                        {
+
                         }
+                        
 
                         TapGestureRecognizer tgr = new TapGestureRecognizer();
                         tgr.Tapped += (s, e) => {
@@ -1974,7 +2079,7 @@ public partial class MainPage : ContentPage
         StackLayout detailContent = new StackLayout();
 
         if(canGoBack){
-            Button backButton = new Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = "Go Back", Margin=new Thickness(0,10,0,30), TextColor = Color.FromHex("#ffffff") };
+            Microsoft.Maui.Controls.Button backButton = new Microsoft.Maui.Controls.Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = "Go Back", Margin=new Thickness(0,10,0,30), TextColor = Color.FromHex("#ffffff") };
             backButton.Clicked += (sender, e) =>
             {
                 Info_View_Result_Detail.IsVisible = false;
@@ -1988,13 +2093,926 @@ public partial class MainPage : ContentPage
 
         try{
             switch(detailEvent){
+                case "team":
+
+                    dynamic applicableTeam = null;
+                    foreach(var team in StorageManagement.compCache.Teams){
+                        if(team.teamNumber.ToString() == detailData){
+                            applicableTeam = team;
+                            break;
+                        }
+                    }
+                    if(applicableTeam == null){
+                        // technically go back silently
+                        Info_View_Result_Detail.IsVisible = false;
+                        Info_View_Result_Loading.IsVisible = false;
+                        Info_View_Result_Main.IsVisible = true;
+                        break;
+                    }
+
+                    Label teamNumberLabel = new Label() { Text = "Team " + applicableTeam.teamNumber.ToString(), FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 10, 0, 10) };
+                    detailContent.Add(teamNumberLabel);
+                    Label teamName = new Label() { Text = applicableTeam.teamName.ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 15) };
+                    detailContent.Add(teamName);
+
+
+                    Label teamMatchesLabel = new Label() { Text = "In Matches", FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5) };
+                    detailContent.Add(teamMatchesLabel);
+
+                    ScrollView inMatchesParent = new ScrollView() { Orientation = ScrollOrientation.Horizontal };
+                    StackLayout inMatches = new StackLayout() { Orientation = StackOrientation.Horizontal, Margin = new Thickness(10, 5,10, 20) };
+
+
+                    foreach(var searchmatch in StorageManagement.compCache.Matches)
+                    {
+                        bool inMatch = false;
+                        bool matchFinished = false;
+                        foreach(var mT in searchmatch.teams)
+                        {
+                            if((string)mT.team == applicableTeam.teamNumber.ToString())
+                            {
+                                inMatch = true;
+                                matchFinished = (bool)searchmatch.results.finished;
+                                break;
+                            }
+                        }
+
+                        if (inMatch)
+                        {
+                            Frame matchTeamFrame = new Frame() { Padding = new Thickness(4), Margin = new Thickness(4), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 4, HasShadow = false, BackgroundColor = matchFinished ? Color.FromHex("#08503b") : Color.FromHex("#3a0e4d") };
+                            Label matchTeamNumber = new Label() { Text = (string)searchmatch.matchNumber, FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            matchTeamFrame.Content = matchTeamNumber;
+
+                            inMatches.Add(matchTeamFrame);
+                        }
+                    }
+
+                    inMatchesParent.Content = inMatches;
+
+                    detailContent.Add(inMatchesParent);
+
+
+                    StackLayout analysisTeam = new StackLayout() { Margin = new Thickness(0, 5, 0, 10) };
+
+
+
+                    List<int> teamsToAnalyzeT = new List<int>(){int.Parse(detailData)};
+                            
+
+                    ActivityIndicator loadingIndiactorT = new ActivityIndicator() { WidthRequest = 50, HeightRequest = 50, Color = Color.FromHex("#ffffff"), IsRunning = true };
+
+
+                    Label analysisLabelT = new Label() { Text = "Team Analysis", Margin = new Thickness(5, 15, 0, 0), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                    detailContent.Add(analysisLabelT);
+
+                    analysisTeam.Add(loadingIndiactorT);
+
+
+                    
+
+                    Task.Run(async () =>
+                    {
+                        APIResponse response = await APIManager.GetAnalysis(teamsToAnalyzeT.ToArray());
+                        if (response.Status == System.Net.HttpStatusCode.OK)
+                        {
+                            dynamic responseData = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
+                            var authenticated = (bool)responseData.auth;
+                            if (authenticated)
+                            {
+                                Device.BeginInvokeOnMainThread(() =>
+                                {
+
+                                    Dictionary<string, dynamic> analysisData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(responseData.analysis.ToString());
+
+                                    Dictionary<string, StackLayout> analysisViews = new Dictionary<string, StackLayout>();
+
+                                    analysisTeam.Children.Clear();
+
+
+
+                                    foreach (string key in analysisData.Keys.ToList())
+                                    {
+
+                                        analysisViews[key] = new StackLayout();
+                                        analysisViews[key].IsVisible = true;
+
+                                        
+
+                                        analysisTeam.Add(analysisViews[key]);
+
+                                        
+
+
+                                        // the actual analysis part
+                                        foreach (dynamic part in analysisData[key])
+                                        {
+                                            switch ((string)part.type)
+                                            {
+                                                case "Number":
+                                                    Grid analysisNumber = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                    analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                    analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                    Label analysisNumberLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                    Frame analysisNumberHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                                    Label analysisNumberValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                    analysisNumberHolder.Content = analysisNumberValue;
+                                                    analysisNumber.Add(analysisNumberLabel, 0, 0);
+                                                    analysisNumber.Add(analysisNumberHolder, 1, 0);
+                                                    analysisViews[key].Add(analysisNumber);
+
+                                                    break;
+                                                case "Custom":
+                                                    Grid analysisCustom = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                    analysisCustom.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                    analysisCustom.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                    Label analysisCustomLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                    Frame analysisCustomHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                                    Label analysisCustomValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                    analysisCustomHolder.Content = analysisCustomValue;
+                                                    analysisCustom.Add(analysisCustomLabel, 0, 0);
+                                                    analysisCustom.Add(analysisCustomHolder, 1, 0);
+                                                    analysisViews[key].Add(analysisCustom);
+
+                                                    break;
+                                                case "FIRST":
+                                                    Grid analysisFIRST = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                    analysisFIRST.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                    analysisFIRST.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                    Label analysisFIRSTLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                    Frame analysisFIRSTHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                                    Label analysisFIRSTValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                    analysisFIRSTHolder.Content = analysisFIRSTValue;
+                                                    analysisFIRST.Add(analysisFIRSTLabel, 0, 0);
+                                                    analysisFIRST.Add(analysisFIRSTHolder, 1, 0);
+                                                    analysisViews[key].Add(analysisFIRST);
+
+                                                    break;
+                                                case "Graph":
+
+                                                    StackLayout analysisGraph = new StackLayout() { Margin = new Thickness(0, 5) };
+                                                    Label analysisGraphLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5) };
+                                                    Label analysisGraphAverage = new Label() { Text = "Average: " + (string)part.average, FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 10) };
+
+                                                    LineChart analysisGraphChart = new LineChart() { AxisLinesColor = Color.FromArgb("#60ffffff"), ChartStyle = AlohaKit.Enums.ChartEnums.LineChartStyle.Line, HeightRequest = 200, DisplayValueLabelsOnTop = true, FontColor = Color.FromHex("#ffffff"), FontSize = 16, DisplayHorizontalAxisLines = true, DisplayVerticalAxisLines = true, DisplayHeaderValues = true, LineColor = Color.FromHex("#680991"), PointColor = Color.FromHex("#680991") };
+
+
+                                                    Grid dataPoints = new Grid() { Margin = new Thickness(15, 0) };
+
+                                                    List<ChartItem> itemsToShow = new List<ChartItem>();
+                                                    int i = 0;
+                                                    foreach (var label in part.matches)
+                                                    {
+                                                        itemsToShow.Add(new ChartItem()
+                                                        {
+                                                            Label = "#" + (string)label,
+                                                            Value = int.Parse((string)part.data[i]),
+                                                            IsLabelBold = true
+                                                        });
+                                                        
+
+                                                        dataPoints.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+
+                                                        Label dataPoint = new Label() { Text = (string)part.data[i], FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5), Opacity=0.7 };
+                                                        dataPoints.Add(dataPoint, dataPoints.ColumnDefinitions.Count() - 1, 0);
+
+                                                        i++;
+                                                    }
+
+                                                    analysisGraphChart.Entries = new ObservableCollection<ChartItem>(itemsToShow);
+
+                                                    analysisGraph.Add(analysisGraphLabel);
+                                                    analysisGraph.Add(analysisGraphAverage);
+                                                    
+                                                    analysisGraph.Add(analysisGraphChart);
+                                                    analysisGraph.Add(dataPoints);
+                                                    analysisViews[key].Add(analysisGraph);
+
+
+                                                    break;
+                                                case "Frequency":
+                                                    Grid analysisFrequency = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                    analysisFrequency.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                    analysisFrequency.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                    Label analysisFrequencyLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                    Frame analysisFrequencyHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+
+                                                    StackLayout analysisFrequencyValues = new StackLayout();
+                                                    int j = 0;
+                                                    foreach (var field in part.fields)
+                                                    {
+                                                        var value = (string)part.values[j];
+
+                                                        Label analysisFrequencyValue = new Label() { Text = (string)field + " - " + value, FontSize = 18, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                        analysisFrequencyValues.Add(analysisFrequencyValue);
+                                                        j++;
+                                                    }
+
+
+                                                    analysisFrequencyHolder.Content = analysisFrequencyValues;
+                                                    analysisFrequency.Add(analysisFrequencyLabel, 0, 0);
+                                                    analysisFrequency.Add(analysisFrequencyHolder, 1, 0);
+                                                    analysisViews[key].Add(analysisFrequency);
+
+                                                    break;
+
+
+
+                                                    
+
+                                            }
+                                        }
+                                    }
+
+
+
+
+
+
+
+
+                                });
+                            }
+                            else
+                            {
+                                Device.BeginInvokeOnMainThread(() =>
+                                {
+                                    analysisTeam.Children.Clear();
+                                    Label noAuth = new Label() { Text = "Not Authenticated", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                                    analysisTeam.Add(noAuth);
+                                });
+                            }
+
+                        }
+                        else
+                        {
+                            // show error
+                            Device.BeginInvokeOnMainThread(() =>
+                            {
+                                analysisTeam.Children.Clear();
+                                Label noLoad = new Label() { Text = "Failed Loading", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                                analysisTeam.Add(noLoad);
+                            });
+                        }
+                    });
+
+                    detailContent.Add(analysisTeam);
+
+
+
+
+
+
+                    break;
                 case "match":
                     // format of detailData should JUST be matchNumber
 
                     var matchNumber = int.Parse(detailData);
 
-                    Label matchLabel = new Label() { Text = "Match " + matchNumber.ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 20) };
-                    detailContent.Add(matchLabel);
+                    var match = (new List<dynamic>(StorageManagement.compCache.Matches)).Find(m => m.matchNumber.ToString() == detailData);
+
+                    if(match != null)
+                    {
+                        Label matchLabel = new Label() { Text = "Match " + matchNumber.ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 15) };
+                        detailContent.Add(matchLabel);
+
+                        Grid teamGrid = new Grid() { Margin = new Thickness(0, 0, 0, 5) };
+                        teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                        teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                        for (int i = 0; i < match.teams.Count / 2; i++)
+                        {
+                            teamGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                        }
+
+                        
+
+                        var blueCount = 0;
+                        var redCount = 0;
+                        foreach (var team in match.teams)
+                        {
+                            Frame f = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 4, HasShadow = false };
+                            Label teamLabel = new Label() { Text = (string)team.team, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            f.Content = teamLabel;
+                            if ((string)team.color == "Red")
+                            {
+                                f.BackgroundColor = Color.FromHex("#910929");
+                                teamGrid.Add(f, redCount, 0);
+                                redCount++;
+                            }
+                            else if ((string)team.color == "Blue")
+                            {
+                                f.BackgroundColor = Color.FromHex("#290991");
+                                teamGrid.Add(f, blueCount, 1);
+                                blueCount++;
+                            }
+                        }
+
+                        detailContent.Add(teamGrid);
+
+
+                        Frame planned = new Frame() { Padding = new Thickness(20, 3), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#5a5a5a"), HorizontalOptions = LayoutOptions.Center };
+                        Label plannedLabel = new Label() { Text = DateTime.Parse((string)match.planned).ToShortTimeString(), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                        if ((bool)(match.results.finished))
+                        {
+                            planned.BackgroundColor = Color.FromHex("#08503b");
+                            plannedLabel.Text = "Match Complete";
+
+
+
+                        }
+                        planned.Content = plannedLabel;
+
+                        detailContent.Add(planned);
+
+
+                        if ((bool)(match.results.finished))
+                        {
+                            Grid scoreGrid = new Grid() { Margin = new Thickness(20, 10, 20, 0) };
+                            scoreGrid.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+                            scoreGrid.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+                            scoreGrid.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+                            scoreGrid.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+
+                            int redScore = int.Parse((string)match.results.red);
+                            int blueScore = int.Parse((string)match.results.blue);
+
+                            int redRP = int.Parse((string)match.results.redStats.rp);
+                            int blueRP = int.Parse((string)match.results.blueStats.rp);
+
+                            Frame redScoreFrame = new Frame() { Padding = new Thickness(10, 5), BorderColor = redScore > blueScore ? Color.FromHex("#ffffff") : Color.FromArgb("#00ffffff"), CornerRadius = 8, BackgroundColor = Color.FromHex("#910929"), HorizontalOptions = LayoutOptions.Center };
+                            Label redScoreLabel = new Label() { Text = redScore.ToString(), FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            redScoreFrame.Content = redScoreLabel;
+                            Frame blueScoreFrame = new Frame() { Padding = new Thickness(10, 5), BorderColor = redScore < blueScore ? Color.FromHex("#ffffff") : Color.FromArgb("#00ffffff"), CornerRadius = 8, BackgroundColor = Color.FromHex("#290991"), HorizontalOptions = LayoutOptions.Center };
+                            Label blueScoreLabel = new Label() { Text = blueScore.ToString(), FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            blueScoreFrame.Content = blueScoreLabel;
+                            Frame redRPFrame = new Frame() { Padding = new Thickness(8, 4), BorderColor = Color.FromArgb("#00ffffff"), CornerRadius = 4, BackgroundColor = Color.FromHex("#910929"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+                            Label redRPLabel = new Label() { Text = redRP.ToString() + " RP", FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            redRPFrame.Content = redRPLabel;
+                            Frame blueRPFrame = new Frame() { Padding = new Thickness(8, 4), BorderColor = Color.FromArgb("#00ffffff"), CornerRadius = 4, BackgroundColor = Color.FromHex("#290991"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+                            Label blueRPLabel = new Label() { Text = blueRP.ToString() + " RP", FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            blueRPFrame.Content = blueRPLabel;
+
+
+                            scoreGrid.Add(redRPFrame, 0, 0);
+                            scoreGrid.Add(redScoreFrame, 1, 0);
+                            scoreGrid.Add(blueScoreFrame, 2, 0);
+                            scoreGrid.Add(blueRPFrame, 3, 0);
+
+                            detailContent.Add(scoreGrid);
+
+
+                            Grid analysis = new Grid() { Margin = new Thickness(0, 15, 0, 10) };
+
+                            List<int> teamsToAnalyze = new List<int>();
+                            foreach (var team in match.teams)
+                            {
+                                teamsToAnalyze.Add(int.Parse((string)team.team));
+                            }
+
+                            ActivityIndicator loadingIndiactor = new ActivityIndicator() { WidthRequest = 50, HeightRequest = 50, Color = Color.FromHex("#ffffff"), IsRunning = true };
+
+
+                            Label analysisLabel = new Label() { Text = "Match Analysis", Margin = new Thickness(5, 15, 0, 0), FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                            detailContent.Add(analysisLabel);
+
+                            analysis.Add(loadingIndiactor, 0, 0);
+
+
+                            Grid teamButtons = new Grid() { Margin = new Thickness(10, 10, 10, 0) };
+                            detailContent.Add(teamButtons);
+
+                            Task.Run(async () =>
+                            {
+                                APIResponse response = await APIManager.GetAnalysis(teamsToAnalyze.ToArray());
+                                if (response.Status == System.Net.HttpStatusCode.OK)
+                                {
+                                    dynamic responseData = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
+                                    var authenticated = (bool)responseData.auth;
+                                    if (authenticated)
+                                    {
+                                        Device.BeginInvokeOnMainThread(() =>
+                                        {
+
+                                            Dictionary<string, dynamic> analysisData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(responseData.analysis.ToString());
+
+                                            Dictionary<string, StackLayout> analysisViews = new Dictionary<string, StackLayout>();
+
+                                            analysis.Children.Clear();
+
+
+
+                                            foreach (string key in analysisData.Keys.ToList())
+                                            {
+
+                                                analysisViews[key] = new StackLayout();
+                                                analysisViews[key].IsVisible = false;
+
+                                                Label teamNum = new Label() { Text = "Team " + key, Margin = new Thickness(5), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                                                analysisViews[key].Add(teamNum);
+
+                                                analysis.Add(analysisViews[key], 0, 0);
+
+                                                teamButtons.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+                                                Microsoft.Maui.Controls.Button teamButton = new Microsoft.Maui.Controls.Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = key, ClassId = key, Margin = new Thickness(5, 2), Padding = new Thickness(5), TextColor = Color.FromHex("#ffffff"), FontSize = 14 };
+                                                teamButtons.Add(teamButton, teamButtons.ColumnDefinitions.Count() - 1, 0);
+
+                                                teamButton.Clicked += (s, e) =>
+                                                {
+                                                    Microsoft.Maui.Controls.Button sender = (Microsoft.Maui.Controls.Button)s;
+                                                    foreach (StackLayout other in analysisViews.Values.ToList())
+                                                    {
+                                                        other.IsVisible = false;
+                                                    }
+
+                                                    analysisViews[sender.ClassId].IsVisible = true;
+
+                                                };
+
+
+                                                // the actual analysis part
+                                                foreach (dynamic part in analysisData[key])
+                                                {
+                                                    switch ((string)part.type)
+                                                    {
+                                                        case "Number":
+                                                            Grid analysisNumber = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                            analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                            analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                            Label analysisNumberLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            Frame analysisNumberHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                                            Label analysisNumberValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            analysisNumberHolder.Content = analysisNumberValue;
+                                                            analysisNumber.Add(analysisNumberLabel, 0, 0);
+                                                            analysisNumber.Add(analysisNumberHolder, 1, 0);
+                                                            analysisViews[key].Add(analysisNumber);
+
+                                                            break;
+                                                        case "Custom":
+                                                            Grid analysisCustom = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                            analysisCustom.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                            analysisCustom.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                            Label analysisCustomLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            Frame analysisCustomHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                                            Label analysisCustomValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            analysisCustomHolder.Content = analysisCustomValue;
+                                                            analysisCustom.Add(analysisCustomLabel, 0, 0);
+                                                            analysisCustom.Add(analysisCustomHolder, 1, 0);
+                                                            analysisViews[key].Add(analysisCustom);
+
+                                                            break;
+                                                        case "FIRST":
+                                                            Grid analysisFIRST = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                            analysisFIRST.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                            analysisFIRST.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                            Label analysisFIRSTLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            Frame analysisFIRSTHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                                            Label analysisFIRSTValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            analysisFIRSTHolder.Content = analysisFIRSTValue;
+                                                            analysisFIRST.Add(analysisFIRSTLabel, 0, 0);
+                                                            analysisFIRST.Add(analysisFIRSTHolder, 1, 0);
+                                                            analysisViews[key].Add(analysisFIRST);
+
+                                                            break;
+                                                        case "Graph":
+
+                                                            StackLayout analysisGraph = new StackLayout() { Margin = new Thickness(0, 5) };
+                                                            Label analysisGraphLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5) };
+                                                            Label analysisGraphAverage = new Label() { Text = "Average: " + (string)part.average, FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 10) };
+
+                                                            LineChart analysisGraphChart = new LineChart() { AxisLinesColor = Color.FromArgb("#60ffffff"), ChartStyle = AlohaKit.Enums.ChartEnums.LineChartStyle.Line, HeightRequest = 200, DisplayValueLabelsOnTop = true, FontColor = Color.FromHex("#ffffff"), FontSize = 16, DisplayHorizontalAxisLines = true, DisplayVerticalAxisLines = true, DisplayHeaderValues = true, LineColor = Color.FromHex("#680991"), PointColor = Color.FromHex("#680991") };
+
+
+                                                            Grid dataPoints = new Grid() { Margin = new Thickness(15, 0) };
+
+                                                            List<ChartItem> itemsToShow = new List<ChartItem>();
+                                                            int i = 0;
+                                                            foreach (var label in part.matches)
+                                                            {
+                                                                itemsToShow.Add(new ChartItem()
+                                                                {
+                                                                    Label = "#" + (string)label,
+                                                                    Value = int.Parse((string)part.data[i]),
+                                                                    IsLabelBold = true
+                                                                });
+                                                                
+
+                                                                dataPoints.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+
+                                                                Label dataPoint = new Label() { Text = (string)part.data[i], FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5), Opacity=0.7 };
+                                                                dataPoints.Add(dataPoint, dataPoints.ColumnDefinitions.Count() - 1, 0);
+
+                                                                i++;
+                                                            }
+
+                                                            analysisGraphChart.Entries = new ObservableCollection<ChartItem>(itemsToShow);
+
+                                                            analysisGraph.Add(analysisGraphLabel);
+                                                            analysisGraph.Add(analysisGraphAverage);
+                                                            
+                                                            analysisGraph.Add(analysisGraphChart);
+                                                            analysisGraph.Add(dataPoints);
+                                                            analysisViews[key].Add(analysisGraph);
+
+
+                                                            break;
+                                                        case "Frequency":
+                                                            Grid analysisFrequency = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                            analysisFrequency.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                            analysisFrequency.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                            Label analysisFrequencyLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            Frame analysisFrequencyHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+
+                                                            StackLayout analysisFrequencyValues = new StackLayout();
+                                                            int j = 0;
+                                                            foreach (var field in part.fields)
+                                                            {
+                                                                var value = (string)part.values[j];
+
+                                                                Label analysisFrequencyValue = new Label() { Text = (string)field + " - " + value, FontSize = 18, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                                analysisFrequencyValues.Add(analysisFrequencyValue);
+                                                                j++;
+                                                            }
+
+
+                                                            analysisFrequencyHolder.Content = analysisFrequencyValues;
+                                                            analysisFrequency.Add(analysisFrequencyLabel, 0, 0);
+                                                            analysisFrequency.Add(analysisFrequencyHolder, 1, 0);
+                                                            analysisViews[key].Add(analysisFrequency);
+
+                                                            break;
+
+
+
+                                                            
+
+                                                    }
+                                                }
+                                            }
+
+
+
+
+
+
+
+
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Device.BeginInvokeOnMainThread(() =>
+                                        {
+                                            analysis.Children.Clear();
+                                            Label noAuth = new Label() { Text = "Not Authenticated", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                                            analysis.Add(noAuth);
+                                        });
+                                    }
+
+                                }
+                                else
+                                {
+                                    // show error
+                                    Device.BeginInvokeOnMainThread(() =>
+                                    {
+                                        analysis.Children.Clear();
+                                        Label noLoad = new Label() { Text = "Failed Loading", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                                        analysis.Add(noLoad);
+                                    });
+                                }
+                            });
+
+                            detailContent.Add(analysis);
+
+
+                        }
+                        else
+                        {
+                            
+
+                            Grid analysis = new Grid() { Margin = new Thickness(0, 15, 0, 10) };
+
+                            List<int> teamsToAnalyze = new List<int>();
+                            foreach (var team in match.teams)
+                            {
+                                teamsToAnalyze.Add(int.Parse((string)team.team));
+                            }
+
+                            ActivityIndicator loadingIndiactor = new ActivityIndicator() { WidthRequest = 50, HeightRequest = 50, Color = Color.FromHex("#ffffff"), IsRunning = true };
+
+
+                            Label analysisLabel = new Label() { Text = "Match Analysis", Margin = new Thickness(5, 15, 0, 0), FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                            detailContent.Add(analysisLabel);
+
+                            analysis.Add(loadingIndiactor, 0, 0);
+
+
+                            Grid teamButtons = new Grid() { Margin = new Thickness(10, 10, 10, 0) };
+                            detailContent.Add(teamButtons);
+
+                            Task.Run(async () =>
+                            {
+                                APIResponse response = await APIManager.GetAnalysis(teamsToAnalyze.ToArray());
+                                if (response.Status == System.Net.HttpStatusCode.OK)
+                                {
+                                    dynamic responseData = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
+                                    var authenticated = (bool)responseData.auth;
+                                    if (authenticated)
+                                    {
+                                        Device.BeginInvokeOnMainThread(() =>
+                                        {
+
+                                            Dictionary<string, dynamic> analysisData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(responseData.analysis.ToString());
+
+                                            Dictionary<string, StackLayout> analysisViews = new Dictionary<string, StackLayout>();
+
+                                            analysis.Children.Clear();
+
+
+
+                                            foreach (string key in analysisData.Keys.ToList())
+                                            {
+
+                                                analysisViews[key] = new StackLayout();
+                                                analysisViews[key].IsVisible = false;
+
+                                                Label teamNum = new Label() { Text = "Team " + key, Margin = new Thickness(5), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                                                analysisViews[key].Add(teamNum);
+
+                                                analysis.Add(analysisViews[key], 0, 0);
+
+                                                teamButtons.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+                                                Microsoft.Maui.Controls.Button teamButton = new Microsoft.Maui.Controls.Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = key, ClassId = key, Margin = new Thickness(5, 2), Padding = new Thickness(5), TextColor = Color.FromHex("#ffffff"), FontSize = 14 };
+                                                teamButtons.Add(teamButton, teamButtons.ColumnDefinitions.Count() - 1, 0);
+
+                                                teamButton.Clicked += (s, e) =>
+                                                {
+                                                    Microsoft.Maui.Controls.Button sender = (Microsoft.Maui.Controls.Button)s;
+                                                    foreach (StackLayout other in analysisViews.Values.ToList())
+                                                    {
+                                                        other.IsVisible = false;
+                                                    }
+
+                                                    analysisViews[sender.ClassId].IsVisible = true;
+
+                                                };
+
+
+                                                // the actual analysis part
+                                                foreach (dynamic part in analysisData[key])
+                                                {
+                                                    switch ((string)part.type)
+                                                    {
+                                                        case "Number":
+                                                            Grid analysisNumber = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                            analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                            analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                            Label analysisNumberLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            Frame analysisNumberHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                                            Label analysisNumberValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            analysisNumberHolder.Content = analysisNumberValue;
+                                                            analysisNumber.Add(analysisNumberLabel, 0, 0);
+                                                            analysisNumber.Add(analysisNumberHolder, 1, 0);
+                                                            analysisViews[key].Add(analysisNumber);
+
+                                                            break;
+                                                        case "Custom":
+                                                            Grid analysisCustom = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                            analysisCustom.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                            analysisCustom.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                            Label analysisCustomLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            Frame analysisCustomHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                                            Label analysisCustomValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            analysisCustomHolder.Content = analysisCustomValue;
+                                                            analysisCustom.Add(analysisCustomLabel, 0, 0);
+                                                            analysisCustom.Add(analysisCustomHolder, 1, 0);
+                                                            analysisViews[key].Add(analysisCustom);
+
+                                                            break;
+                                                        case "FIRST":
+                                                            Grid analysisFIRST = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                            analysisFIRST.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                            analysisFIRST.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                            Label analysisFIRSTLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            Frame analysisFIRSTHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                                            Label analysisFIRSTValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            analysisFIRSTHolder.Content = analysisFIRSTValue;
+                                                            analysisFIRST.Add(analysisFIRSTLabel, 0, 0);
+                                                            analysisFIRST.Add(analysisFIRSTHolder, 1, 0);
+                                                            analysisViews[key].Add(analysisFIRST);
+
+                                                            break;
+                                                        case "Graph":
+
+                                                            StackLayout analysisGraph = new StackLayout() { Margin = new Thickness(0, 5) };
+                                                            Label analysisGraphLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5) };
+                                                            Label analysisGraphAverage = new Label() { Text = "Average: " + (string)part.average, FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 10) };
+
+                                                            LineChart analysisGraphChart = new LineChart() { AxisLinesColor = Color.FromArgb("#60ffffff"), ChartStyle = AlohaKit.Enums.ChartEnums.LineChartStyle.Line, HeightRequest = 200, DisplayValueLabelsOnTop = true, FontColor = Color.FromHex("#ffffff"), FontSize = 16, DisplayHorizontalAxisLines = true, DisplayVerticalAxisLines = true, DisplayHeaderValues = true, LineColor = Color.FromHex("#680991"), PointColor = Color.FromHex("#680991") };
+
+
+                                                            Grid dataPoints = new Grid() { Margin = new Thickness(15, 0) };
+
+                                                            List<ChartItem> itemsToShow = new List<ChartItem>();
+                                                            int i = 0;
+                                                            foreach (var label in part.matches)
+                                                            {
+                                                                itemsToShow.Add(new ChartItem()
+                                                                {
+                                                                    Label = "#" + (string)label,
+                                                                    Value = int.Parse((string)part.data[i]),
+                                                                    IsLabelBold = true
+                                                                });
+                                                                
+
+                                                                dataPoints.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+
+                                                                Label dataPoint = new Label() { Text = (string)part.data[i], FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5), Opacity=0.7 };
+                                                                dataPoints.Add(dataPoint, dataPoints.ColumnDefinitions.Count() - 1, 0);
+
+                                                                i++;
+                                                            }
+
+                                                            analysisGraphChart.Entries = new ObservableCollection<ChartItem>(itemsToShow);
+
+                                                            analysisGraph.Add(analysisGraphLabel);
+                                                            analysisGraph.Add(analysisGraphAverage);
+                                                            
+                                                            analysisGraph.Add(analysisGraphChart);
+                                                            analysisGraph.Add(dataPoints);
+                                                            analysisViews[key].Add(analysisGraph);
+
+
+                                                            break;
+                                                        case "Frequency":
+                                                            Grid analysisFrequency = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                                            analysisFrequency.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                                            analysisFrequency.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                                            Label analysisFrequencyLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                            Frame analysisFrequencyHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+
+                                                            StackLayout analysisFrequencyValues = new StackLayout();
+                                                            int j = 0;
+                                                            foreach (var field in part.fields)
+                                                            {
+                                                                var value = (string)part.values[j];
+
+                                                                Label analysisFrequencyValue = new Label() { Text = (string)field + " - " + value, FontSize = 18, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                                                analysisFrequencyValues.Add(analysisFrequencyValue);
+                                                                j++;
+                                                            }
+
+
+                                                            analysisFrequencyHolder.Content = analysisFrequencyValues;
+                                                            analysisFrequency.Add(analysisFrequencyLabel, 0, 0);
+                                                            analysisFrequency.Add(analysisFrequencyHolder, 1, 0);
+                                                            analysisViews[key].Add(analysisFrequency);
+
+                                                            break;
+
+
+
+                                                            
+
+                                                    }
+                                                }
+                                            }
+
+
+
+
+
+
+
+
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Device.BeginInvokeOnMainThread(() =>
+                                        {
+                                            analysis.Children.Clear();
+                                            Label noAuth = new Label() { Text = "Not Authenticated", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                                            analysis.Add(noAuth);
+                                        });
+                                    }
+
+                                }
+                                else
+                                {
+                                    // show error
+                                    Device.BeginInvokeOnMainThread(() =>
+                                    {
+                                        analysis.Children.Clear();
+                                        Label noLoad = new Label() { Text = "Failed Loading", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                                        analysis.Add(noLoad);
+                                    });
+                                }
+                            });
+
+                            detailContent.Add(analysis);
+
+
+
+
+
+                            // if (data.team.analysis != null)
+                            // {
+
+                            //     Label analysisLabel = new Label() { Text = "Team Summary", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 25, 0, 0) };
+                            //     // there is an analysis attached; loop through
+                            //     details.Add(analysisLabel);
+                            //     // foreach (var analysisPoint in data.team.analysis)
+                            //     // {
+                            //     //     if (analysisPoint.value == null)
+                            //     //     {
+                            //     //         continue;
+                            //     //     }
+                            //     //     switch ((string)analysisPoint.type)
+                            //     //     {
+                            //     //         case "Number":
+
+                            //     //             Grid analysisNumber = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                            //     //             analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                            //     //             analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                            //     //             Label analysisNumberLabel = new Label() { Text = (string)analysisPoint.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            //     //             Frame analysisNumberHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                            //     //             Label analysisNumberValue = new Label() { Text = Math.Round((double)analysisPoint.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            //     //             analysisNumberHolder.Content = analysisNumberValue;
+                            //     //             analysisNumber.Add(analysisNumberLabel, 0, 0);
+                            //     //             analysisNumber.Add(analysisNumberHolder, 1, 0);
+                            //     //             analysis.Add(analysisNumber);
+                            //     //             break;
+                            //     //         case "Grid":
+                            //     //             Label gridNameLabel = new Label() { Text = (string)analysisPoint.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            //     //             var rows = analysisPoint.value;
+
+
+                            //     //             Grid gridGrid = new Grid { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5, 0, 15) };
+                            //     //             for (int rn = 0; rn < rows.Count; rn++)
+                            //     //             {
+                            //     //                 gridGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                            //     //             }
+                            //     //             var demoCols = rows[0];
+                            //     //             for (int cn = 0; cn < demoCols.Count; cn++)
+                            //     //             {
+                            //     //                 gridGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+                            //     //             }
+
+                            //     //             for (int r = 0; r < rows.Count; r++)
+                            //     //             {
+                            //     //                 var cols = rows[r];
+                            //     //                 for (int c = 0; c < cols.Count; c++)
+                            //     //                 {
+                            //     //                     Label itemNumber = new Label() { Text = (string)cols[c], FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                            //     //                     Frame item = new Frame() { BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d"), HeightRequest = 30, Margin = new Thickness(2), Padding = new Thickness(0) };
+                            //     //                     item.Content = itemNumber;
+                            //     //                     gridGrid.Add(item, c, r);
+                            //     //                 }
+                            //     //             }
+
+                            //     //             analysis.Add(gridNameLabel);
+                            //     //             analysis.Add(gridGrid);
+
+
+                            //     //             break;
+                            //     //     }
+                            //     // }
+
+
+                            //     WebView w = new WebView(){
+                            //         Source = "https://scout.robosmrt.com/analysis",
+                            //         Margin = new Thickness(0, 20)
+                            //     };
+                            //     w.HeightRequest = 400;
+
+
+                            //     details.Add(w);
+
+                            //     details.Add(analysis);
+                            // }
+                        }
+
+
+                    }
+                    else
+                    {
+                        Label matchLabel = new Label() { Text = "Match Not Available", FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 20) };
+                        detailContent.Add(matchLabel);
+                    }
+
+                    
 
                     break;
             }
@@ -2025,7 +3043,7 @@ public partial class MainPage : ContentPage
             Search_Docs_Backdrop.IsVisible = true;
             Search_Docs.IsVisible = true;
             Search_Docs_Box.IsVisible = true;
-            Search_Docs_Box.TranslationY = -1500;
+            Search_Docs_Box.TranslationY = -1400;
             Search_Docs_Result_Box.TranslationY = 1500;
             Search_Docs_Backdrop.FadeTo(.5, 250, Easing.CubicInOut);
 
@@ -2055,7 +3073,7 @@ public partial class MainPage : ContentPage
         ((StackLayout)FindByName("Search_Docs_Result_" + name)).IsVisible = true;
     }
 
-    Button currentSearchPage;
+    Microsoft.Maui.Controls.Button currentSearchPage;
 
     private async void Search_Info_ChangePage(string page)
     {
@@ -2078,7 +3096,7 @@ public partial class MainPage : ContentPage
             currentSearchPage.BackgroundColor = Color.FromHex("#3a0e4d");
             ((ScrollView)FindByName("Search_Docs_Result_Info_" + currentSearchPage.ClassId)).IsVisible = false;
         }
-        currentSearchPage = (Button)sender;
+        currentSearchPage = (Microsoft.Maui.Controls.Button)sender;
         currentSearchPage.BackgroundColor = Color.FromHex("#680991");
         ((ScrollView)FindByName("Search_Docs_Result_Info_" + currentSearchPage.ClassId)).IsVisible = true;
     }
@@ -2258,7 +3276,7 @@ public partial class MainPage : ContentPage
                             }
                             Label docName = new Label() { Text = docNameText, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
                             Label docType = new Label() { Text = ((string)docData.type).ToUpper(), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center };
-                            Button docView = new Button() { Text = "View", FontSize = 12, Padding = new Thickness(2), TextColor = Color.FromHex("#ffffff"), BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.Center, CornerRadius = 4, Margin = new Thickness(0, 0, 0, 0), ClassId = (string)doc._id };
+                            Microsoft.Maui.Controls.Button docView = new Microsoft.Maui.Controls.Button() { Text = "View", FontSize = 12, Padding = new Thickness(2), TextColor = Color.FromHex("#ffffff"), BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.Center, CornerRadius = 4, Margin = new Thickness(0, 0, 0, 0), ClassId = (string)doc._id };
                             docView.Clicked += GoToDocumentView;
                             docInfo.Add(docName, 0, 0);
                             docInfo.Add(docType, 1, 0);
@@ -2385,6 +3403,128 @@ public partial class MainPage : ContentPage
                     Label analysisLabel = new Label() { Text = "Team Summary", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 25, 0, 0) };
                     // there is an analysis attached; loop through
                     details.Add(analysisLabel);
+                    Dictionary<string, dynamic> analysisData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(data.team.analysis.ToString());
+                    foreach (dynamic part in analysisData[(string)data.team.teamNumber])
+                    {
+                        switch ((string)part.type)
+                        {
+                            case "Number":
+                                Grid analysisNumber = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                Label analysisNumberLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                Frame analysisNumberHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                Label analysisNumberValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                analysisNumberHolder.Content = analysisNumberValue;
+                                analysisNumber.Add(analysisNumberLabel, 0, 0);
+                                analysisNumber.Add(analysisNumberHolder, 1, 0);
+                                analysis.Add(analysisNumber);
+
+                                break;
+                            case "Custom":
+                                Grid analysisCustom = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                analysisCustom.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                analysisCustom.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                Label analysisCustomLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                Frame analysisCustomHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                Label analysisCustomValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                analysisCustomHolder.Content = analysisCustomValue;
+                                analysisCustom.Add(analysisCustomLabel, 0, 0);
+                                analysisCustom.Add(analysisCustomHolder, 1, 0);
+                                analysis.Add(analysisCustom);
+
+                                break;
+                            case "FIRST":
+                                Grid analysisFIRST = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                analysisFIRST.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                analysisFIRST.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                Label analysisFIRSTLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                Frame analysisFIRSTHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                Label analysisFIRSTValue = new Label() { Text = Math.Round((double)part.value, 2).ToString(), FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                analysisFIRSTHolder.Content = analysisFIRSTValue;
+                                analysisFIRST.Add(analysisFIRSTLabel, 0, 0);
+                                analysisFIRST.Add(analysisFIRSTHolder, 1, 0);
+                                analysis.Add(analysisFIRST);
+
+                                break;
+                            case "Graph":
+
+                                StackLayout analysisGraph = new StackLayout() { Margin = new Thickness(0, 5) };
+                                Label analysisGraphLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5) };
+                                Label analysisGraphAverage = new Label() { Text = "Average: " + (string)part.average, FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 10) };
+
+                                LineChart analysisGraphChart = new LineChart() { AxisLinesColor = Color.FromArgb("#60ffffff"), ChartStyle = AlohaKit.Enums.ChartEnums.LineChartStyle.Line, HeightRequest = 200, DisplayValueLabelsOnTop = true, FontColor = Color.FromHex("#ffffff"), FontSize = 16, DisplayHorizontalAxisLines = true, DisplayVerticalAxisLines = true, DisplayHeaderValues = true, LineColor = Color.FromHex("#680991"), PointColor = Color.FromHex("#680991") };
+
+
+                                Grid dataPoints = new Grid() { Margin = new Thickness(15, 0) };
+
+                                List<ChartItem> itemsToShow = new List<ChartItem>();
+                                int i = 0;
+                                foreach (var label in part.matches)
+                                {
+                                    itemsToShow.Add(new ChartItem()
+                                    {
+                                        Label = "#" + (string)label,
+                                        Value = int.Parse((string)part.data[i]),
+                                        IsLabelBold = true
+                                    });
+
+
+                                    dataPoints.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+
+                                    Label dataPoint = new Label() { Text = (string)part.data[i], FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5), Opacity = 0.7 };
+                                    dataPoints.Add(dataPoint, dataPoints.ColumnDefinitions.Count() - 1, 0);
+
+                                    i++;
+                                }
+
+                                analysisGraphChart.Entries = new ObservableCollection<ChartItem>(itemsToShow);
+
+                                analysisGraph.Add(analysisGraphLabel);
+                                analysisGraph.Add(analysisGraphAverage);
+
+                                analysisGraph.Add(analysisGraphChart);
+                                analysisGraph.Add(dataPoints);
+                                analysis.Add(analysisGraph);
+
+
+                                break;
+                            case "Frequency":
+                                Grid analysisFrequency = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 5) };
+                                analysisFrequency.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                analysisFrequency.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                Label analysisFrequencyLabel = new Label() { Text = (string)part.name, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                Frame analysisFrequencyHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+
+                                StackLayout analysisFrequencyValues = new StackLayout();
+                                int j = 0;
+                                foreach (var field in part.fields)
+                                {
+                                    var val = (string)part.values[j];
+
+                                    Label analysisFrequencyValue = new Label() { Text = (string)field + " - " + val, FontSize = 18, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                    analysisFrequencyValues.Add(analysisFrequencyValue);
+                                    j++;
+                                }
+
+
+                                analysisFrequencyHolder.Content = analysisFrequencyValues;
+                                analysisFrequency.Add(analysisFrequencyLabel, 0, 0);
+                                analysisFrequency.Add(analysisFrequencyHolder, 1, 0);
+                                analysis.Add(analysisFrequency);
+
+                                break;
+
+
+
+                               
+
+                        }
+                    }
                     // foreach (var analysisPoint in data.team.analysis)
                     // {
                     //     if (analysisPoint.value == null)
@@ -2444,14 +3584,14 @@ public partial class MainPage : ContentPage
                     // }
 
 
-                    WebView w = new WebView(){
-                        Source = "https://scout.robosmrt.com/analysis",
-                        Margin = new Thickness(0, 20)
-                    };
-                    w.HeightRequest = 400;
+                    //WebView w = new WebView(){
+                    //    Source = "https://scout.robosmrt.com/analysis",
+                    //    Margin = new Thickness(0, 20)
+                    //};
+                    //w.HeightRequest = 400;
 
 
-                    details.Add(w);
+                    //details.Add(w);
 
                     details.Add(analysis);
                 }
@@ -2490,7 +3630,15 @@ public partial class MainPage : ContentPage
                         var docNameText = "Unknown Match";
                         if (docData.match != null && (string)docData.match != "undefined")
                         {
-                            docNameText = "Match " + (string)docData.match;
+                            if(docData.general != null && (bool)docData.general == true)
+                            {
+                                docNameText = "General Document";
+                            }
+                            else
+                            {
+                                docNameText = "Match " + (string)docData.match;
+                            }
+                            
                         }
                         Label docName = new Label() { Text = docNameText, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
                         Label docType = new Label() { Text = ((string)docData.type).ToUpper(), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center };
@@ -2500,7 +3648,7 @@ public partial class MainPage : ContentPage
 
                         if ((string)docData.type == "note" || (string)docData.type == "tablet")
                         {
-                            Button docView = new Button() { Text = "View", FontSize = 12, Padding = new Thickness(2), TextColor = Color.FromHex("#ffffff"), BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.Center, CornerRadius = 4, Margin = new Thickness(0, 0, 0, 0), ClassId = (string)doc._id };
+                            Microsoft.Maui.Controls.Button docView = new Microsoft.Maui.Controls.Button() { Text = "View", FontSize = 12, Padding = new Thickness(2), TextColor = Color.FromHex("#ffffff"), BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.Center, CornerRadius = 4, Margin = new Thickness(0, 0, 0, 0), ClassId = (string)doc._id };
                             docView.Clicked += GoToDocumentView;
                             docInfo.Add(docView, 2, 0);
                         }
@@ -2546,7 +3694,7 @@ public partial class MainPage : ContentPage
     public async void GoToDocumentView(object sender, EventArgs e){
         Search_Info_ChangePage("Document");
 
-        Button doc = (Button)sender;
+        Microsoft.Maui.Controls.Button doc = (Microsoft.Maui.Controls.Button)sender;
         var findDocID = doc.ClassId;
         StackLayout documentInformation = new StackLayout(){Margin = new Thickness(0,10,0,0)};
 
@@ -2587,8 +3735,8 @@ public partial class MainPage : ContentPage
             Grid actionGrid = new Grid() { Margin = new Thickness(10,10, 10, 20)};
             actionGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             actionGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            Button flaggedIndicator = new Button() { Text = flagged ? "Remove Flag" : "Add Flag", FontSize = 16, TextColor = Color.FromHex("#ffffff"), BackgroundColor = flagged ? Color.FromHex("#680991") : Color.FromHex("#3a0e4d"), Margin = new Thickness(5), VerticalOptions = LayoutOptions.Center, ClassId = (string)document._id };
-            Button deleteButton = new Button() { Text = "Delete", FontSize = 16, TextColor = Color.FromHex("#ffffff"), BackgroundColor = Color.FromHex("#910929"), Margin = new Thickness(5), VerticalOptions = LayoutOptions.Center, ClassId = (string)document._id };
+            Microsoft.Maui.Controls.Button flaggedIndicator = new Microsoft.Maui.Controls.Button() { Text = flagged ? "Remove Flag" : "Add Flag", FontSize = 16, TextColor = Color.FromHex("#ffffff"), BackgroundColor = flagged ? Color.FromHex("#680991") : Color.FromHex("#3a0e4d"), Margin = new Thickness(5), VerticalOptions = LayoutOptions.Center, ClassId = (string)document._id };
+            Microsoft.Maui.Controls.Button deleteButton = new Microsoft.Maui.Controls.Button() { Text = "Delete", FontSize = 16, TextColor = Color.FromHex("#ffffff"), BackgroundColor = Color.FromHex("#910929"), Margin = new Thickness(5), VerticalOptions = LayoutOptions.Center, ClassId = (string)document._id };
             
             flaggedIndicator.Clicked += async (object s, EventArgs e) => {
                 flaggedIndicator.IsEnabled = false;
@@ -2696,11 +3844,30 @@ public partial class MainPage : ContentPage
 
                                         i += 1;
                                         continue;
+                                    }else if((string)comp.Type == "Multi-Select")
+                                    {
+                                        Label multiSelectLabel = new Label() { Text = (string)comp.Name, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
+                                        documentContents.Add(multiSelectLabel);
+
+                                        
+
+                                        StackLayout multiSelectData = new StackLayout() { Orientation = StackOrientation.Vertical };
+                                        foreach (string item in ((string)tabletData[i]).Split(";"))
+                                        {
+                                            Frame multiSelectDataHolder = new Frame() { Padding = new Thickness(10, 4), Margin = new Thickness(4), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
+                                            multiSelectDataHolder.Content = new Label() { Text = item, FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.End };
+                                            multiSelectData.Children.Add(multiSelectDataHolder);
+                                        }
+
+                                        documentContents.Add(multiSelectData);
+
+                                        i += 1;
+                                        continue;
                                     }
 
                                     Grid docDataGrid = new Grid() { ColumnSpacing = 0, RowSpacing = 0 };
-                                    docDataGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
-                                    docDataGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                                    docDataGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4, GridUnitType.Star) });
+                                    docDataGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(3, GridUnitType.Star) });
 
                                     Label nameLabel = new Label() { Text = (string)comp.Name, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
                                     docDataGrid.Add(nameLabel, 0, 0);
@@ -2731,6 +3898,13 @@ public partial class MainPage : ContentPage
                                             Label selectData = new Label() { Text = (string)tabletData[i] == "" ? "N/A" : (string)tabletData[i], FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.End };
                                             selectDataHolder.Content = selectData;
                                             docDataGrid.Add(selectDataHolder, 1, 0);
+                                            break;
+                                        
+                                        case "Input":
+                                            Frame inputDataHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d"), HorizontalOptions = LayoutOptions.End };
+                                            Label inputData = new Label() { Text = (string)tabletData[i] == "" ? "N/A" : (string)tabletData[i], FontSize = 12, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.End };
+                                            inputDataHolder.Content = inputData;
+                                            docDataGrid.Add(inputDataHolder, 1, 0);
                                             break;
                                         case "Event":
                                             Frame eventDataHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d"), HorizontalOptions = LayoutOptions.End };
