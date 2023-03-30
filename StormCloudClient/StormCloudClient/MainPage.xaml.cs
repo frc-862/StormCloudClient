@@ -1693,6 +1693,13 @@ public partial class MainPage : ContentPage
             return;
         }
 
+        Frame sendF = sender as Frame;
+        if (sendF != null)
+        {
+            PutInfoOnInfoView(sendF.ClassId);
+            return;
+        }
+
 
     }
 
@@ -1740,8 +1747,8 @@ public partial class MainPage : ContentPage
     }
 
     public async void PutInfoOnInfoView(string infoEvent){
-        
-        Info_View_Result_Main.Content = null;
+
+        Info_View_Result_Main_Content.Children.Clear();
         
         try
         {
@@ -1749,7 +1756,7 @@ public partial class MainPage : ContentPage
             switch (infoEvent)
             {
                 case "teams":
-                    StackLayout teamsContent = new StackLayout() { Margin = new Thickness(0, 5) };
+                    StackLayout teamsContent = Info_View_Result_Main_Content;
                     Label headerTeams = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 24, Text = "Teams Competing", HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5, 0, 5) };
                     Label subheaderTeams = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 16, Text = "Please click on a team to view its most recent analysis. Some teams may have incomplete or missing documents due to scouter error. Please visit your StormCloud portal for document management.", HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(10, 5, 10, 20) };
                     teamsContent.Add(headerTeams);
@@ -1787,14 +1794,14 @@ public partial class MainPage : ContentPage
 
                     teamsContent.Add(allTeams);
 
-                    Info_View_Result_Main.Content = teamsContent;
+                   
 
 
 
                     break;
 
                 case "rankings":
-                    StackLayout rankingsContent = new StackLayout() { Margin = new Thickness(0, 5) };
+                    StackLayout rankingsContent = Info_View_Result_Main_Content;
                     Label header = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 24, Text = "Rankings", HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5, 0, 20) };
                     rankingsContent.Add(header);
 
@@ -1823,10 +1830,9 @@ public partial class MainPage : ContentPage
 
                     }
 
-                    Info_View_Result_Main.Content = rankingsContent;
                     break;
                 case "matches":
-                    StackLayout matchesContent = new StackLayout() { Margin = new Thickness(0, 5) };
+                    StackLayout matchesContent = Info_View_Result_Main_Content;
                     foreach (dynamic match in StorageManagement.compCache.Matches)
                     {
                         Label matchNum = new Label() { TextColor = Color.FromHex("#ffffff"), FontSize = 18, Text = "#" + match["matchNumber"].ToString(), VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
@@ -1923,11 +1929,11 @@ public partial class MainPage : ContentPage
 
                         matchesContent.Add(matchDetails);
                     }
-                    Info_View_Result_Main.Content = matchesContent;
+                   
                     break;
                 case "our_matches":
-                    StackLayout ourMatchesContent = new StackLayout() { Margin = new Thickness(10, 5) };
-                    foreach(dynamic match in StorageManagement.compCache.Matches)
+                    StackLayout ourMatchesContent = Info_View_Result_Main_Content;
+                    foreach (dynamic match in StorageManagement.compCache.Matches)
                     {
 
                         bool weAreIn = false;
@@ -2050,7 +2056,6 @@ public partial class MainPage : ContentPage
 
 
                     }
-                    Info_View_Result_Main.Content = ourMatchesContent;
                     break;
             }
         }
@@ -2071,14 +2076,17 @@ public partial class MainPage : ContentPage
     public async void PutInfoOnDetailView(string detailEvent, string detailData, bool canGoBack)
     {
 
+        Info_View_Result_Detail_Content.Children.Clear();
+
+
         Info_View_Result_Detail.IsVisible = true;
         Info_View_Result_Loading.IsVisible = false;
         Info_View_Result_Main.IsVisible = false;
-        Info_View_Result_Detail.Content = null;
 
-        StackLayout detailContent = new StackLayout();
+        StackLayout detailContent = Info_View_Result_Detail_Content;
+        
 
-        if(canGoBack){
+        if (canGoBack){
             Microsoft.Maui.Controls.Button backButton = new Microsoft.Maui.Controls.Button() { BackgroundColor = Color.FromHex("#3a0e4d"), Text = "Go Back", Margin=new Thickness(0,10,0,30), TextColor = Color.FromHex("#ffffff") };
             backButton.Clicked += (sender, e) =>
             {
@@ -2442,16 +2450,16 @@ public partial class MainPage : ContentPage
                             int redRP = int.Parse((string)match.results.redStats.rp);
                             int blueRP = int.Parse((string)match.results.blueStats.rp);
 
-                            Frame redScoreFrame = new Frame() { Padding = new Thickness(10, 5), BorderColor = redScore > blueScore ? Color.FromHex("#ffffff") : Color.FromArgb("#00ffffff"), CornerRadius = 8, BackgroundColor = Color.FromHex("#910929"), HorizontalOptions = LayoutOptions.Center };
+                            Frame redScoreFrame = new Frame() { Padding = new Thickness(10, 5), BorderColor = redScore > blueScore ? Color.FromHex("#ffffff") : Color.FromArgb("#00ffffff"), CornerRadius = 8, BackgroundColor = Color.FromHex("#910929"), HorizontalOptions = LayoutOptions.Center, Margin = new Thickness(4) };
                             Label redScoreLabel = new Label() { Text = redScore.ToString(), FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
                             redScoreFrame.Content = redScoreLabel;
-                            Frame blueScoreFrame = new Frame() { Padding = new Thickness(10, 5), BorderColor = redScore < blueScore ? Color.FromHex("#ffffff") : Color.FromArgb("#00ffffff"), CornerRadius = 8, BackgroundColor = Color.FromHex("#290991"), HorizontalOptions = LayoutOptions.Center };
+                            Frame blueScoreFrame = new Frame() { Padding = new Thickness(10, 5), BorderColor = redScore < blueScore ? Color.FromHex("#ffffff") : Color.FromArgb("#00ffffff"), CornerRadius = 8, BackgroundColor = Color.FromHex("#290991"), HorizontalOptions = LayoutOptions.Center, Margin = new Thickness(4) };
                             Label blueScoreLabel = new Label() { Text = blueScore.ToString(), FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
                             blueScoreFrame.Content = blueScoreLabel;
-                            Frame redRPFrame = new Frame() { Padding = new Thickness(8, 4), BorderColor = Color.FromArgb("#00ffffff"), CornerRadius = 4, BackgroundColor = Color.FromHex("#910929"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+                            Frame redRPFrame = new Frame() { Padding = new Thickness(8, 4), BorderColor = Color.FromArgb("#00ffffff"), CornerRadius = 4, BackgroundColor = Color.FromHex("#910929"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(4) };
                             Label redRPLabel = new Label() { Text = redRP.ToString() + " RP", FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
                             redRPFrame.Content = redRPLabel;
-                            Frame blueRPFrame = new Frame() { Padding = new Thickness(8, 4), BorderColor = Color.FromArgb("#00ffffff"), CornerRadius = 4, BackgroundColor = Color.FromHex("#290991"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+                            Frame blueRPFrame = new Frame() { Padding = new Thickness(8, 4), BorderColor = Color.FromArgb("#00ffffff"), CornerRadius = 4, BackgroundColor = Color.FromHex("#290991"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(4) };
                             Label blueRPLabel = new Label() { Text = blueRP.ToString() + " RP", FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
                             blueRPFrame.Content = blueRPLabel;
 
@@ -3020,7 +3028,7 @@ public partial class MainPage : ContentPage
 
         }
 
-        Info_View_Result_Detail.Content = detailContent;
+        
         PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         
 
@@ -3043,13 +3051,13 @@ public partial class MainPage : ContentPage
             Search_Docs_Backdrop.IsVisible = true;
             Search_Docs.IsVisible = true;
             Search_Docs_Box.IsVisible = true;
-            Search_Docs_Box.TranslationY = -1400;
-            Search_Docs_Result_Box.TranslationY = 1500;
+            Search_Docs_Box.TranslationY = -1000;
+            Search_Docs_Result_Box.TranslationY = 1000;
             Search_Docs_Backdrop.FadeTo(.5, 250, Easing.CubicInOut);
 
             ShowSearchResultScreen("Start");
-            Search_Docs_Box.TranslateTo(0, -650, 500, Easing.CubicInOut);
-            Search_Docs_Result_Box.TranslateTo(0, 650, 500, Easing.CubicInOut);
+            Search_Docs_Box.TranslateTo(0, -550, 500, Easing.CubicInOut);
+            Search_Docs_Result_Box.TranslateTo(0, 550, 500, Easing.CubicInOut);
 
 
         }
@@ -3141,7 +3149,7 @@ public partial class MainPage : ContentPage
                 Search_Docs_Result_InfoTitle.Text = "Match " + (string)data.match.matchNumber;
                 Search_Docs_Result_Box.TranslateTo(0, 300, 500, Easing.CubicInOut);
 
-                StackLayout details = new StackLayout();
+                Search_Docs_Result_Info_Details.Children.Clear();
 
                 Grid teamGrid = new Grid() { Margin = new Thickness(0, 10) };
                 teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -3173,20 +3181,20 @@ public partial class MainPage : ContentPage
                         blueCount++;
                     }
                 }
-                details.Add(teamGrid);
-                Search_Docs_Result_Info_Details.Content = details;
+                Search_Docs_Result_Info_Details.Add(teamGrid);
+                
 
                 if (data.match.results == null || !((bool)data.match.results.finished))
                 {
                     // match has NOT completed
                     Label status = new Label() { Text = "Match Not Complete", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
-                    details.Add(status);
+                    Search_Docs_Result_Info_Details.Add(status);
                 }
                 else
                 {
                     // match has completed
                     Label status = new Label() { Text = "Completed Match Stats", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 10) };
-                    details.Add(status);
+                    Search_Docs_Result_Info_Details.Add(status);
                     Frame winnerFrame = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 4, HasShadow = false };
                     if (int.Parse((string)data.match.results.red) > int.Parse((string)data.match.results.blue))
                     {
@@ -3209,7 +3217,7 @@ public partial class MainPage : ContentPage
                         winnerFrame.BackgroundColor = Color.FromHex("#5a5a5a");
                         winnerFrame.Content = winner;
                     }
-                    details.Add(winnerFrame);
+                    Search_Docs_Result_Info_Details.Add(winnerFrame);
 
                     if (data.match.results.redStats != null)
                     {
@@ -3240,19 +3248,19 @@ public partial class MainPage : ContentPage
                         }
 
 
-                        details.Add(matchStats);
+                        Search_Docs_Result_Info_Details.Add(matchStats);
                     }
 
 
 
 
-                    StackLayout documents = new StackLayout();
+                    Search_Docs_Result_Info_Documents.Children.Clear();
                     if (auth)
                     {
                         if (data.match.documents.Count == 0)
                         {
                             Label noDocuments = new Label() { Text = "No Documents", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
-                            documents.Add(noDocuments);
+                            Search_Docs_Result_Info_Documents.Add(noDocuments);
                         }
                         foreach (var doc in data.match.documents)
                         {
@@ -3284,17 +3292,17 @@ public partial class MainPage : ContentPage
 
                             docFrame.Content = docInfo;
 
-                            documents.Add(docFrame);
+                            Search_Docs_Result_Info_Documents.Add(docFrame);
                         }
                     }
                     else
                     {
                         Label noAuth = new Label() { Text = "Not Authenticated", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
-                        documents.Add(noAuth);
+                        Search_Docs_Result_Info_Documents.Add(noAuth);
                     }
 
 
-                    Search_Docs_Result_Info_Documents.Content = documents;
+                    
 
 
 
@@ -3322,9 +3330,9 @@ public partial class MainPage : ContentPage
                 Search_Docs_Result_Box.TranslateTo(0, 300, 500, Easing.CubicInOut);
 
 
-                StackLayout details = new StackLayout();
+                Search_Docs_Result_Info_Details.Children.Clear();
                 Label teamName = new Label() { Text = (string)data.team.name, FontSize = 32, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 5) };
-                details.Add(teamName);
+                Search_Docs_Result_Info_Details.Add(teamName);
 
                 bool auth = (bool)data.auth;
                 Label matchesLabel = new Label() { Text = "Matches This Competition", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 15, 0, 10) };
@@ -3391,8 +3399,8 @@ public partial class MainPage : ContentPage
 
 
 
-                details.Add(matchesLabel);
-                details.Add(details_matches);
+                Search_Docs_Result_Info_Details.Add(matchesLabel);
+                Search_Docs_Result_Info_Details.Add(details_matches);
 
 
                 StackLayout analysis = new StackLayout() { Margin = new Thickness(0, 15, 0, 10) };
@@ -3402,7 +3410,7 @@ public partial class MainPage : ContentPage
 
                     Label analysisLabel = new Label() { Text = "Team Summary", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin = new Thickness(0, 25, 0, 0) };
                     // there is an analysis attached; loop through
-                    details.Add(analysisLabel);
+                    Search_Docs_Result_Info_Details.Add(analysisLabel);
                     Dictionary<string, dynamic> analysisData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(data.team.analysis.ToString());
                     foreach (dynamic part in analysisData[(string)data.team.teamNumber])
                     {
@@ -3593,13 +3601,13 @@ public partial class MainPage : ContentPage
 
                     //details.Add(w);
 
-                    details.Add(analysis);
+                    Search_Docs_Result_Info_Details.Add(analysis);
                 }
 
 
-                Search_Docs_Result_Info_Details.Content = details;
 
-                StackLayout documents = new StackLayout();
+
+                Search_Docs_Result_Info_Documents.Children.Clear();
 
                 if (auth)
                 {
@@ -3607,7 +3615,7 @@ public partial class MainPage : ContentPage
                     if (data.team.documents.Count == 0)
                     {
                         Label noDocuments = new Label() { Text = "No Documents", FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.7 };
-                        documents.Add(noDocuments);
+                        Search_Docs_Result_Info_Documents.Add(noDocuments);
                     }
                     foreach (var doc in data.team.documents)
                     {
@@ -3656,18 +3664,18 @@ public partial class MainPage : ContentPage
 
                         docFrame.Content = docInfo;
 
-                        documents.Add(docFrame);
+                        Search_Docs_Result_Info_Documents.Add(docFrame);
                     }
                 }
                 else
                 {
                     Label noAuth = new Label() { Text = "Not Authenticated", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
-                    documents.Add(noAuth);
+                    Search_Docs_Result_Info_Documents.Add(noAuth);
                 }
 
 
 
-                Search_Docs_Result_Info_Documents.Content = documents;
+                
 
 
 
@@ -3696,7 +3704,7 @@ public partial class MainPage : ContentPage
 
         Microsoft.Maui.Controls.Button doc = (Microsoft.Maui.Controls.Button)sender;
         var findDocID = doc.ClassId;
-        StackLayout documentInformation = new StackLayout(){Margin = new Thickness(0,10,0,0)};
+        Search_Docs_Result_Info_Document.Children.Clear();
 
 
         dynamic document = null;
@@ -3730,7 +3738,7 @@ public partial class MainPage : ContentPage
 
 
             Label documentTitle = new Label() { Text = name, FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
-            documentInformation.Add(documentTitle);
+            Search_Docs_Result_Info_Document.Add(documentTitle);
 
             Grid actionGrid = new Grid() { Margin = new Thickness(10,10, 10, 20)};
             actionGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -3763,7 +3771,7 @@ public partial class MainPage : ContentPage
             
             actionGrid.Add(flaggedIndicator, 0, 0);
             actionGrid.Add(deleteButton, 1, 0);
-            documentInformation.Add(actionGrid);
+            Search_Docs_Result_Info_Document.Add(actionGrid);
 
             try{
                 StackLayout documentContents = new StackLayout(){Margin = new Thickness(0,10,0,0)};
@@ -3924,16 +3932,16 @@ public partial class MainPage : ContentPage
                         }
                         break;
                  }
-                documentInformation.Add(documentContents);
+                Search_Docs_Result_Info_Document.Add(documentContents);
             
             }catch(Exception dex){
                 Label noAuth = new Label() { Text = "Cannot Load Data", Margin=new Thickness(5), FontSize = 18, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
-                documentInformation.Add(noAuth);
+                Search_Docs_Result_Info_Document.Add(noAuth);
             }
            
 
 
-            Search_Docs_Result_Info_Document.Content = documentInformation;
+           
         }
 
         
