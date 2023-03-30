@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Firebase.Messaging;
 
 namespace StormCloudClient;
 
@@ -11,6 +12,8 @@ public class MainActivity : MauiAppCompatActivity
     {
         ZXing.Mobile.MobileBarcodeScanner.Initialize(Application);
         base.OnCreate(savedInstanceState, persistentState);
+
+        
         
     }
 }

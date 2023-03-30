@@ -2,6 +2,7 @@
 using UIKit;
 using Firebase.CloudMessaging;
 using UserNotifications;
+using StormCloudClient.Services;
 
 namespace StormCloudClient;
 
@@ -54,10 +55,32 @@ public class AppDelegate : MauiUIApplicationDelegate, IUNUserNotificationCenterD
         if (Messaging.SharedInstance != null)
         {
             Messaging.SharedInstance.Delegate = this;
-            Messaging.SharedInstance.Subscribe("queue");
-            Messaging.SharedInstance.Subscribe("results");
-            Messaging.SharedInstance.Subscribe("resultsAll");
-            Messaging.SharedInstance.Subscribe("general");
+            if((string)DataManagement.GetValue("deviceId") != null)
+            {
+                Messaging.SharedInstance.Subscribe((string)DataManagement.GetValue("deviceId"));
+            }
+            if ((string)DataManagement.GetValue("notifications") == "0" || (string)DataManagement.GetValue("notifications") == null)
+            {
+                Messaging.SharedInstance.Subscribe("general");
+                Messaging.SharedInstance.Unsubscribe("queue");
+                Messaging.SharedInstance.Unsubscribe("results");
+                Messaging.SharedInstance.Unsubscribe("resultsAll");
+            }else if((string)DataManagement.GetValue("notifications") == "1")
+            {
+                Messaging.SharedInstance.Subscribe("general");
+                Messaging.SharedInstance.Subscribe("queue");
+                Messaging.SharedInstance.Subscribe("results");
+                Messaging.SharedInstance.Unsubscribe("resultsAll");
+            }else if((string)DataManagement.GetValue("notifications") == "2")
+            {
+                Messaging.SharedInstance.Subscribe("general");
+                Messaging.SharedInstance.Subscribe("queue");
+                Messaging.SharedInstance.Subscribe("results");
+                Messaging.SharedInstance.Subscribe("resultsAll");
+            }
+            
+            
+            //this.Log("Messaging.SharedInstance SET");
             //this.Log("Messaging.SharedInstance SET");
         }
         else
@@ -94,7 +117,11 @@ public class AppDelegate : MauiUIApplicationDelegate, IUNUserNotificationCenterD
         var userInfo = notification.Request.Content.UserInfo;
 
         var match = userInfo["match"];
+
+
         Console.WriteLine(match);
+
+
 
         //var notificationPreferences = (string)DataManagement.GetValue("notifications");
 

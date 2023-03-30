@@ -13,9 +13,6 @@
         "packagesPath": "/Users/daviado/.nuget/packages/",
         "outputPath": "/Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
-        ],
         "configFilePaths": [
           "/Users/daviado/.nuget/NuGet/NuGet.Config"
         ],
@@ -75,7 +72,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.100/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.202/RuntimeIdentifierGraph.json"
         }
       }
     }

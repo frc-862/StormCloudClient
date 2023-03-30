@@ -1,50 +1,48 @@
-﻿<Properties StartupConfiguration="{A5E98BCF-44CF-4B19-A199-751F497580D3}|Default">
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/Services/APIManager.cs" relfile="StormCloudClient/Services/APIManager.cs" line="89" column="1" />
-      <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/Scouting.xaml.cs" relfile="StormCloudClient/Scouting.xaml.cs" line="713" column="1" />
-      <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/MainPage.xaml.cs" relfile="StormCloudClient/MainPage.xaml.cs" line="1781" column="1" />
-    </BreakpointStore>
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.MonoDroid LastDeploySdkVersion="13.1.0.1" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="StormCloudClient/MainPage.xaml.cs">
+﻿<Properties StartupConfiguration="{A5E98BCF-44CF-4B19-A199-751F497580D3}|Default" NuGet.AddPackagesDialog.IncludePrerelease="True">
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workbench ActiveDocument="StormCloudClient/MainPage.xaml">
     <Files>
-      <File FileName="StormCloudClient/Scouting.xaml.cs" Line="225" Column="39" IsPinned="True" />
-      <File FileName="StormCloudClient/MainPage.xaml.cs" Line="1751" Column="102" />
+      <File FileName="StormCloudClient/Scouting.xaml.cs" Line="607" Column="45" IsPinned="True" />
+      <File FileName="StormCloudClient/MainPage.xaml.cs" Line="221" Column="43" />
       <File FileName="StormCloudClient/StormEntry.xaml.cs" />
-      <File FileName="StormCloudClient/Classes/StorageManagement.cs" Line="167" Column="28" />
+      <File FileName="StormCloudClient/Classes/StorageManagement.cs" />
       <File FileName="StormCloudClient/App.xaml.cs" />
-      <File FileName="StormCloudClient/Initializer.xaml.cs" Line="168" Column="14" />
-      <File FileName="StormCloudClient/Platforms/iOS/USBService.cs" />
-      <File FileName="StormCloudClient/Platforms/iOS/Program.cs" Line="17" Column="1" />
-      <File FileName="StormCloudClient/Services/DataManagement.cs" />
+      <File FileName="StormCloudClient/Initializer.xaml.cs" />
+      <File FileName="StormCloudClient/Platforms/iOS/Program.cs" />
+      <File FileName="StormCloudClient/Services/DataManagement.cs" Line="1" Column="1" />
       <File FileName="StormCloudClient/Services/APIManager.cs" />
       <File FileName="StormCloudClient/MauiProgram.cs" />
       <File FileName="StormCloudClient/SCNavPage.cs" />
       <File FileName="StormCloudClient/Resources/Images/check.svg" />
-      <File FileName="StormCloudClient/StormCloudClient.csproj" />
+      <File FileName="StormCloudClient/StormCloudClient.csproj" Line="40" Column="58" />
       <File FileName="StormCloudClient/Classes/MessageContent.cs" />
-      <File FileName="StormCloudClient/USBService.cs" />
       <File FileName="../../../../../usr/local/share/dotnet/sdk/7.0.102/Sdks/Microsoft.NET.Sdk/targets/Microsoft.PackageDependencyResolution.targets" />
-      <File FileName="StormCloudClient/MainPage.xaml" Line="598" Column="152" />
       <File FileName="StormCloudClient/StormEntry.xaml" />
       <File FileName="StormCloudClient/Initializer.xaml" />
-      <File FileName="StormCloudClient/Scouting.xaml" Line="74" Column="89" />
-      <File FileName="StormCloudClient/Platforms/iOS/Info.plist" />
+      <File FileName="StormCloudClient/Scouting.xaml" />
       <File FileName="StormCloudClient/App.xaml" />
+      <File FileName="StormCloudClient/Classes/ValidationList.cs" />
+      <File FileName="StormCloudClient/Platforms/iOS/AppDelegate.cs" Line="3" Column="1" />
+      <File FileName="StormCloudClient/Services/USBService.cs" />
+      <File FileName="StormCloudClient/Platforms/Android/MainActivity.cs" Line="16" Column="9" />
+      <File FileName="StormCloudClient/Platforms/Android/MainApplication.cs" Line="1" Column="1" />
+      <File FileName="StormCloudClient/Platforms/iOS/Info.plist" />
+      <File FileName="StormCloudClient/Platforms/iOS/Entitlements.plist" />
+      <File FileName="StormCloudClient/Platforms/Android/AndroidManifest.xml" />
+      <File FileName="StormCloudClient/MainPage.xaml" Line="107" Column="53" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="StormCloudClient" expanded="True">
-            <Node name="StormCloudClient" expanded="True" selected="True">
+          <Node name="StormCloudClient" expanded="True" selected="True">
+            <Node name="StormCloudClient" expanded="True">
               <Node name="Classes" expanded="True" />
               <Node name="Platforms" expanded="True">
                 <Node name="Android" expanded="True" />
-                <Node name="iOS" expanded="True" />
+                <Node name="M" expanded="True" />
                 <Node name="MacCatalyst" expanded="True" />
-                <Node name=".DS_Store" selected="True" />
+                <Node name="Tizen" expanded="True" />
+                <Node name="Windows" expanded="True" />
               </Node>
               <Node name="Resources" expanded="True">
                 <Node name="AppIcon" expanded="True" />
@@ -54,18 +52,23 @@
               </Node>
               <Node name="Services" expanded="True" />
               <Node name="App.xaml" expanded="True" />
-              <Node name="Initializer.xaml" expanded="True" />
               <Node name="MainPage.xaml" expanded="True" />
               <Node name="Scouting.xaml" expanded="True" />
-              <Node name="StormEntry.xaml" expanded="True" />
             </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/Scouting.xaml.cs" relfile="StormCloudClient/Scouting.xaml.cs" line="101" column="1" />
+      <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudClient/StormCloudClient/Platforms/iOS/AppDelegate.cs" relfile="StormCloudClient/Platforms/iOS/AppDelegate.cs" line="103" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <Xamarin.Addins.Core.Project ActiveDebugTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.00008120-001214310A0B401E" />
-  <MonoDevelop.Ide.ItemProperties.StormCloudClient PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.00008120-001214310A0B401E" />
   <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.StormCloudClient PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.00008120-001214310A0B401E" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.MonoDroid LastDeploySdkVersion="33.0.26" />
 </Properties>

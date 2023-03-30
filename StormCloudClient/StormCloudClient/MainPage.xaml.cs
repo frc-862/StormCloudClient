@@ -99,6 +99,25 @@ public partial class MainPage : ContentPage
 
             StorageManagement.compCache.Matches = data["matches"];
 
+            var matchCount = 0;
+            foreach(var match in StorageManagement.compCache.Matches)
+            {
+                matchCount += 1;
+            }
+
+            if(matchCount == 0)
+            {
+                Data_CompetitionNotStarted.IsVisible = true;
+                Data_CompetitionStarted.IsVisible = false;
+            }
+            else
+            {
+                Data_CompetitionNotStarted.IsVisible = false;
+                Data_CompetitionStarted.IsVisible = true;
+            }
+
+
+            
             StorageManagement.compCache.Teams = data["teams"];
 
             StorageManagement.compCache.Rankings = data["rankings"];
@@ -199,7 +218,7 @@ public partial class MainPage : ContentPage
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    UpdateStateInformationFields();
+                    UpdateStateInformation();
                 });
                 return true;
             });

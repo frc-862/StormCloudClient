@@ -1,29 +1,29 @@
 ﻿<Properties StartupConfiguration="{67FF2A52-8421-4C38-84E7-9F3233BEA093}|Default">
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/daviado/Desktop/StormCloudClient/StormCloudUSBService/StormCloudUSBService/DataManager.cs" relfile="StormCloudUSBService/DataManager.cs" line="65" column="1" />
-    </BreakpointStore>
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="StormCloudUSBService/DataManager.cs">
+  <MonoDevelop.Ide.ItemProperties.StormCloudUSBService PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="StormCloudUSBService/USBService.cs">
     <Files>
-      <File FileName="StormCloudUSBService/Program.cs" Line="19" Column="38" />
-      <File FileName="StormCloudUSBService/USBService.cs" Line="114" Column="41" />
+      <File FileName="StormCloudUSBService/Program.cs" />
+      <File FileName="StormCloudUSBService/USBService.cs" Line="17" Column="52" />
       <File FileName="StormCloudUSBService/USBManager.cs" />
-      <File FileName="StormCloudUSBService/APIService.cs" Line="63" Column="1" />
-      <File FileName="StormCloudUSBService/DataManager.cs" Line="63" Column="1" />
+      <File FileName="StormCloudUSBService/APIService.cs" />
+      <File FileName="StormCloudUSBService/DataManager.cs" Line="65" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="StormCloudUSBService" expanded="True">
-            <Node name="StormCloudUSBService" expanded="True" />
+            <Node name="StormCloudUSBService" expanded="True">
+              <Node name="USBService.cs" selected="True" />
+            </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.StormCloudUSBService PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>
