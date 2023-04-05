@@ -42,8 +42,12 @@ namespace StormCloudClient
             connectedSocket.ReceiveBufferSize = 1024;
 
 
+
             var totalSent = 0;
             var result = new byte[1024];
+
+            connectedSocket.Receive(result);
+
             while (sendString != "")
             {
 
@@ -59,18 +63,70 @@ namespace StormCloudClient
                 }
 
                 connectedSocket.Receive(result);
+                
             }
 
             await Task.Delay(200);
-
+            //connectedSocket.Receive(result);
             connectedSocket.Send(Encoding.ASCII.GetBytes("END".PadRight(300, ' ')));
 
-
-            foreach (var match in transfer.matches)
+            var response = "";
+            var gotString = "";
+            while(true)
             {
-                match.Status = UploadStatus.SUCCEEDED;
+                byte[] byteResult = new byte[1024];
+                connectedSocket.Receive(byteResult);
+                var responseGet = Encoding.ASCII.GetString(byteResult).Replace("\0", "");
+                if(responseGet.StartsWith("ok, and?"))
+                {
+                    connectedSocket.Send(Encoding.ASCII.GetBytes("ok, and?".PadRight(300, ' ')));
+                }
+                else if(!responseGet.StartsWith("END"))
+                {
+                    gotString += responseGet;
+                    connectedSocket.Send(Encoding.ASCII.GetBytes("ok, and?".PadRight(300, ' ')));
+                }
+                else
+                {
+                    break;
+                }
+                
             }
 
+
+            try{
+                if(gotString != ""){
+                    var responsePacket = Newtonsoft.Json.JsonConvert.DeserializeObject(gotString);
+
+                    var responseDict = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(gotString);
+
+                    if (responseDict.ContainsKey("analysises"))
+                        HandleAnalysis(responseDict["analysises"]);
+
+                    if(responseDict.ContainsKey("matches"))
+                        HandleMatches(responseDict["matches"]);
+
+                    if(responseDict.ContainsKey("rankings"))
+                        HandleRankings(responseDict["rankings"]);
+                    
+                    if(responseDict.ContainsKey("documents"))
+                        HandleDocuments(responseDict["documents"]);
+
+                    if (responseDict.ContainsKey("teams"))
+                        HandleTeams(responseDict["teams"]);
+
+                    foreach (var match in transfer.matches)
+                    {
+                        match.Status = UploadStatus.SUCCEEDED;
+                    }
+
+                }
+            }catch(Exception rex){
+                Console.WriteLine(rex.Message);
+            }
+            
+
+            
 
             // send message back to app
 
@@ -94,5 +150,195 @@ namespace StormCloudClient
             socket.Listen(100);
             socket.BeginAccept(cb, socket);
         }
+
+        public static void HandleSchemas(dynamic schemas)
+        {
+            foreach(var schema in schemas)
+            {
+                StorageManagement.AddData_Schema((string)schema["Name"], Newtonsoft.Json.JsonConvert.SerializeObject(schema), (dynamic)schema["Settings"]);
+            }
+            StorageManagement._SaveData_Schema();
+        }
+
+        public static void HandleAnalysis(dynamic analysises){
+            Console.WriteLine("Got Analysis");
+
+            StorageManagement.downloadCache.analysisSets = analysises;
+            if(StorageManagement.dataDeterminer.analysisSets == null)
+            {
+                StorageManagement.dataDeterminer.analysisSets = new TimeSet()
+                {
+                    usb = DateTime.Now
+                };
+            }
+            else
+            {
+                StorageManagement.dataDeterminer.analysisSets.usb = DateTime.Now;
+            }
+
+            StorageManagement._SaveData_Download();
+            
+        }
+
+        public static void HandleMatches(dynamic matches){
+            Console.WriteLine("Got Matches");
+
+            StorageManagement.downloadCache.matches = matches;
+            if (StorageManagement.dataDeterminer.matches == null)
+            {
+                StorageManagement.dataDeterminer.matches = new TimeSet()
+                {
+                    usb = DateTime.Now
+                };
+            }
+            else
+            {
+                StorageManagement.dataDeterminer.matches.usb = DateTime.Now;
+            }
+
+            StorageManagement._SaveData_Download();
+        }
+
+        public static void HandleRankings(dynamic teams){
+            Console.WriteLine("Got Teams");
+
+            StorageManagement.downloadCache.rankings = teams;
+            if (StorageManagement.dataDeterminer.rankings == null)
+            {
+                StorageManagement.dataDeterminer.rankings = new TimeSet()
+                {
+                    usb = DateTime.Now
+                };
+            }
+            else
+            {
+                StorageManagement.dataDeterminer.rankings.usb = DateTime.Now;
+            }
+
+            StorageManagement._SaveData_Download();
+        }
+
+        public static void HandleDocuments(dynamic documents){
+            Console.WriteLine("Got Documents");
+
+            StorageManagement.downloadCache.documents = documents;
+            if (StorageManagement.dataDeterminer.documents == null)
+            {
+                StorageManagement.dataDeterminer.documents = new TimeSet()
+                {
+                    usb = DateTime.Now
+                };
+            }
+            else
+            {
+                StorageManagement.dataDeterminer.documents.usb = DateTime.Now;
+            }
+
+            StorageManagement._SaveData_Download();
+        }
+
+        public static void HandleTeams(dynamic teams)
+        {
+            Console.WriteLine("Got Teams");
+
+            List<dynamic> teamHolder = new List<dynamic>();
+            foreach(var team in teams)
+            {
+                teamHolder.Add(team);
+            }
+
+            List<dynamic> teamsSorted = Sort(teamHolder, "teamNumber");
+
+
+
+            StorageManagement.downloadCache.teams = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(teamsSorted));
+            if (StorageManagement.dataDeterminer.teams == null)
+            {
+                StorageManagement.dataDeterminer.teams = new TimeSet()
+                {
+                    usb = DateTime.Now
+                };
+            }
+            else
+            {
+                StorageManagement.dataDeterminer.teams.usb = DateTime.Now;
+            }
+
+            StorageManagement._SaveData_Download();
+        }
+
+        
+
+
+
+        public static dynamic GetMatch(int matchNumber)
+        {
+            try
+            {
+                dynamic matchToReturn = null;
+                foreach (var match in StorageManagement.downloadCache.matches)
+                {
+                    if((string)match.matchNumber == matchNumber.ToString())
+                    {
+                        matchToReturn = match;
+                        break;
+                    }
+                }
+                return matchToReturn;
+            }catch(Exception e)
+            {
+                return null;
+            }
+            
+        }
+
+        public static dynamic GetTeam(int teamNumber)
+        {
+            try
+            {
+                dynamic teamToReturn = null;
+                foreach(var team in StorageManagement.downloadCache.teams)
+                {
+                    if((string)team.teamNumber == teamNumber.ToString())
+                    {
+                        teamToReturn = team;
+                        break;
+                    }
+                }
+                return teamToReturn;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        public static dynamic GetAnalysis(int teamNumber)
+        {
+            try
+            {
+                Dictionary<string, dynamic> analysisData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(StorageManagement.downloadCache.analysisSets);
+                dynamic analysisToReturn = null;
+                foreach(var team in analysisData.Keys)
+                {
+                    if(team == teamNumber.ToString())
+                    {
+                        analysisToReturn = analysisData[team];
+                        break;
+                    }
+                }
+                return analysisToReturn;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        private static List<dynamic> Sort(List<dynamic> input, string property)
+        {
+            return input.OrderBy(p => p.GetType().GetProperty(property).GetValue(p, null)).ToList();
+        }
     }
+
 }

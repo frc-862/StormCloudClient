@@ -58,7 +58,8 @@
                         <Frame BorderColor="Transparent" Padding="5,10" BackgroundColor="#280338" CornerRadius="8" Margin="20,5">
                             <StackLayout>
                                 <Label Text="Unknown Competition" x:Name="Data_CompetitionName" TextColor="White" FontSize="20" Margin="10,10,10,5" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
-                                <Label Text="Unknown Competition" x:Name="Data_CompetitionLocation" TextColor="White" FontSize="16" Margin="10,5,10,10" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                                <Label Text="Unknown Competition" x:Name="Data_CompetitionLocation" TextColor="White" FontSize="16" Margin="10,5,10,5" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                                <Label Text="Last Updated: 12:00PM" x:Name="Data_CompetitionLastUpdated" TextColor="White" FontSize="12" Margin="10,5,10,10" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
 
                                 <StackLayout x:Name="Data_CompetitionStarted">
                                     <Button ClassId="rankings" Clicked="Info_Show" FontSize="16" Text="See All Rankings" BackgroundColor="#3a0e4d" Padding="20,5" CornerRadius="8" TextColor="White" Margin="20,5,20,5"/>
@@ -273,7 +274,7 @@
                                 <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="3*"/>
                             </Grid.ColumnDefinitions>
-                            <Label VerticalOptions="Center" Text="Upload Mode" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
+                            <Label VerticalOptions="Center" Text="Data Source" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" />
                             
                             <Frame BorderColor="Transparent" Padding="5,0" Grid.Column="1" BackgroundColor="#280338" CornerRadius="8">
                                 <Frame BackgroundColor="Transparent" Padding="0" BorderColor="#280338" CornerRadius="4">
@@ -281,7 +282,7 @@
                                         <Picker.Items>
                                             <x:String>Using Wireless</x:String>
                                             <x:String>Using USB</x:String>
-                                            <x:String>No Upload</x:String>
+                                            <x:String>No Data</x:String>
                                         </Picker.Items>
                                     </Picker>
                                 </Frame>
@@ -354,6 +355,7 @@
                             </Frame>
                         </Grid>
                         <Button Clicked="ClearSettingsConfig" FontSize="12" Text="Clear All Configuration" HorizontalOptions="Center" BackgroundColor="#280338" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,5"/>
+                        <Button Clicked="ClearData" FontSize="12" Text="Clear All Data" HorizontalOptions="Center" BackgroundColor="#910929" Padding="20,10" CornerRadius="8" TextColor="White" Margin="5,5"/>
                         <Label VerticalOptions="Center" Text="Version: #, Build: #" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" Margin="0,20,0,5" x:Name="Settings_VersionInfo" />
                         <Label VerticalOptions="Center" Text="Device 12345678" HorizontalOptions="CenterAndExpand" TextColor="White" FontSize="16" Margin="0,5,0,0" x:Name="Settings_DeviceID" />
                     </StackLayout>
@@ -488,24 +490,37 @@
                     <Frame BorderColor="Transparent" BackgroundColor="#280338" HeightRequest="800" CornerRadius="16" HasShadow="True">
                     
                         <StackLayout>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="*"/>
+
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Text="Back" BackgroundColor="#3a0e4d" Padding="10,8" CornerRadius="8" FontSize="14" TextColor="White" Margin="5,0" VerticalOptions="Center" HorizontalOptions="Start" x:Name="Info_View_Back"/>
+                                <Button Grid.Column="1" Text="See More Info" BackgroundColor="#3a0e4d" Padding="10,8" CornerRadius="8" FontSize="14" TextColor="White" Margin="5,0" VerticalOptions="Center" HorizontalOptions="Center" x:Name="Info_View_SeeMore"/>
+                                <Button Grid.Column="2" Text="Exit" BackgroundColor="#3a0e4d" Padding="10,8" CornerRadius="8" FontSize="14" TextColor="White" Margin="5,0" VerticalOptions="Center" HorizontalOptions="End" Clicked="Info_Exit"/>
+
+                            </Grid>
+                            
 
                             <Grid Padding="0,10">
 
-                                <ScrollView Grid.Column="0" Grid.Row="0" x:Name="Info_View_Result_Loading" IsVisible="False" MaximumHeightRequest="400">
+                                <ScrollView Grid.Column="0" Grid.Row="0" x:Name="Info_View_Result_Loading" IsVisible="False" MaximumHeightRequest="450">
                                     <StackLayout x:Name="Info_View_Result_Loading_Content" Margin="0,5,0,100">
                                         <ActivityIndicator WidthRequest="50" HeightRequest="50" Color="White" IsRunning="True"/>
                                     </StackLayout>
                                     
 
                                 </ScrollView>
-                                <ScrollView Grid.Column="0" Grid.Row="0" x:Name="Info_View_Result_Main" IsVisible="False" MaximumHeightRequest="400">
+                                <ScrollView Grid.Column="0" Grid.Row="0" x:Name="Info_View_Result_Main" IsVisible="False" MaximumHeightRequest="450">
                                     <StackLayout x:Name="Info_View_Result_Main_Content" Margin="0,5,0,100">
                                         
                                     </StackLayout>
                                     
 
                                 </ScrollView>
-                                <ScrollView Grid.Column="0" Grid.Row="0"  x:Name="Info_View_Result_Detail" IsVisible="False" MaximumHeightRequest="400">
+                                <ScrollView Grid.Column="0" Grid.Row="0"  x:Name="Info_View_Result_Detail" IsVisible="False" MaximumHeightRequest="450">
                                     <StackLayout x:Name="Info_View_Result_Detail_Content" Margin="0,5,0,100">
 
                                     </StackLayout>
@@ -572,14 +587,14 @@
                                     </Grid>
 
                                     <Grid Margin="10,5">
-                                        <ScrollView Grid.Row="0" Grid.Column="0" IsVisible="False" MaximumHeightRequest="300">
+                                        <ScrollView Grid.Row="0" Grid.Column="0" IsVisible="False" MaximumHeightRequest="300" x:Name="Search_Docs_Result_Info_Details_Parent">
                                             <StackLayout x:Name="Search_Docs_Result_Info_Details">
 
 
                                             </StackLayout>
 
                                         </ScrollView>
-                                        <ScrollView Grid.Row="0" Grid.Column="0" IsVisible="False" MaximumHeightRequest="300">
+                                        <ScrollView Grid.Row="0" Grid.Column="0" IsVisible="False" MaximumHeightRequest="300" x:Name="Search_Docs_Result_Info_Documents_Parent">
                                             <StackLayout x:Name="Search_Docs_Result_Info_Documents">
 
 
@@ -587,7 +602,7 @@
 
                                         </ScrollView>
 
-                                        <ScrollView Grid.Row="0" Grid.Column="0" IsVisible="False" MaximumHeightRequest="300">
+                                        <ScrollView Grid.Row="0" Grid.Column="0" IsVisible="False" MaximumHeightRequest="300" x:Name="Search_Docs_Result_Info_Document_Parent">
                                             <StackLayout x:Name="Search_Docs_Result_Info_Document">
 
 

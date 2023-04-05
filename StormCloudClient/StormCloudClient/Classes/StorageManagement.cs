@@ -34,6 +34,22 @@ namespace StormCloudClient.Classes
         public dynamic matches;
         public dynamic rankings;
         public dynamic documents;
+        public dynamic teams;
+    }
+
+    public class TimeSet{
+        public DateTime internet;
+        public DateTime usb;
+    }
+
+    public class DataDeterminer
+    {
+        public TimeSet analysisSets;
+        public TimeSet schemas;
+        public TimeSet matches;
+        public TimeSet rankings;
+        public TimeSet documents;
+        public TimeSet teams;
     }
 
     public class Match
@@ -74,6 +90,7 @@ namespace StormCloudClient.Classes
         public int TeamNumber;
         public dynamic Teams;
         public dynamic Rankings;
+        public DateTime lastUpdated;
     }
     public class StorageManagement
     {
@@ -84,6 +101,7 @@ namespace StormCloudClient.Classes
         public static CompetitionCache compCache;
         public static Download downloadCache;
         public static int matchesCreated;
+        public static DataDeterminer dataDeterminer;
 
 
         static string savePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -95,6 +113,7 @@ namespace StormCloudClient.Classes
             allPhotos = new List<Photo>();
             compCache = new CompetitionCache();
             downloadCache = new Download();
+            dataDeterminer = new DataDeterminer();
             // try to get schema data if exists; if does, set schemas variable to List deserialization
             if (File.Exists(_GetPath("schemas.json")))
             {
@@ -158,6 +177,18 @@ namespace StormCloudClient.Classes
 
                 }
             }
+            if (File.Exists(_GetPath("determiner.json")))
+            {
+                var contents = File.ReadAllText(_GetPath("determiner.json"));
+                try
+                {
+                    dataDeterminer = Newtonsoft.Json.JsonConvert.DeserializeObject<DataDeterminer>(contents);
+                }
+                catch (Exception e)
+                {
+
+                }
+            }
         }
         
         public static void AddData_Schema(string Name, string Contents, dynamic Settings)
@@ -191,7 +222,7 @@ namespace StormCloudClient.Classes
 
         public static void AddData_Match(int Number, int Team, string Scouter, string Color, string Schema, string Environment, string Data, int Disabled)
         {
-            var alreadyExists = allMatches.Exists(s => s.Number == Number && s.Environment == Environment);
+            var alreadyExists = allMatches.Exists(s => s.Number == Number && s.Environment == Environment && s.Schema == Schema && s.Team == Team);
             if (alreadyExists)
             {
                 allMatches.Find(s => s.Number == Number && s.Environment == Environment).Data = Data;
@@ -224,9 +255,9 @@ namespace StormCloudClient.Classes
 
             _SaveData_Match();
         }
-        public static void RemoveData_Match(int Number, string Environment)
+        public static void RemoveData_Match(string id, string Environment)
         {
-            allMatches.Remove(allMatches.Find(s => s.Number == Number && s.Environment == Environment));
+            allMatches.Remove(allMatches.Find(s => s.Identifier == id));
             _SaveData_Match();
         }
         public static void _SaveData_Match()
@@ -321,6 +352,12 @@ namespace StormCloudClient.Classes
         {
             var finalContents = Newtonsoft.Json.JsonConvert.SerializeObject(downloadCache);
             File.WriteAllText(_GetPath("download.json"), finalContents);
+        }
+
+        public static void _SaveData_Determiner()
+        {
+            var finalContents = Newtonsoft.Json.JsonConvert.SerializeObject(dataDeterminer);
+            File.WriteAllText(_GetPath("determiner.json"), finalContents);
         }
 
 

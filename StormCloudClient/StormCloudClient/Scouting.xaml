@@ -9,7 +9,7 @@
         <AbsoluteLayout>
             <StackLayout AbsoluteLayout.LayoutBounds="0,10,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" x:Name="Form_Content">
                 <ScrollView Margin="10,0" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-                    <StackLayout x:Name="Form_Content_Fields" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Padding="0,0,0,200">
+                    <StackLayout x:Name="Form_Content_Fields" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Padding="0,0,0,200" Margin="0,0,0,200">
 
                     </StackLayout>
                 </ScrollView>

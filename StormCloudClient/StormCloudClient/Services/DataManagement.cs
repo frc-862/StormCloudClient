@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace StormCloudClient.Services
 {
+    public enum DataTransferState
+    {
+        INTERNET,
+        USB,
+        NONE
+    }
     public class DataManagement
     {
         public static void SetValue(string key, string value)
@@ -50,6 +56,24 @@ namespace StormCloudClient.Services
                 f += characters.Substring(random.Next(characters.Length), 1);
             }
             return f;
+        }
+
+        public static DataTransferState DataState()
+        {
+            try
+            {
+                var index = int.Parse((string)GetValue("upload_mode"));
+                if (index == 0)
+                    return DataTransferState.INTERNET;
+                if (index == 1)
+                    return DataTransferState.USB;
+                return DataTransferState.NONE;
+            }
+            catch(Exception e)
+            {
+                return DataTransferState.INTERNET;
+            }
+            
         }
     }
 

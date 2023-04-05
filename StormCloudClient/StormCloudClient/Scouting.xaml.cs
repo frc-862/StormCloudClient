@@ -1128,7 +1128,7 @@ public partial class Scouting : ContentPage
 
         if (UseMatches)
         {
-            var matchExists = StorageManagement.allMatches.Exists(m => m.Environment == Environment && m.Number == matchNum);
+            var matchExists = StorageManagement.allMatches.Exists(m => m.Environment == Environment && m.Number == matchNum && m.Team == teamNumber && m.Schema == SchemaName);
             if (matchExists)
             {
                 var res = await DisplayAlert("FYI...", "A match with the same number and environment already exists. Submitting this match will overwrite the match that already exists. Are you sure you want to continue?", "Yes", "No");
