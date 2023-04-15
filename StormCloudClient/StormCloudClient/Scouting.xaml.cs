@@ -8,6 +8,8 @@ public class TimerSet
     public DateTime track;
     public float seconds;
     public bool enabled;
+
+    
 }
 
 public class ColorSet
@@ -182,6 +184,185 @@ public partial class Scouting : ContentPage
         });
     }
 
+    private void UpdatePreExtraContent()
+    {
+        Status_PreContent_Extra.Children.Clear();
+
+
+
+
+        if (Status_PreContent_MatchNumber.Text != "" && Status_PreContent_MatchNumber.Text != "N/A" && Status_PreContent_MatchNumber.Text != null)
+        {
+            var number = int.Parse(Status_PreContent_MatchNumber.Text);
+            bool warning = false;
+            var existingDocument = StorageManagement.allMatches.Find(m => m.Number == number && m.Schema == SchemaName);
+
+
+            dynamic applicableMatch = null;
+            foreach (var m in StorageManagement.compCache.Matches)
+            {
+                if ((string)m.matchNumber == number.ToString())
+                {
+                    applicableMatch = m;
+                }
+            }
+
+            Status_PreContent_Extra.Children.Clear();
+
+
+            if (existingDocument != null)
+            {
+                // show warning on match
+                Frame warningFrame = new Frame() { Margin = new Thickness(20, 5), Padding = new Thickness(10), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, BackgroundColor = Color.FromHex("#680991") };
+                Grid warningFrameContent = new Grid();
+                warningFrameContent.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Auto)));
+                warningFrameContent.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+
+
+                Frame exclamationFrame = new Frame() { BackgroundColor = Color.FromHex("#ffffff"), WidthRequest = 26, HeightRequest = 26, CornerRadius = 12, BorderColor = Color.FromArgb("00ffffff"), Margin = new Thickness(10, 0), Padding = new Thickness(4) };
+                Label exclamation = new Label() { FontSize = 14, Text = "!", HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, TextColor = Color.FromHex("#190024") };
+                exclamationFrame.Content = exclamation;
+
+                warningFrameContent.Add(exclamationFrame, 0, 0);
+
+                Label warningText = new Label() { FontSize = 16, TextColor = Color.FromHex("#ffffff"), Text = "There already exists a document with the same match number. Please make sure you are scouting the right match." };
+                warningFrameContent.Add(warningText, 1, 0);
+
+                warningFrame.Content = warningFrameContent;
+
+                Status_PreContent_Extra.Children.Add(warningFrame);
+
+                warning = true;
+
+            }
+
+            if (number >= 900)
+            {
+                // show notice of playoff matches
+
+
+                Frame warningFrame = new Frame() { Margin = new Thickness(20, 5), Padding = new Thickness(10), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, BackgroundColor = Color.FromHex("#680991") };
+                Grid warningFrameContent = new Grid();
+                warningFrameContent.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Auto)));
+                warningFrameContent.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+
+
+                Frame exclamationFrame = new Frame() { BackgroundColor = Color.FromHex("#ffffff"), WidthRequest = 26, HeightRequest = 26, CornerRadius = 12, BorderColor = Color.FromArgb("00ffffff"), Margin = new Thickness(10, 0), Padding = new Thickness(4) };
+                Label exclamation = new Label() { FontSize = 14, Text = "!", HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, TextColor = Color.FromHex("#190024") };
+                exclamationFrame.Content = exclamation;
+
+                warningFrameContent.Add(exclamationFrame, 0, 0);
+
+                Label warningText = new Label() { FontSize = 16, TextColor = Color.FromHex("#ffffff"), Text = "Remember, if you're trying to scout a playoff match, just provide the regular match number. We'll handle the rest!" };
+                warningFrameContent.Add(warningText, 1, 0);
+
+                warningFrame.Content = warningFrameContent;
+
+                Status_PreContent_Extra.Children.Add(warningFrame);
+
+                warning = true;
+            }
+
+            if (applicableMatch != null)
+            {
+
+                if (Status_PreContent_TeamNumber.Text != "" && Status_PreContent_TeamNumber.Text != null)
+                {
+                    var team = int.Parse(Status_PreContent_TeamNumber.Text);
+
+                    bool isInMatch = false;
+                    foreach(var matchTeam in applicableMatch.teams)
+                    {
+                        if((string)matchTeam.team == team.ToString())
+                        {
+                            isInMatch = true;
+                        }
+                    }
+
+                    if (!isInMatch)
+                    {
+                        Frame warningFrame = new Frame() { Margin = new Thickness(20, 5), Padding = new Thickness(10), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, BackgroundColor = Color.FromHex("#680991") };
+                        Grid warningFrameContent = new Grid();
+                        warningFrameContent.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Auto)));
+                        warningFrameContent.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+
+
+                        Frame exclamationFrame = new Frame() { BackgroundColor = Color.FromHex("#ffffff"), WidthRequest = 26, HeightRequest = 26, CornerRadius = 12, BorderColor = Color.FromArgb("00ffffff"), Margin = new Thickness(10, 0), Padding = new Thickness(4) };
+                        Label exclamation = new Label() { FontSize = 14, Text = "!", HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, TextColor = Color.FromHex("#190024") };
+                        exclamationFrame.Content = exclamation;
+
+                        warningFrameContent.Add(exclamationFrame, 0, 0);
+
+                        Label warningText = new Label() { FontSize = 16, TextColor = Color.FromHex("#ffffff"), Text = "Team " + team.ToString() + " is not reported to be in this match. Please double check you are scouting the correct match and team." };
+                        warningFrameContent.Add(warningText, 1, 0);
+
+                        warningFrame.Content = warningFrameContent;
+
+                        Status_PreContent_Extra.Children.Add(warningFrame);
+
+                        warning = true;
+                    }
+
+                }
+
+                    // show teams
+                Grid teamGrid = new Grid() { Margin = new Thickness(5, 10) };
+                teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                teamGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                for (int i = 0; i < applicableMatch.teams.Count / 2; i++)
+                {
+                    teamGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                }
+
+                bool auth = true;
+
+                var blueCount = 0;
+                var redCount = 0;
+                foreach (var team in applicableMatch.teams)
+                {
+                    Frame f = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 4, HasShadow = false };
+                    Label teamLabel = new Label() { Text = (string)team.team, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                    f.Content = teamLabel;
+                    if ((string)team.color == "Red")
+                    {
+                        f.BackgroundColor = Color.FromHex("#910929");
+                        teamGrid.Add(f, redCount, 0);
+                        redCount++;
+                    }
+                    else if ((string)team.color == "Blue")
+                    {
+                        f.BackgroundColor = Color.FromHex("#290991");
+                        teamGrid.Add(f, blueCount, 1);
+                        blueCount++;
+                    }
+                }
+
+                Status_PreContent_Extra.Children.Add(teamGrid);
+
+            }
+
+            if (warning)
+            {
+                Status_PreContent_MatchReady.BackgroundColor = Color.FromHex("#910929");
+            }
+            else
+            {
+                Status_PreContent_MatchReady.BackgroundColor = Color.FromHex("#680991");
+            }
+            
+
+        }
+
+        
+        
+    }
+
+    private void Status_PreContent_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        UpdatePreExtraContent();
+
+    }
+
     private async void Back(object sender, EventArgs e)
     {
         bool res = false;
@@ -306,6 +487,20 @@ public partial class Scouting : ContentPage
                         Form_Content_Fields.Add(mainText);
 
                         continue;
+                    }
+
+                    var useColor = "default";
+                    try
+                    {
+                        string color = ((string)component.Color).ToLower();
+                        if (colorSets.ContainsKey(color))
+                        {
+                            useColor = color;
+                        }
+                    }
+                    catch (Exception colorex)
+                    {
+
                     }
 
                     if (!isCurrentlyEditing)
@@ -450,8 +645,39 @@ public partial class Scouting : ContentPage
                         continue;
 
                     }
+                    else if ((string)component.Type == "Notes")
+                    {
 
-                    // part for the textbox
+                        Grid noteMain = new Grid();
+
+                        noteMain.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(4, GridUnitType.Star)));
+                        noteMain.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+
+                        Label mainText = new Label() { Text = (string)component.Name, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(20, 20, 20, 20), HorizontalTextAlignment = TextAlignment.Center };
+                        Button addNote = new Button() { BackgroundColor = colorSets[useColor].main, Text = "Add", FontSize = 12, ClassId = componentId.ToString(), TextColor = Color.FromHex("#ffffff"), StyleId = useColor, CornerRadius = 8, Padding = new Thickness(10, 5), VerticalOptions= LayoutOptions.Center, HorizontalOptions= LayoutOptions.Center };
+
+                        addNote.Clicked += HandleFormButton;
+
+                        noteMain.Add(mainText, 0, 0);
+                        noteMain.Add(addNote, 1, 0);
+
+                        StackLayout noteContents = new StackLayout() { Margin = new Thickness(0,0,0,10)};
+
+                        attachedComponents[componentId] = new List<object>() { addNote, noteContents };
+                        extraData[componentId] = (string)component.MaxNotes;
+
+                        Form_Content_Fields.Add(noteMain);
+                        Form_Content_Fields.Add(noteContents);
+
+                        UpdateNote(componentId);
+
+                        componentId += 1;
+
+                        continue;
+                    }
+
+
+                        // part for the textbox
                     ColumnDefinition textBox = new ColumnDefinition();
                     textBox.Width = new GridLength(2, GridUnitType.Star);
                     // part for the field content
@@ -462,19 +688,7 @@ public partial class Scouting : ContentPage
                     container.ColumnDefinitions.Add(textBox);
                     container.ColumnDefinitions.Add(content);
 
-                    var useColor = "default";
-                    try
-                    {
-                        string color = ((string)component.Color).ToLower();
-                        if (colorSets.ContainsKey(color))
-                        {
-                            useColor = color;
-                        }
-                    }
-                    catch(Exception colorex)
-                    {
-
-                    }
+                    
                     
 
 
@@ -521,29 +735,63 @@ public partial class Scouting : ContentPage
                             Frame entryFrame = new Frame() { CornerRadius = 8, Margin = new Thickness(5, 5), BackgroundColor = colorSets[useColor].main, Padding = new Thickness(5, 0), BorderColor = Color.FromArgb("00ffffff"), StyleId = useColor };
                             Frame borderProtectE = new Frame() { CornerRadius = 4, Padding = new Thickness(0), BorderColor = colorSets[useColor].main, StyleId = useColor };
 
-                            Entry e = new Entry() { FontSize = 14, BackgroundColor = colorSets[useColor].main, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, ClassId = componentId.ToString() };
 
-                            e.TextChanged += HandleFormEntry;
-
-                            borderProtectE.Content = e;
-                            entryFrame.Content = borderProtectE;
-                            container.Add(entryFrame, 1, 0);
-
-                            attachedComponents[componentId] = new List<object>
+                            if (component.Large != null && (bool)component.Large)
                             {
-                                e
-                            };
+                                Editor e = new Editor() { FontSize = 14, BackgroundColor = colorSets[useColor].main, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, ClassId = componentId.ToString(), HeightRequest = 150, AutoSize = EditorAutoSizeOption.TextChanges };
 
-                            if (isCurrentlyEditing)
-                            {
-                                e.Text = data[componentId].ToString();
+                                e.TextChanged += HandleFormEditor;
+
+                                borderProtectE.Content = e;
+                                attachedComponents[componentId] = new List<object>
+                                {
+                                    e
+                                };
+
+                                if (isCurrentlyEditing)
+                                {
+                                    e.Text = data[componentId].ToString();
+                                }
+                                else
+                                {
+                                    data[componentId] = "";
+                                }
                             }
                             else
                             {
-                                data[componentId] = "";
+
+                                Entry e = new Entry() { FontSize = 14, BackgroundColor = colorSets[useColor].main, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, ClassId = componentId.ToString() };
+
+                                e.TextChanged += HandleFormEntry;
+
+                                borderProtectE.Content = e;
+                                attachedComponents[componentId] = new List<object>
+                                {
+                                    e
+                                };
+
+                                if (isCurrentlyEditing)
+                                {
+                                    e.Text = data[componentId].ToString();
+                                }
+                                else
+                                {
+                                    data[componentId] = "";
+                                }
                             }
 
+                            
+
+                            
+                            entryFrame.Content = borderProtectE;
+                            container.Add(entryFrame, 1, 0);
+
+                            
+
                             break;
+
+
+
                         case "Check":
                             Grid buttonView = new Grid() { Margin = new Thickness(0, 5) };
                             buttonView.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
@@ -671,6 +919,7 @@ public partial class Scouting : ContentPage
                             };
                             break;
                         case "Timer":
+
                             Grid timerGrid = new Grid() { Margin = new Thickness(0, 5) };
                             timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) });
                             timerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) });
@@ -860,6 +1109,22 @@ public partial class Scouting : ContentPage
                 break;
         }
     }
+    private async void HandleFormEditor(object sender, TextChangedEventArgs e)
+    {
+        Editor responsible = (Editor)sender as Editor;
+
+        var compId = Int32.Parse(responsible.ClassId);
+        var compType = componentTypes[compId];
+        var compData = data[compId];
+
+        switch (compType)
+        {
+            case "Input":
+
+                data[compId] = (string)responsible.Text;
+                break;
+        }
+    }
     private async void HandleFormEntry(object sender, TextChangedEventArgs e)
     {
         Entry responsible = (Entry)sender as Entry;
@@ -894,6 +1159,81 @@ public partial class Scouting : ContentPage
                 break;
         }
     }
+
+    private async void UpdateNote(int compId)
+    {
+
+        StackLayout notes = (StackLayout)attachedComponents[compId][1];
+
+        notes.Children.Clear();
+
+        var allNotes = data[compId].Split(";");
+
+        int index = 0;
+        for(int i = 0; i < allNotes.Count() -1; i++)
+        {
+            var note = allNotes[i];
+            Grid noteLine = new Grid() { Margin = new Thickness(10, 5) };
+            noteLine.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(5, GridUnitType.Star)));
+            noteLine.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+
+            Frame entryFrame = new Frame() { CornerRadius = 8, Margin = new Thickness(5, 5), BackgroundColor = colorSets["default"].main, Padding = new Thickness(5, 0), BorderColor = Color.FromArgb("00ffffff") };
+            Frame borderProtectE = new Frame() { CornerRadius = 4, Padding = new Thickness(0), BorderColor = colorSets["default"].main };
+            Entry noteEntry = new Entry() { Placeholder = "Note", Text = note,FontSize = 14, BackgroundColor = colorSets["default"].main, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, ClassId = compId.ToString(), StyleId = index.ToString() };
+
+            borderProtectE.Content = noteEntry;
+            entryFrame.Content = borderProtectE;
+
+            Button deleteNote = new Button() { BackgroundColor = colorSets["default"].main, Text = "x", FontSize = 12, ClassId = compId.ToString(), TextColor = Color.FromHex("#ffffff"), CornerRadius = 8, Padding = new Thickness(10, 5), StyleId = index.ToString(), VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center };
+
+            deleteNote.Clicked += (s, e) =>
+            {
+                Button b = (Button)s;
+                int index = int.Parse(b.StyleId);
+
+                var existingNotes = data[compId].Split(";").ToList();
+                existingNotes.RemoveAt(index);
+
+                var finalDataString = "";
+                for (int i = 0; i < existingNotes.Count - 1; i++)
+                {
+                    var note = existingNotes[i];
+                    finalDataString += note + ";";
+                }
+                data[compId] = finalDataString;
+
+                UpdateNote(compId);
+            };
+
+            noteEntry.TextChanged += (s, ev) =>
+            {
+                Entry e = (Entry)s;
+                int index = int.Parse(e.StyleId);
+
+                var existingNotes = data[compId].Split(";").ToList();
+
+                existingNotes[index] = e.Text;
+
+                var finalDataString = "";
+                for (int i = 0; i < existingNotes.Count - 1; i++)
+                {
+                    var note = existingNotes[i];
+                    finalDataString += note + ";";
+                }
+                data[compId] = finalDataString;
+
+            };
+
+
+            noteLine.Add(noteEntry, 0, 0);
+            noteLine.Add(deleteNote, 1, 0);
+
+            notes.Add(noteLine);
+            index++;
+        }
+        
+    }
+
     private async void HandleFormButton(object sender, EventArgs e)
     {
         
@@ -907,6 +1247,39 @@ public partial class Scouting : ContentPage
         PhysicalVibrations.TryHaptic(HapticFeedbackType.Click);
         switch (compType)
         {
+            case "Notes":
+                // add a note
+
+                var maxNotes = 0;
+                try
+                {
+                    maxNotes = int.Parse(extraData[compId]);
+                }
+                catch(Exception ee)
+                {
+
+                }
+
+                
+                
+                var existingNotes = data[compId].Split(";").ToList();
+                existingNotes.Add("");
+
+                if(existingNotes.Count-1 >= maxNotes && maxNotes > 0)
+                {
+                    UpdateNote(compId);
+                    break;
+                }
+
+                var finalDataString = "";
+                for (int i = 0; i < existingNotes.Count - 1; i++)
+                {
+                    var note = existingNotes[i];
+                    finalDataString += note + ";";
+                }
+                data[compId] = finalDataString;
+                UpdateNote(compId);
+                break;
             case "Step":
                 if (data[compId] == "")
                 {

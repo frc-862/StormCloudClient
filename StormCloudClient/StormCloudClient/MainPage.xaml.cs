@@ -12,8 +12,15 @@ using AlohaKit.Controls;
 using AlohaKit.Models;
 using System.Collections.ObjectModel;
 using System.Dynamic;
+using Microsoft.Maui.Controls;
 
 namespace StormCloudClient;
+
+public class TeamValue
+{
+    public string Team;
+    public string Value;
+}
 
 public partial class MainPage : ContentPage
 {
@@ -95,6 +102,9 @@ public partial class MainPage : ContentPage
 
         if (response.Status == System.Net.HttpStatusCode.OK)
         {
+
+            var _trackingTeam = DataManagement.GetValue("tracking_team");
+
             StorageManagement.compCache.lastUpdated = DateTime.Now;
             StorageManagement.compCache.Name = data["competitionName"].ToString();
             StorageManagement.compCache.Location = data["location"].ToString();
@@ -120,8 +130,13 @@ public partial class MainPage : ContentPage
             {
                 matchCount += 1;
             }
+            var teamCount = 0;
+            foreach (var team in StorageManagement.compCache.Teams)
+            {
+                teamCount += 1;
+            }
 
-            if(matchCount == 0)
+            if (matchCount == 0 && teamCount == 0)
             {
                 Data_CompetitionNotStarted.IsVisible = true;
                 Data_CompetitionStarted.IsVisible = false;
@@ -138,7 +153,19 @@ public partial class MainPage : ContentPage
 
             StorageManagement.compCache.Rankings = data["rankings"];
 
-            StorageManagement.compCache.TeamNumber = int.Parse(data["teamNumber"].ToString());
+            if(_trackingTeam != null)
+            {
+                // set compCache team number
+                StorageManagement.compCache.TeamNumber = int.Parse(_trackingTeam.ToString());
+            }
+            else
+            {
+                DataManagement.SetValue("tracking_team", data["teamNumber"].ToString());
+                StorageManagement.compCache.TeamNumber = int.Parse(data["teamNumber"].ToString());
+                Settings_TrackingTeam.Text = data["teamNumber"].ToString();
+            }
+
+            
 
             UpdateStateInformationFields();
             StorageManagement._SaveData_Comp();
@@ -285,6 +312,7 @@ public partial class MainPage : ContentPage
         DataManagement.SetValue("selected_schema", "");
         DataManagement.SetValue("server_address", "");
         DataManagement.SetValue("default_scouter", "");
+        DataManagement.SetValue("tracking_team", "");
         DataManagement.SetValue("setup", "");
         if(Navigation.NavigationStack.Where(n => n is Initializer).Count() > 0)
         {
@@ -333,6 +361,7 @@ public partial class MainPage : ContentPage
         var _defaultScouter = DataManagement.GetValue("default_scouter");
         var _matchesScouted = DataManagement.GetValue("matches_created");
         var _notifications = DataManagement.GetValue("notifications");
+        var _trackingTeam = DataManagement.GetValue("tracking_team");
 
         var deviceId = (string)DataManagement.GetValue("deviceId");
         if(deviceId == "")
@@ -352,6 +381,8 @@ public partial class MainPage : ContentPage
             Settings_AuthenticationKey, Settings_EnvironmentCode, Settings_SelectedSchema, Settings_UploadMode, Settings_ServerAddress, Settings_DefaultScouter, Settings_Notifications
         };
 
+        if (_trackingTeam != null)
+            Settings_TrackingTeam.Text = _trackingTeam.ToString();
         if (_envCode != null)
             Settings_EnvironmentCode.Text = _envCode.ToString();
         if (_uploadMode != null)
@@ -1163,6 +1194,11 @@ public partial class MainPage : ContentPage
             Entry setting = (Entry)sender as Entry;
             var setPreference = setting.ClassId;
 
+            if(setPreference == "tracking_team")
+            {
+                StorageManagement.compCache.TeamNumber = int.Parse(setting.Text);
+            }
+
             DataManagement.SetValue(setPreference, setting.Text);
             return;
         }
@@ -1789,6 +1825,12 @@ public partial class MainPage : ContentPage
         ChangeSearchView(true);
     }
 
+    private async void ViewDataRankings(object sender, EventArgs e)
+    {
+        ChangeInfoView(true);
+        PutInfoOnInfoView("data_rankings");
+    }
+
     bool _searchViewVisible;
     bool _infoViewVisible;
     Dictionary<string, string> infoData = new Dictionary<string, string>();
@@ -1832,6 +1874,9 @@ public partial class MainPage : ContentPage
         Info_View_Result_Main_Content.Children.Clear();
         Info_View_Back.IsVisible = false;
         Info_View_SeeMore.IsVisible = false;
+
+        bool shouldGetUSB = DataManagement.DataState() == DataTransferState.USB;
+
         try
         {
             infoData["event"] = infoEvent;
@@ -2053,6 +2098,327 @@ public partial class MainPage : ContentPage
                         matchesContent.Add(matchDetails);
                     }
                    
+                    break;
+                case "data_rankings":
+
+                    StackLayout detailContent = Info_View_Result_Main_Content;
+
+                    List<int> allTeamsDR = new List<int>();
+                    foreach (var team in StorageManagement.compCache.Teams)
+                    {
+                        allTeamsDR.Add(int.Parse((string)team.teamNumber));
+                    }
+
+                    ActivityIndicator loadingIndiactorR = new ActivityIndicator() { WidthRequest = 50, HeightRequest = 50, Color = Color.FromHex("#ffffff"), IsRunning = true };
+
+
+
+
+
+                    Grid analysisSortGrid = new Grid() { Margin = new Thickness(0,5) };
+                    analysisSortGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    analysisSortGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                    Label analysisSortLabel = new Label() { Text = "Sort By", FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                    Picker analysisSortPicker = new Picker() { Title = "Analysis Stat", TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, BackgroundColor = Color.FromHex("#3a0e4d") };
+                    analysisSortGrid.Add(analysisSortLabel, 0, 0);
+                    analysisSortGrid.Add(analysisSortPicker, 1, 0);
+
+                    Grid analysisSortOrderGrid = new Grid() { Margin = new Thickness(0, 5) };
+                    analysisSortOrderGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    analysisSortOrderGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                    Label analysisSortOrderLabel = new Label() { Text = "How to Order", FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                    Picker analysisSortOrderPicker = new Picker() { Title = "Ordering Factor", TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, BackgroundColor = Color.FromHex("#3a0e4d") };
+                    List<string> orderingOptions = new List<string>()
+                    {
+                        "Value (Ascending)", "Value (Descending)", "Team (Ascending)", "Team (Descending)"
+                    };
+                    analysisSortOrderPicker.ItemsSource = orderingOptions;
+                    analysisSortOrderGrid.Add(analysisSortOrderLabel, 0, 0);
+                    analysisSortOrderGrid.Add(analysisSortOrderPicker, 1, 0);
+
+                    detailContent.Add(analysisSortGrid);
+                    detailContent.Add(analysisSortOrderGrid);
+
+                    StackLayout sortResults = new StackLayout() { Margin = new Thickness(10, 20, 10, 0) };
+
+
+                    detailContent.Add(sortResults);
+                    sortResults.Add(loadingIndiactorR);
+
+
+
+
+
+
+
+                    Dictionary<string, dynamic> analysisDataR = new Dictionary<string, dynamic>();
+                    Dictionary<string, Dictionary<string, double>> teamAnalysisData = new Dictionary<string, Dictionary<string, double>>();
+                    Dictionary<string, int> teamRankingData = new Dictionary<string, int>();
+                    List<string> sortByOptions = new List<string>();
+
+                    Action reGetData = () =>
+                    {
+                        if(analysisSortPicker.SelectedIndex < 1)
+                        {
+                            analysisSortPicker.SelectedIndex = 0;
+                        }
+                        var selectedItem = sortByOptions[analysisSortPicker.SelectedIndex];
+                        var selectedOrderItem = analysisSortOrderPicker.SelectedIndex;
+                        if (selectedOrderItem < 0)
+                        {
+                            selectedOrderItem = 1;
+                            analysisSortOrderPicker.SelectedIndex = 1;
+                        }
+
+                        List<TeamValue> values = new List<TeamValue>();
+
+                        foreach (var teamKey in teamAnalysisData.Keys)
+                        {
+                            try
+                            {
+                                values.Add(new TeamValue()
+                                {
+                                    Team = teamKey,
+                                    Value = teamAnalysisData[teamKey][selectedItem].ToString()
+                                });
+                            }
+                            catch (Exception tex)
+                            {
+
+                            }
+                        }
+
+                        try
+                        {
+
+                            switch (selectedOrderItem)
+                            {
+                                case 0:
+                                    values.Sort((v1, v2) => double.Parse(v2.Value) > double.Parse(v1.Value) ? -1 : 1);
+                                    break;
+                                case 1:
+                                    values.Sort((v1, v2) => double.Parse(v2.Value) > double.Parse(v1.Value) ? 1 : -1);
+                                    break;
+                                case 2:
+                                    values.Sort((v1, v2) => int.Parse(v2.Team) > int.Parse(v1.Team) ? -1 : 1);
+                                    break;
+                                case 3:
+                                    values.Sort((v1, v2) => int.Parse(v2.Team) > int.Parse(v1.Team) ? 1 : -1);
+                                    break;
+                            }
+
+
+
+                            sortResults.Children.Clear();
+
+                            foreach (var value in values)
+                            {
+                                Grid analysisNumber = new Grid() { ColumnSpacing = 0, RowSpacing = 0, Margin = new Thickness(0, 0) };
+                                analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
+                                analysisNumber.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                                TapGestureRecognizer goToTeamPage = new TapGestureRecognizer();
+                                goToTeamPage.Tapped += (sen, eve) =>
+                                {
+                                    Label clickedTeam = (Label)sen;
+                                    PutInfoOnDetailView("team", clickedTeam.ClassId, true);
+                                };
+
+                                var ranking = teamRankingData[value.Team];
+
+                                Label analysisNumberLabel = new Label() { Text = "Team " + value.Team, FontSize = 20, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, ClassId = value.Team };
+
+                                if(ranking > 0)
+                                {
+                                    analysisNumberLabel.Text = "Team " + value.Team + " (#" + ranking.ToString() + ")";
+                                }
+
+                                analysisNumberLabel.GestureRecognizers.Add(goToTeamPage);
+                                Frame analysisNumberHolder = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#680991"), HorizontalOptions = LayoutOptions.Center };
+                                Label analysisNumberValue = new Label() { Text = value.Value, FontSize = 24, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+                                analysisNumberHolder.Content = analysisNumberValue;
+                                analysisNumber.Add(analysisNumberLabel, 0, 0);
+                                analysisNumber.Add(analysisNumberHolder, 1, 0);
+
+                                sortResults.Add(analysisNumber);
+                            }
+                        }
+                        catch (Exception soex)
+                        {
+                            sortResults.Children.Clear();
+                            Label noLoad = new Label() { Text = "An Error Occured", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                            sortResults.Add(noLoad);
+                        }
+                    };
+                    analysisSortPicker.SelectedIndexChanged += (se, ev) =>
+                    {
+                        reGetData();
+                        
+
+                        
+                    };
+                    analysisSortOrderPicker.SelectedIndexChanged += (se, ev) =>
+                    {
+                        reGetData();
+
+
+
+                    };
+
+                    Action whenAnalysisReadyR = () =>
+                    {
+
+
+                        sortResults.Children.Clear();
+
+
+
+                        foreach (string key in analysisDataR.Keys.ToList())
+                        {
+
+                            teamAnalysisData.Add(key, new Dictionary<string, double>());
+
+
+                            var ranking = -1;
+
+                            try
+                            {
+                                foreach (dynamic rank in StorageManagement.compCache.Rankings)
+                                {
+                                    if ((string)rank.team == key)
+                                    {
+                                        ranking = int.Parse((string)rank.rank);
+                                    }
+                                }
+                            }
+                            catch(Exception rex)
+                            {
+
+                            }
+                            
+
+                            teamRankingData.Add(key, ranking);
+
+
+
+                            // the actual analysis part
+                            foreach (dynamic part in analysisDataR[key])
+                            {
+
+                                try
+                                {
+                                    switch ((string)part.type)
+                                    {
+                                        case "Number":
+                                            teamAnalysisData[key].Add((string)part.name, Math.Round((double)part.value, 2));
+
+                                            break;
+                                        case "Custom":
+                                            teamAnalysisData[key].Add((string)part.name, Math.Round((double)part.value, 2));
+
+                                            break;
+                                        case "Graph":
+                                            teamAnalysisData[key].Add((string)part.name, Math.Round((double)part.average, 2));
+
+                                            break;
+                                        case "FIRST":
+                                            teamAnalysisData[key].Add((string)part.name, Math.Round((double)part.value, 2));
+
+                                            break;
+
+
+                                        default:
+                                            continue;
+                                            break;
+
+
+
+
+                                    }
+                                }
+                                catch(Exception dpex)
+                                {
+
+                                }
+                                
+                                if (!sortByOptions.Contains((string)part.name))
+                                {
+                                    sortByOptions.Add((string)part.name);
+                                }
+                            }
+
+                        }
+
+                        analysisSortPicker.ItemsSource = sortByOptions;
+
+                    };
+
+                    if (shouldGetUSB)
+                    {
+                        foreach (var teamDR in allTeamsDR)
+                        {
+                            analysisDataR.Add(teamDR.ToString(), USBService.GetAnalysis(teamDR));
+
+                        }
+                        whenAnalysisReadyR.Invoke();
+                    }
+                    else
+                    {
+                        Task.Run(async () =>
+                        {
+                            APIResponse response = await APIManager.GetAnalysis(allTeamsDR.ToArray());
+                            if (response.Status == System.Net.HttpStatusCode.OK)
+                            {
+                                dynamic responseData = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
+                                var authenticated = (bool)responseData.auth;
+                                if (authenticated)
+                                {
+                                    Device.BeginInvokeOnMainThread(() =>
+                                    {
+
+                                        analysisDataR = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(responseData.analysis.ToString());
+
+                                        whenAnalysisReadyR.Invoke();
+
+
+
+
+
+
+
+
+                                    });
+                                }
+                                else
+                                {
+                                    Device.BeginInvokeOnMainThread(() =>
+                                    {
+                                        sortResults.Children.Clear();
+                                        Label noAuth = new Label() { Text = "Not Authenticated", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                                        sortResults.Add(noAuth);
+                                    });
+                                }
+
+                            }
+                            else
+                            {
+                                // show error
+                                Device.BeginInvokeOnMainThread(() =>
+                                {
+                                    sortResults.Children.Clear();
+                                    Label noLoad = new Label() { Text = "Failed Loading", Margin = new Thickness(5), FontSize = 28, TextColor = Color.FromHex("#910929"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Opacity = 1 };
+                                    sortResults.Add(noLoad);
+                                });
+                            }
+                        });
+                    }
+
+
+
+
+
                     break;
                 case "our_matches":
                     StackLayout ourMatchesContent = Info_View_Result_Main_Content;
@@ -2589,6 +2955,7 @@ public partial class MainPage : ContentPage
 
 
                     break;
+                
                 case "match":
                     // format of detailData should JUST be matchNumber
 
@@ -3206,7 +3573,7 @@ public partial class MainPage : ContentPage
                                             Device.BeginInvokeOnMainThread(() =>
                                             {
 
-                                                analysisData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(responseData.analysis.ToString());
+                                                analysisDataM = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(responseData.analysis.ToString());
 
                                                 whenAnalysisReady.Invoke();
 
@@ -3753,12 +4120,79 @@ public partial class MainPage : ContentPage
                 foreach (var match in data.team.matches)
                 {
 
+
                     var playoff = int.Parse((string)match.matchNumber) > 900;
-                    var finished = useUSBData ? (bool)match.results.finished : (bool)match.finished;
-                    var redScore = useUSBData ? int.Parse((string)match.results.red) : int.Parse((string)match.score.red);
-                    var blueScore = useUSBData ? int.Parse((string)match.results.blue) : int.Parse((string)match.score.blue);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    
+                    var finished = false;
+                    if (useUSBData)
+                    {
+                        finished = (bool)match.results.finished;
+                    }
+                    else
+                    {
+                        finished = (bool)match.finished;
+                    }
+                    
+                    
                     if (finished)
                     {
+                        var redScore = 0;
+                        var blueScore = 0;
+                        if (useUSBData)
+                        {
+                            redScore = int.Parse((string)match.results.red);
+                            blueScore = int.Parse((string)match.results.blue);
+                        }
+                        else
+                        {
+                            redScore = int.Parse((string)match.score.red);
+                            blueScore = int.Parse((string)match.score.blue);
+                        }
                         // match is done
                         Frame matchFrame = new Frame() { Padding = new Thickness(10, 5), Margin = new Thickness(5), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
                         Grid matchDetails = new Grid();
@@ -4170,16 +4604,23 @@ public partial class MainPage : ContentPage
         if(document != null){
             dynamic docData = Newtonsoft.Json.JsonConvert.DeserializeObject((string)document.json);
             var name = "Team " + (string)docData.team + " " + ((string)docData.type).ToUpper();
+            var author = "Anonymous Person";
             if(document.name != null && (string)document.name != ""){
                 name = (string)document.name;
+            }
+            if(docData.author != null && (string)docData.author != "")
+            {
+                author = "by " + (string)docData.author;
             }
 
             var flagged = document.flagged == null ? false : (bool)document.flagged;
 
 
-            Label documentTitle = new Label() { Text = name, FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+            Label documentTitle = new Label() { Text = name, FontSize = 28, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center, Margin=new Thickness(10,5) };
             Search_Docs_Result_Info_Document.Add(documentTitle);
-
+            Label documentAuthor = new Label() { Text = author, FontSize = 22, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
+            Search_Docs_Result_Info_Document.Add(documentAuthor);
+            
             Grid actionGrid = new Grid() { Margin = new Thickness(10,10, 10, 20)};
             actionGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             actionGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -4225,9 +4666,9 @@ public partial class MainPage : ContentPage
                         Frame noteFrame = new Frame() { BackgroundColor = Color.FromHex("#190024"), Padding = new Thickness(5, 10), Margin = new Thickness(5), CornerRadius = 8, HasShadow = false, BorderColor = Color.FromArgb("00ffffff") };
                         Label noteText = new Label() { Text = (string)docData.contents, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center };
                         noteFrame.Content = noteText;
-                        Label author = new Label() { Text = "by " + (docData.author == null || (string)docData.author == "" ? "???" : (string)docData.author), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.5 };
+                        Label authorLabel = new Label() { Text = "by " + (docData.author == null || (string)docData.author == "" ? "???" : (string)docData.author), FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center, Opacity = 0.5 };
                         documentContents.Add(noteFrame);
-                        documentContents.Add(author);
+                        documentContents.Add(authorLabel);
                         break;
                     case "tablet":
                         var selectedSchema = StorageManagement.allSchemas.Find(s => s.Name == (string)docData.schema);
@@ -4313,6 +4754,28 @@ public partial class MainPage : ContentPage
                                         }
 
                                         documentContents.Add(multiSelectData);
+
+                                        i += 1;
+                                        continue;
+                                    }else if((string)comp.Type == "Notes")
+                                    {
+                                        Label notesLabel = new Label() { Text = (string)comp.Name, FontSize = 16, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center };
+                                        documentContents.Add(notesLabel);
+
+
+
+                                        StackLayout notesData = new StackLayout() { Orientation = StackOrientation.Vertical };
+                                        var items = ((string)tabletData[i]).Split(";");
+                                        for(int c = 0; c < items.Count() - 1; c++)
+                                        {
+                                            var item = items[c];
+                                            Frame notesDataHolder = new Frame() { Padding = new Thickness(10, 4), Margin = new Thickness(4), BorderColor = Color.FromArgb("00ffffff"), CornerRadius = 8, HasShadow = false, BackgroundColor = Color.FromHex("#3a0e4d") };
+                                            notesDataHolder.Content = new Label() { Text = item, FontSize = 14, TextColor = Color.FromHex("#ffffff"), HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.End };
+                                            notesData.Children.Add(notesDataHolder);
+                                        }
+                                        
+
+                                        documentContents.Add(notesData);
 
                                         i += 1;
                                         continue;
