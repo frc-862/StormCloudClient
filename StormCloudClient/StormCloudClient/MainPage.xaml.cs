@@ -130,12 +130,18 @@ public partial class MainPage : ContentPage
             {
                 matchCount += 1;
             }
+            
+
+            
+
+
+            
+            StorageManagement.compCache.Teams = data["teams"];
             var teamCount = 0;
             foreach (var team in StorageManagement.compCache.Teams)
             {
                 teamCount += 1;
             }
-
             if (matchCount == 0 && teamCount == 0)
             {
                 Data_CompetitionNotStarted.IsVisible = true;
@@ -146,10 +152,6 @@ public partial class MainPage : ContentPage
                 Data_CompetitionNotStarted.IsVisible = false;
                 Data_CompetitionStarted.IsVisible = true;
             }
-
-
-            
-            StorageManagement.compCache.Teams = data["teams"];
 
             StorageManagement.compCache.Rankings = data["rankings"];
 
